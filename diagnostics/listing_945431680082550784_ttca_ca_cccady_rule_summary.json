@@ -1,0 +1,219 @@
+{
+  "rule": "MSKU 以 TTCA 或 CA 开头时，负责人应为 cccady",
+  "listing_rows": 3289,
+  "ok_after_rule": 2122,
+  "missing_in_tool_after_rule": 794,
+  "owner_diff_after_rule": 373,
+  "listing_rows_changed_by_rule": 12,
+  "tool_rows_changed_by_rule_in_listing_overlap": 0,
+  "tool_embedded_rows_changed_by_rule_all": 0,
+  "missing_by_rule_owner": {
+    "凯旋": 48,
+    "cccady": 34,
+    "图图": 28,
+    "空负责人": 679,
+    "公司": 5
+  },
+  "top_diff_pairs_after_rule": [
+    {
+      "rule_owner": "空负责人",
+      "tool_owner": "未分配",
+      "count": 183
+    },
+    {
+      "rule_owner": "空负责人",
+      "tool_owner": "公司",
+      "count": 91
+    },
+    {
+      "rule_owner": "公司",
+      "tool_owner": "未分配",
+      "count": 42
+    },
+    {
+      "rule_owner": "图图",
+      "tool_owner": "凯旋",
+      "count": 20
+    },
+    {
+      "rule_owner": "图图",
+      "tool_owner": "未分配",
+      "count": 20
+    },
+    {
+      "rule_owner": "凯旋",
+      "tool_owner": "cccady",
+      "count": 13
+    },
+    {
+      "rule_owner": "凯旋",
+      "tool_owner": "公司",
+      "count": 2
+    },
+    {
+      "rule_owner": "cccady",
+      "tool_owner": "未分配",
+      "count": 1
+    },
+    {
+      "rule_owner": "凯旋",
+      "tool_owner": "图图",
+      "count": 1
+    }
+  ],
+  "outputs": {
+    "all": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_945431680082550784_ttca_ca_cccady_rule_all.csv",
+    "missing": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_945431680082550784_ttca_ca_cccady_rule_missing_in_tool.csv",
+    "owner_diff_after_rule": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_945431680082550784_ttca_ca_cccady_rule_owner_diff_after_rule.csv",
+    "listing_rule_changes": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_945431680082550784_ttca_ca_cccady_rule_listing_rule_changes.csv",
+    "tool_rule_changes": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_945431680082550784_ttca_ca_cccady_rule_tool_rule_changes.csv",
+    "tool_embedded_rule_changes": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_945431680082550784_ttca_ca_cccady_rule_tool_embedded_rule_changes.csv"
+  },
+  "sample_listing_rule_changes": [
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1123,
+      "ASIN": "B0HCJFJKB8",
+      "MSKU": "TTCA-Pet-XQ-Airtag-Blue",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJ92929",
+      "品名": "",
+      "标题": "Tracker Holder Pet Collar, Adjustable Dog and Cat Collar with Buckle, M Size Sky Blue for Outdoor Walking and Daily Wear"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1124,
+      "ASIN": "B0HCJD8736",
+      "MSKU": "TTCA-Petchewtoy-bird",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HDLLWN8B",
+      "品名": "",
+      "标题": "Cat Parrot Toy, Interactive Pet Chew Toy for Indoor Play and Activity, Parrot Shape, Natural Small Style"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1125,
+      "ASIN": "B0HCJGM7R2",
+      "MSKU": "TTCA-Pettoy-Sisal",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJGM7R2",
+      "品名": "",
+      "标题": "Cat Wobble Toy with Textured Body, Self-Righting Tumbler Toy for Indoor Cats, Battery-Free Solo Play, Small Natural"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1126,
+      "ASIN": "B0HCJBPRZ3",
+      "MSKU": "TTCA-Pettoy-Feather",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJBPRZ3",
+      "品名": "",
+      "标题": "Cat Wobble Toy with Feather Teaser, Self-Righting Tumbler Toy for Indoor Cats, Battery-Free Solo Play, Small Multicolor"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1813,
+      "ASIN": "B0HDM1NB6T",
+      "MSKU": "TTCA-Vase-Brown2S-R",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HDM1NB6T",
+      "品名": "",
+      "标题": "Decorative Refrigerator Magnet Holder Set, Mini Tube Stem Display for Kitchen, Office and Living Room, 2 Pack, Brown"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1844,
+      "ASIN": "B0HCJJQ5X3",
+      "MSKU": "TTCA-Pet-XQ-Airtag-Black",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJJQ5X3",
+      "品名": "",
+      "标题": "Tracker Holder Pet Collar, Adjustable Dog and Cat Collar with Buckle, M Size Black for Outdoor Walking and Daily Wear"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1845,
+      "ASIN": "B0HCJH94QJ",
+      "MSKU": "TTCA-Pet-XQ-Airtag-Pink",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJH94QJ",
+      "品名": "",
+      "标题": "Tracker Holder Pet Collar, Adjustable Dog and Cat Collar with Buckle, M Size Pink for Outdoor Walking and Daily Wear"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1846,
+      "ASIN": "B0HCJCZW53",
+      "MSKU": "TTCA-CatQtipToy-3PK",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJCZW53",
+      "品名": "",
+      "标题": "3 Pack Cat Q Tip Toys with Catnip, Giant Swab Shape Indoor Cat Chew Toys for Chase, Kick, Boredom Play Set, Beige"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1847,
+      "ASIN": "B0HCJ928HM",
+      "MSKU": "TTCA-Petchewtoy-ball",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJ928HM",
+      "品名": "",
+      "标题": "Cat String Ball Toy, Interactive Pet Chew Toy for Indoor Play and Activity, Ball Shape, Natural Small Style"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1848,
+      "ASIN": "B0HCJK8L7W",
+      "MSKU": "TTCA-Petchewtoy-mouse",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJK8L7W",
+      "品名": "",
+      "标题": "Cat Mouse and Ball Toy, Interactive Pet Chew Toy for Indoor Play and Activity, Mouse Shape, Natural Small Style"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1849,
+      "ASIN": "B0HCJ8S9VV",
+      "MSKU": "TTCA-Petchewtoy-fly",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCJ8S9VV",
+      "品名": "",
+      "标题": "Cat Butterfly Toy, Interactive Pet Chew Toy for Indoor Play and Activity, Butterfly Shape, Natural Small Style"
+    },
+    {
+      "问题": "Listing负责人应按TTCA/CA规则改为cccady",
+      "行号": 1850,
+      "ASIN": "B0HCC6CRMC",
+      "MSKU": "TTCA-Vase-Yellow-2S",
+      "Listing负责人": "",
+      "规则后负责人": "cccady",
+      "工具负责人": "",
+      "父ASIN": "B0HCBK2Q4M",
+      "品名": "",
+      "标题": "Decorative Refrigerator Magnet Holder Set, Mini Tube Stem Display for Kitchen, Office and Living Room, 2 Pack, Yellow"
+    }
+  ],
+  "sample_tool_rule_changes": []
+}
