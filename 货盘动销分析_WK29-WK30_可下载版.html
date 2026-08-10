@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
 <title>货盘动销分析 · 周对周 & 多周趋势</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -80,10 +81,1616 @@ table.wk td:first-child,table.wk th:first-child{text-align:center;color:#b388ff}
 .inv-card .inv-detail{font-size:.74rem;color:#aeb7d5;margin-top:6px;line-height:1.6}
 @media(max-width:700px){.inventory-grid{grid-template-columns:1fr}}
 </style>
+<style id="horizon-operations-ui">
+/* Horizon-inspired presentation layer. Existing scripts, events and report markup are untouched. */
+:root{
+  --hz-bg:#f4f7fe;
+  --hz-surface:#ffffff;
+  --hz-soft:#f7f8fe;
+  --hz-primary:#603cff;
+  --hz-primary-dark:#4a25e1;
+  --hz-primary-2:#7b5aff;
+  --hz-primary-soft:#f2efff;
+  --hz-ink:#1b2559;
+  --hz-ink-2:#2b3674;
+  --hz-muted:#718096;
+  --hz-faint:#a3aed0;
+  --hz-line:#e2e8f0;
+  --hz-success:#219653;
+  --hz-success-soft:#eaf8ef;
+  --hz-warning:#c06d11;
+  --hz-warning-soft:#fff5e8;
+  --hz-danger:#d13f4c;
+  --hz-danger-soft:#fff0f2;
+  --hz-info:#3569b8;
+  --hz-info-soft:#eef5ff;
+  --hz-radius:20px;
+  --hz-radius-card:14px;
+  --hz-radius-control:45px;
+  --hz-shadow:14px 27px 45px 4px rgba(112,144,176,.12);
+  --hz-shadow-soft:14px 17px 40px 4px rgba(112,144,176,.08);
+  --hz-shadow-purple:0 21px 27px -10px rgba(96,60,255,.38);
+}
+
+html{
+  color-scheme:light;
+  scroll-behavior:smooth;
+  scrollbar-color:#c6cee4 transparent;
+  scrollbar-width:thin;
+}
+
+body{
+  min-width:320px;
+  padding:32px clamp(16px,3vw,48px) 64px;
+  overflow-x:hidden;
+  color:var(--hz-ink);
+  background:
+    radial-gradient(circle at 5% 0%,rgba(123,90,255,.08),transparent 28rem),
+    radial-gradient(circle at 96% 12%,rgba(96,60,255,.055),transparent 30rem),
+    var(--hz-bg);
+  font-family:"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;
+  font-size:14px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+body > *{
+  width:100%;
+  max-width:1560px;
+  margin-right:auto;
+  margin-left:auto;
+}
+
+body > h1{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:6px;
+  color:var(--hz-ink);
+  font-size:1.72rem;
+  font-weight:750;
+  line-height:1.25;
+  letter-spacing:-.01em;
+}
+
+body > h1::before{
+  display:grid;
+  width:42px;
+  height:42px;
+  flex:0 0 auto;
+  place-items:center;
+  border-radius:50%;
+  color:#fff;
+  background:linear-gradient(145deg,var(--hz-primary-2),var(--hz-primary-dark));
+  box-shadow:var(--hz-shadow-purple);
+  content:"✦";
+  font-size:18px;
+}
+
+body > h1 span{
+  margin-left:3px;
+  color:var(--hz-muted)!important;
+  font-size:.82rem!important;
+  font-weight:550;
+  letter-spacing:0;
+}
+
+body > .sub{
+  margin-bottom:22px;
+  padding-left:54px;
+  color:var(--hz-muted);
+  font-size:.85rem;
+}
+
+.tabbar{
+  position:relative;
+  z-index:30;
+  top:auto;
+  display:inline-flex;
+  width:auto;
+  max-width:none;
+  gap:4px;
+  margin-bottom:20px;
+  padding:6px;
+  border:0;
+  border-radius:var(--hz-radius-control);
+  background:rgba(255,255,255,.9);
+  box-shadow:var(--hz-shadow-soft);
+  backdrop-filter:blur(18px);
+}
+
+.tab{
+  min-height:42px;
+  margin:0;
+  padding:10px 19px;
+  border:0;
+  border-radius:var(--hz-radius-control);
+  color:var(--hz-muted);
+  background:transparent;
+  font-size:.88rem;
+  font-weight:650;
+  transition:color .2s ease,background-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+
+.tab:hover{
+  color:var(--hz-primary);
+  background:var(--hz-primary-soft);
+}
+
+.tab.active{
+  color:var(--hz-ink);
+  border:0;
+  background:#fff;
+  box-shadow:var(--hz-shadow-soft);
+  font-weight:750;
+}
+
+.tab.active::first-letter{color:var(--hz-primary)}
+
+.up-panel{
+  position:relative;
+  margin-bottom:15px;
+  padding:22px 24px;
+  overflow:hidden;
+  border:0;
+  border-radius:var(--hz-radius);
+  color:var(--hz-ink);
+  background:rgba(255,255,255,.96);
+  box-shadow:var(--hz-shadow);
+}
+
+.up-panel::after{
+  position:absolute;
+  top:-72px;
+  right:-54px;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:linear-gradient(145deg,rgba(123,90,255,.12),rgba(96,60,255,.025));
+  content:"";
+  pointer-events:none;
+}
+
+.up-panel h2{
+  position:relative;
+  z-index:1;
+  margin:0 0 16px;
+  padding:0;
+  border:0;
+  color:var(--hz-ink);
+  font-size:1rem;
+  font-weight:750;
+}
+
+.up-row{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:minmax(210px,1.35fr) 112px minmax(210px,1.35fr) 112px auto auto;
+  gap:12px;
+  align-items:end;
+}
+
+#viewTrend .up-row{
+  grid-template-columns:minmax(240px,1fr) minmax(280px,1.3fr) auto auto;
+}
+
+.up-field{
+  min-width:0;
+  gap:6px;
+}
+
+.up-field label{
+  color:var(--hz-muted);
+  font-size:.72rem;
+  font-weight:650;
+}
+
+.up-field input[type=text],
+.owner-select,
+table.wk input[type=number]{
+  height:42px;
+  border:1px solid var(--hz-line)!important;
+  border-radius:var(--hz-radius-control)!important;
+  outline:0;
+  color:var(--hz-ink)!important;
+  background:#fff!important;
+  box-shadow:none;
+  font-family:inherit;
+  transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+}
+
+.up-field input[type=text]{
+  width:100%;
+  min-width:96px;
+  padding:9px 14px;
+  font-size:.82rem;
+  font-weight:600;
+}
+
+.up-field input[type=file]{
+  width:100%;
+  max-width:none;
+  min-height:42px;
+  padding:5px;
+  border:1px solid var(--hz-line);
+  border-radius:var(--hz-radius-control);
+  color:var(--hz-muted);
+  background:var(--hz-soft);
+  font-family:inherit;
+  font-size:.73rem;
+  cursor:pointer;
+}
+
+.up-field input[type=file]::file-selector-button{
+  min-height:30px;
+  margin-right:8px;
+  padding:5px 12px;
+  border:0;
+  border-radius:var(--hz-radius-control);
+  color:var(--hz-primary);
+  background:var(--hz-primary-soft);
+  font-family:inherit;
+  font-size:.71rem;
+  font-weight:750;
+  cursor:pointer;
+}
+
+.btn,
+#report button,
+#trendReport button{
+  min-height:40px;
+  border:0!important;
+  border-radius:var(--hz-radius-control)!important;
+  color:#fff!important;
+  background:linear-gradient(8deg,var(--hz-primary-dark) 24%,var(--hz-primary-2) 88%)!important;
+  box-shadow:var(--hz-shadow-purple);
+  font-family:inherit!important;
+  font-weight:700!important;
+  white-space:nowrap;
+  transition:filter .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+
+.btn{
+  padding:9px 18px;
+  font-size:.82rem;
+}
+
+.btn:hover,
+#report button:hover,
+#trendReport button:hover{
+  filter:saturate(1.08) brightness(1.04);
+  box-shadow:0 18px 26px -10px rgba(96,60,255,.5);
+  transform:translateY(-1px);
+}
+
+.btn:active,
+#report button:active,
+#trendReport button:active{
+  box-shadow:0 8px 14px -8px rgba(96,60,255,.45);
+  transform:translateY(0);
+}
+
+.btn.green{
+  border:1px solid var(--hz-line)!important;
+  color:var(--hz-ink)!important;
+  background:#fff!important;
+  box-shadow:none;
+}
+
+.btn.green:hover{
+  color:var(--hz-primary)!important;
+  border-color:#d8ceff!important;
+  background:var(--hz-primary-soft)!important;
+  box-shadow:none;
+}
+
+.hint{
+  position:relative;
+  z-index:1;
+  margin-top:12px;
+  color:var(--hz-muted);
+  font-size:.71rem;
+  line-height:1.55;
+}
+
+.err{
+  position:relative;
+  z-index:1;
+  color:var(--hz-danger);
+  font-size:.76rem;
+  font-weight:650;
+}
+
+.owner-panel{
+  margin-bottom:18px;
+  padding:13px 18px;
+  border:0;
+  border-radius:var(--hz-radius);
+  color:var(--hz-ink);
+  background:#fff;
+  box-shadow:var(--hz-shadow-soft);
+}
+
+.owner-row{
+  display:grid;
+  grid-template-columns:auto minmax(190px,245px) minmax(280px,1fr);
+  gap:14px;
+  align-items:center;
+}
+
+.owner-title{
+  margin:0;
+  color:var(--hz-ink);
+  font-size:.84rem;
+  font-weight:750;
+  white-space:nowrap;
+}
+
+.owner-select{
+  min-width:0;
+  padding:7px 36px 7px 14px;
+  color:var(--hz-ink-2)!important;
+  background:var(--hz-soft)!important;
+  font-size:.81rem;
+  font-weight:650;
+}
+
+.owner-summary{
+  min-width:0;
+  color:var(--hz-muted);
+  font-size:.74rem;
+  line-height:1.5;
+}
+
+#report > .sub,
+#trendReport > .sub{
+  display:flex;
+  min-height:44px;
+  align-items:center;
+  margin:0 0 18px;
+  padding:11px 16px;
+  border:0;
+  border-radius:var(--hz-radius-control);
+  color:var(--hz-muted);
+  background:rgba(255,255,255,.92);
+  box-shadow:var(--hz-shadow-soft);
+  font-size:.76rem;
+}
+
+#report > .sub b,
+#trendReport > .sub b{
+  color:var(--hz-primary)!important;
+}
+
+#report h2,
+#trendReport h2{
+  min-height:40px;
+  margin:30px 0 12px;
+  padding:0 2px 10px;
+  border:0;
+  color:var(--hz-ink);
+  font-size:1.02rem;
+  font-weight:760;
+  line-height:1.45;
+}
+
+#report h2::after,
+#trendReport h2::after{
+  display:block;
+  clear:both;
+  content:"";
+}
+
+#report h2 button,
+#trendReport h2 button,
+#report h3 button{
+  float:right;
+  min-height:30px;
+  margin:0 0 0 10px!important;
+  padding:5px 11px!important;
+  border:1px solid var(--hz-line)!important;
+  color:var(--hz-ink-2)!important;
+  background:#fff!important;
+  box-shadow:none;
+  font-size:.67rem!important;
+}
+
+#report h2 button:hover,
+#trendReport h2 button:hover,
+#report h3 button:hover{
+  color:var(--hz-primary)!important;
+  border-color:#d9d0ff!important;
+  background:var(--hz-primary-soft)!important;
+  box-shadow:none;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(128px,1fr));
+  gap:10px;
+  margin-bottom:14px;
+  padding:14px;
+  border-radius:var(--hz-radius);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+}
+
+.card{
+  position:relative;
+  min-height:112px;
+  padding:16px 15px 14px;
+  overflow:hidden;
+  border:0;
+  border-radius:var(--hz-radius-card);
+  color:var(--hz-ink);
+  background:var(--hz-soft);
+  box-shadow:none;
+  text-align:left;
+  transition:background-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+
+.card::after{
+  position:absolute;
+  top:13px;
+  right:13px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--hz-primary);
+  box-shadow:0 0 0 5px var(--hz-primary-soft);
+  content:"";
+}
+
+.card:hover{
+  background:#fff;
+  box-shadow:0 12px 30px rgba(112,144,176,.13);
+  transform:translateY(-2px);
+}
+
+.card .l{
+  min-height:30px;
+  padding-right:16px;
+  color:var(--hz-muted);
+  font-size:.7rem;
+  font-weight:650;
+  line-height:1.35;
+}
+
+.card .v{
+  margin-top:4px;
+  color:var(--hz-ink);
+  font-size:1.55rem;
+  font-weight:780;
+  line-height:1.15;
+  letter-spacing:-.015em;
+}
+
+.card .w{
+  margin-top:8px;
+  color:var(--hz-muted);
+  font-size:.68rem;
+  line-height:1.35;
+}
+
+.interp{
+  position:relative;
+  margin-bottom:8px;
+  padding:14px 17px 14px 48px;
+  border:0;
+  border-radius:var(--hz-radius-card);
+  color:var(--hz-ink-2);
+  background:var(--hz-info-soft);
+  box-shadow:0 8px 24px rgba(112,144,176,.06);
+  font-size:.82rem;
+  line-height:1.65;
+}
+
+.interp::before{
+  position:absolute;
+  top:13px;
+  left:16px;
+  display:grid;
+  width:23px;
+  height:23px;
+  place-items:center;
+  border-radius:50%;
+  color:var(--hz-primary);
+  background:#fff;
+  content:"✦";
+  font-size:.68rem;
+  font-weight:800;
+  box-shadow:0 6px 16px rgba(96,60,255,.14);
+}
+
+.inventory-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:9px;
+  padding:14px;
+  border-radius:var(--hz-radius);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+}
+
+.inv-card{
+  position:relative;
+  min-height:136px;
+  padding:18px 20px;
+  overflow:hidden;
+  border:0!important;
+  border-radius:var(--hz-radius-card);
+  color:var(--hz-ink);
+  background:var(--hz-soft)!important;
+  box-shadow:none;
+}
+
+.inv-card::after{
+  position:absolute;
+  top:-20px;
+  right:-20px;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  content:"";
+  opacity:.85;
+}
+
+.inv-card.sold::after{background:var(--hz-success-soft)}
+.inv-card.idle::after{background:var(--hz-warning-soft)}
+
+.inv-card .inv-title{
+  position:relative;
+  z-index:1;
+  margin-bottom:10px;
+  color:var(--hz-ink-2);
+  font-size:.79rem;
+  font-weight:750;
+}
+
+.inv-card .inv-stock{
+  color:var(--hz-success);
+  font-size:1.78rem;
+  font-weight:780;
+}
+
+.inv-card.idle .inv-stock{color:var(--hz-warning)}
+
+.inv-card .inv-detail{
+  margin-top:8px;
+  color:var(--hz-muted);
+  font-size:.71rem;
+  line-height:1.6;
+}
+
+.pbdist{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:9px;
+  margin:8px 0;
+  padding:14px;
+  border-radius:var(--hz-radius);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+}
+
+.pbcell{
+  min-height:128px;
+  padding:13px 14px;
+  border:0!important;
+  border-radius:var(--hz-radius-card);
+  color:var(--hz-ink-2);
+  background:var(--hz-soft)!important;
+  box-shadow:none;
+  font-size:.7rem;
+  line-height:1.65;
+  transition:background-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+
+.pbcell:hover{
+  background:#fff!important;
+  box-shadow:0 12px 28px rgba(112,144,176,.13);
+  transform:translateY(-2px);
+}
+
+.pbcell > div:first-child{
+  color:var(--hz-primary)!important;
+  font-size:.74rem;
+  text-align:left!important;
+}
+
+.pbcell > div[style*="border-top"]{
+  border-color:var(--hz-line)!important;
+}
+
+.pbcell button{
+  float:right;
+  min-height:25px!important;
+  margin:0!important;
+  padding:3px 7px!important;
+  font-size:.61rem!important;
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.box{
+  padding:18px;
+  border:0!important;
+  border-radius:var(--hz-radius);
+  color:var(--hz-ink);
+  background:#fff!important;
+  box-shadow:var(--hz-shadow);
+}
+
+.box.down{box-shadow:inset 0 3px 0 #efabb1,var(--hz-shadow)}
+.box.up{box-shadow:inset 0 3px 0 #8ad1aa,var(--hz-shadow)}
+
+.box h3{
+  margin-bottom:11px;
+  color:var(--hz-ink-2);
+  font-size:.8rem;
+  line-height:1.5;
+}
+
+.box.down h3{color:var(--hz-danger)}
+.box.up h3{color:var(--hz-success)}
+
+.line{
+  margin:0;
+  padding:8px 9px;
+  border:0;
+  border-top:1px solid #edf0f7;
+  border-radius:8px;
+  color:var(--hz-ink-2);
+  font-size:.74rem;
+  line-height:1.58;
+  transition:background-color .16s ease;
+}
+
+.line:hover{background:var(--hz-soft)}
+
+a{
+  color:var(--hz-primary);
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  font-weight:700;
+  text-decoration:none;
+  text-underline-offset:3px;
+}
+
+a:hover{text-decoration:underline}
+
+.pname{
+  color:var(--hz-muted);
+  font-size:.7rem;
+}
+
+.asin-meta{
+  gap:4px;
+  margin-left:7px;
+}
+
+.meta-chip{
+  padding:2px 6px;
+  border:0;
+  border-radius:var(--hz-radius-control);
+  color:var(--hz-ink-2);
+  background:#eef1f8;
+  font-family:inherit;
+  font-size:.61rem;
+}
+
+.meta-chip.stock{
+  color:var(--hz-success);
+  background:var(--hz-success-soft);
+}
+
+.meta-chip.sales7{
+  color:var(--hz-warning);
+  background:var(--hz-warning-soft);
+}
+
+.meta-chip.msku{
+  color:var(--hz-primary);
+  background:var(--hz-primary-soft);
+}
+
+.meta-chip.owner{
+  color:var(--hz-info);
+  background:var(--hz-info-soft);
+}
+
+.meta-chip.missing{
+  color:var(--hz-muted);
+  background:#eef1f6;
+}
+
+#report ul{
+  display:grid;
+  gap:8px;
+  margin:0;
+  padding:18px 20px 18px 44px;
+  border:0;
+  border-radius:var(--hz-radius);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+}
+
+#report li{
+  padding-left:4px;
+  color:var(--hz-ink-2);
+  font-size:.81rem;
+  line-height:1.68;
+}
+
+.trend-charts{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px;
+  margin-bottom:20px;
+}
+
+.chart-box{
+  min-height:248px;
+  padding:17px 19px 12px;
+  border:0;
+  border-radius:var(--hz-radius);
+  color:var(--hz-ink);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+  transition:box-shadow .18s ease,transform .18s ease;
+}
+
+.chart-box:hover{
+  box-shadow:18px 32px 50px 4px rgba(112,144,176,.18);
+  transform:translateY(-2px);
+}
+
+.chart-box h3{
+  margin-bottom:8px;
+  color:var(--hz-ink-2);
+  font-size:.8rem;
+  font-weight:750;
+}
+
+.chart-box svg{
+  display:block;
+  width:100%;
+  min-height:192px;
+}
+
+.chart-box svg line{stroke:#e9edf6!important}
+.chart-box svg text{fill:var(--hz-muted)!important}
+.chart-box svg polyline{
+  stroke-width:2.6!important;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 3px 3px rgba(96,60,255,.12));
+  animation:hz-chart-draw .9s cubic-bezier(.22,1,.36,1) both;
+}
+.chart-box svg circle{
+  stroke:#fff;
+  stroke-width:2;
+  animation:hz-point-in .45s .3s ease both;
+  transform-box:fill-box;
+  transform-origin:center;
+}
+
+table.wk{
+  width:100%;
+  min-width:820px;
+  margin-top:8px;
+  overflow:hidden;
+  border:0;
+  border-radius:var(--hz-radius);
+  border-collapse:separate;
+  border-spacing:0;
+  color:var(--hz-ink-2);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+  font-size:.74rem;
+}
+
+table.wk th,
+table.wk td{
+  padding:10px;
+  border:0;
+  border-right:1px solid #edf0f7;
+  border-bottom:1px solid #edf0f7;
+  text-align:right;
+}
+
+table.wk th{
+  color:var(--hz-muted);
+  background:var(--hz-soft);
+  font-size:.69rem;
+  font-weight:750;
+  text-align:center;
+  white-space:nowrap;
+}
+
+table.wk tr:last-child td{border-bottom:0}
+table.wk th:last-child,
+table.wk td:last-child{border-right:0}
+table.wk tbody tr:hover td{background:#fafaff}
+table.wk td:first-child,
+table.wk th:first-child{color:var(--hz-primary)}
+
+table.wk input[type=number]{
+  height:32px;
+  padding:4px 8px!important;
+  font-size:.72rem;
+}
+
+#trendReport{
+  overflow-x:auto;
+  padding:2px 2px 8px;
+}
+
+.badge{
+  border-radius:var(--hz-radius-control);
+  color:var(--hz-primary);
+  background:var(--hz-primary-soft);
+}
+
+.hl-pos{color:var(--hz-success)}
+.hl-neg{color:var(--hz-danger)}
+
+[style*="color:#00d4ff"]{color:var(--hz-primary)!important}
+[style*="color:#b388ff"]{color:var(--hz-primary)!important}
+[style*="color:#ffd700"]{color:var(--hz-warning)!important}
+[style*="color:#4caf50"]{color:var(--hz-success)!important}
+[style*="color:#ff5252"]{color:var(--hz-danger)!important}
+[style*="color:#ff9800"]{color:var(--hz-warning)!important}
+[style*="color:#e91e63"]{color:#bb3d72!important}
+[style*="color:#888"],
+[style*="color:#777"],
+[style*="color:#666"]{color:var(--hz-muted)!important}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible{
+  outline:3px solid rgba(96,60,255,.2);
+  outline-offset:2px;
+}
+
+.up-field input[type=text]:focus,
+.owner-select:focus,
+table.wk input[type=number]:focus{
+  border-color:var(--hz-primary)!important;
+  box-shadow:0 0 0 3px rgba(96,60,255,.12);
+}
+
+.cards,
+.inventory-grid,
+.pbdist,
+.grid2,
+.trend-charts,
+table.wk{
+  animation:hz-rise .36s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes hz-rise{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes hz-chart-draw{
+  from{stroke-dasharray:0 1000;opacity:.45}
+  to{stroke-dasharray:1000 0;opacity:1}
+}
+
+@keyframes hz-point-in{
+  from{opacity:0;transform:scale(.4)}
+  to{opacity:1;transform:scale(1)}
+}
+
+@media(max-width:1260px){
+  .up-row{grid-template-columns:minmax(210px,1fr) 120px minmax(210px,1fr) 120px}
+  .up-row > .btn{width:100%}
+  .cards{grid-template-columns:repeat(4,minmax(145px,1fr))}
+}
+
+@media(max-width:900px){
+  body{padding-top:24px}
+  .up-row{grid-template-columns:1fr 140px}
+  #viewTrend .up-row{grid-template-columns:1fr 1fr}
+  .up-row > .btn{width:auto}
+  #viewTrend .up-row > .btn{width:100%}
+  .grid2,.trend-charts{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(3,minmax(130px,1fr))}
+  .chart-box{min-height:230px}
+}
+
+@media(max-width:700px){
+  body{padding:16px 12px 40px}
+  body > h1{gap:10px;font-size:1.32rem}
+  body > h1::before{width:36px;height:36px;font-size:15px}
+  body > h1 span{display:block;font-size:.69rem!important}
+  body > .sub{margin-bottom:16px;padding-left:46px;font-size:.74rem}
+  .tabbar{display:grid;width:100%;grid-template-columns:1fr 1fr}
+  .tab{padding:8px 10px;font-size:.8rem}
+  .up-panel{padding:18px 15px}
+  .up-row{grid-template-columns:1fr}
+  #viewTrend .up-row{grid-template-columns:1fr}
+  .up-field input[type=text]{width:100%!important}
+  .up-row > .btn{width:100%}
+  .owner-row{grid-template-columns:1fr}
+  .owner-select{width:100%;min-width:0}
+  .owner-summary{min-width:0}
+  #report > .sub,#trendReport > .sub{display:block;line-height:1.65}
+  #report h2,#trendReport h2{margin-top:25px;font-size:.91rem}
+  #report h2 button,#trendReport h2 button,#report h3 button{
+    float:none;
+    margin:8px 0 0!important;
+  }
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:9px}
+  .card{min-height:106px;padding:14px 12px 12px}
+  .card .v{font-size:1.3rem}
+  .inventory-grid{grid-template-columns:1fr;padding:9px}
+  .pbdist{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px}
+  .pbcell{min-height:118px;padding:11px}
+  .asin-meta{display:flex;margin:5px 0 0}
+  .meta-chip.msku{max-width:220px}
+  .line{padding:8px 4px;overflow-wrap:anywhere}
+  .chart-box{min-height:212px;padding:14px 10px}
+  .chart-box svg{min-height:174px}
+  #trendReport{margin-right:-2px}
+}
+
+@media(max-width:430px){
+  .pbdist{grid-template-columns:1fr}
+  .pbcell{min-height:0}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.001ms!important;
+  }
+}
+</style>
+<style id="interactive-report-ui">
+/* 长列表交互增强：仅调整展示层，不改动 CSV 解析、指标口径或导出数据。 */
+.purpose-strip{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:-8px 0 18px 52px;
+  color:var(--hz-muted);
+  font-size:.74rem;
+}
+.purpose-strip b{color:var(--hz-ink-2)}
+.purpose-strip i{color:#b4abc9;font-style:normal}
+.purpose-kicker{
+  padding:5px 9px;
+  border-radius:999px;
+  color:var(--hz-primary);
+  background:var(--hz-soft-purple);
+  font-size:.67rem;
+  font-weight:850;
+}
+.workflow-steps{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin:12px 0 15px;
+}
+.workflow-step{
+  position:relative;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  column-gap:9px;
+  min-height:65px;
+  padding:11px 12px;
+  border:1px solid var(--hz-line);
+  border-radius:14px;
+  background:var(--hz-soft);
+}
+.workflow-step:not(:last-child)::after{
+  position:absolute;
+  right:-8px;
+  top:50%;
+  z-index:2;
+  width:14px;
+  height:14px;
+  border-top:1px solid #c9c4df;
+  border-right:1px solid #c9c4df;
+  background:var(--hz-soft);
+  content:"";
+  transform:translateY(-50%) rotate(45deg);
+}
+.workflow-step > span{
+  display:grid;
+  grid-row:1/3;
+  width:28px;
+  height:28px;
+  place-items:center;
+  border-radius:9px;
+  color:var(--hz-primary);
+  background:#fff;
+  font-size:.72rem;
+  font-weight:850;
+}
+.workflow-step b{
+  align-self:end;
+  color:var(--hz-ink);
+  font-size:.76rem;
+}
+.workflow-step small{
+  align-self:start;
+  margin-top:3px;
+  color:var(--hz-muted);
+  font-size:.66rem;
+}
+.workflow-step.active{
+  border-color:#d7d2ff;
+  background:var(--hz-soft-purple);
+}
+.workflow-step.active:not(:last-child)::after{background:var(--hz-soft-purple)}
+
+.owner-row{
+  grid-template-columns:auto minmax(0,1fr) minmax(190px,230px);
+}
+.owner-tabs{
+  display:flex;
+  min-width:0;
+  gap:7px;
+  overflow-x:auto;
+  padding:2px 1px 5px;
+  scrollbar-width:thin;
+}
+.owner-tab{
+  display:inline-flex;
+  flex:0 0 auto;
+  align-items:center;
+  gap:7px;
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid var(--hz-line);
+  border-radius:999px;
+  color:var(--hz-muted);
+  background:#fff;
+  font:700 .74rem/1 inherit;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.owner-tab small{
+  display:grid;
+  min-width:22px;
+  height:22px;
+  place-items:center;
+  padding:0 6px;
+  border-radius:999px;
+  color:var(--hz-ink-2);
+  background:var(--hz-soft);
+  font-size:.65rem;
+}
+.owner-tab:hover{
+  border-color:#cbc5ff;
+  color:var(--hz-primary);
+  transform:translateY(-1px);
+}
+.owner-tab.active{
+  border-color:var(--hz-primary);
+  color:#fff;
+  background:linear-gradient(120deg,var(--hz-primary-dark),var(--hz-primary-2));
+  box-shadow:0 10px 20px -12px rgba(96,60,255,.8);
+}
+.owner-tab.active small{
+  color:var(--hz-primary);
+  background:#fff;
+}
+.owner-summary{grid-column:2/-1}
+
+.report-workspace{
+  display:grid;
+  grid-template-columns:184px minmax(0,1fr);
+  align-items:start;
+  gap:18px;
+  margin-top:14px;
+}
+.report-main{min-width:0}
+.report-view{display:none;min-width:0}
+.report-view.is-active{display:block}
+.report-flow-nav{
+  position:sticky;
+  top:12px;
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:12px;
+  border:1px solid rgba(224,228,240,.92);
+  border-radius:18px;
+  background:rgba(255,255,255,.94);
+  box-shadow:var(--hz-shadow);
+  backdrop-filter:blur(12px);
+}
+.report-flow-nav > span{
+  padding:3px 7px 8px;
+  border-bottom:1px solid var(--hz-line);
+  color:var(--hz-muted);
+  font-size:.67rem;
+  font-weight:850;
+  letter-spacing:.04em;
+}
+#report .report-flow-nav button{
+  position:relative;
+  width:100%;
+  min-height:42px;
+  padding:9px 10px 9px 13px;
+  border:1px solid transparent!important;
+  border-radius:11px!important;
+  color:var(--hz-ink-2)!important;
+  text-align:left;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-size:.72rem!important;
+  font-weight:800!important;
+}
+#report .report-flow-nav button:hover{
+  border-color:#ddd8ff!important;
+  color:var(--hz-primary)!important;
+  background:var(--hz-soft-purple)!important;
+  box-shadow:none!important;
+}
+#report .report-flow-nav button.active{
+  border-color:#d7d1ff!important;
+  color:var(--hz-primary)!important;
+  background:var(--hz-soft-purple)!important;
+}
+#report .report-flow-nav button.active::before{
+  position:absolute;
+  top:9px;
+  bottom:9px;
+  left:0;
+  width:3px;
+  border-radius:0 4px 4px 0;
+  background:var(--hz-primary);
+  content:"";
+}
+.priority-panel{
+  margin:15px 0 5px;
+  padding:18px;
+  border-radius:var(--hz-radius);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+}
+.priority-panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:13px;
+}
+.priority-panel-head h2{
+  margin:0!important;
+  color:var(--hz-ink)!important;
+  font-size:1rem!important;
+}
+.priority-panel-head p{
+  margin:5px 0 0;
+  color:var(--hz-muted);
+  font-size:.72rem;
+}
+.priority-order{
+  flex:0 0 auto;
+  padding:6px 10px;
+  border-radius:999px;
+  color:#d53a64;
+  background:#fff0f5;
+  font-size:.68rem;
+  font-weight:850;
+}
+.priority-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;
+}
+#report .priority-card{
+  position:relative;
+  display:block;
+  min-height:140px;
+  padding:14px;
+  border:1px solid var(--hz-line)!important;
+  border-radius:15px!important;
+  color:var(--hz-ink)!important;
+  text-align:left;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+#report .priority-card:hover{
+  border-color:var(--priority,#603cff)!important;
+  box-shadow:0 12px 24px -18px rgba(63,53,140,.65)!important;
+}
+.priority-card.danger{--priority:#ef4b74}
+.priority-card.warning{--priority:#f59e0b}
+.priority-card.info{--priority:#3b82f6}
+.priority-level{
+  display:inline-flex;
+  padding:4px 7px;
+  border-radius:7px;
+  color:var(--priority);
+  background:color-mix(in srgb,var(--priority) 10%,#fff);
+  font-size:.63rem;
+  font-weight:900;
+}
+.priority-value{
+  display:block;
+  margin-top:11px;
+  color:var(--priority);
+  font-size:1.5rem;
+  font-weight:900;
+  letter-spacing:-.04em;
+}
+.priority-title{
+  display:block;
+  margin-top:3px;
+  color:var(--hz-ink);
+  font-size:.76rem;
+  font-weight:850;
+}
+.priority-help{
+  display:block;
+  margin-top:6px;
+  color:var(--hz-muted);
+  font-size:.66rem;
+  line-height:1.45;
+}
+.priority-cta{
+  display:block;
+  margin-top:9px;
+  color:var(--priority);
+  font-size:.66rem;
+  font-weight:800;
+}
+
+.insight-dashboard{
+  margin:16px 0 4px;
+  padding:18px;
+  border-radius:var(--hz-radius);
+  background:#fff;
+  box-shadow:var(--hz-shadow);
+}
+.insight-dashboard-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:13px;
+}
+.insight-dashboard-head h3{
+  margin:0;
+  color:var(--hz-ink);
+  font-size:.95rem;
+}
+.insight-dashboard-head p{
+  margin:4px 0 0;
+  color:var(--hz-muted);
+  font-size:.73rem;
+}
+.insight-owner-badge{
+  flex:0 0 auto;
+  padding:6px 10px;
+  border-radius:999px;
+  color:var(--hz-primary);
+  background:var(--hz-soft-purple);
+  font-size:.7rem;
+  font-weight:800;
+}
+.insight-viz-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:9px;
+}
+#report .insight-viz-item{
+  position:relative;
+  display:block;
+  min-width:0;
+  min-height:110px;
+  overflow:hidden;
+  padding:13px 12px 19px;
+  border:1px solid var(--hz-line)!important;
+  border-radius:15px!important;
+  color:var(--hz-ink)!important;
+  text-align:left;
+  background:#fff!important;
+  box-shadow:none!important;
+  cursor:pointer;
+}
+#report .insight-viz-item:hover{
+  border-color:#cfc8ff!important;
+  box-shadow:0 12px 24px -18px rgba(63,53,140,.65)!important;
+}
+.insight-viz-value{
+  display:block;
+  color:var(--tone,#603cff);
+  font-size:1.45rem;
+  font-weight:850;
+  letter-spacing:-.04em;
+}
+.insight-viz-label{
+  display:block;
+  margin-top:5px;
+  color:var(--hz-muted);
+  font-size:.7rem;
+  font-weight:700;
+  line-height:1.35;
+}
+.insight-viz-track{
+  position:absolute;
+  right:11px;
+  bottom:10px;
+  left:11px;
+  height:5px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#eef1f8;
+}
+.insight-viz-track::after{
+  display:block;
+  width:var(--viz,0%);
+  min-width:5px;
+  height:100%;
+  border-radius:inherit;
+  background:var(--tone,#603cff);
+  content:"";
+}
+.tone-success{--tone:#05b977}
+.tone-warning{--tone:#f59e0b}
+.tone-danger{--tone:#ef4b74}
+.tone-info{--tone:#3b82f6}
+
+.detail-section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin:19px 0 10px;
+}
+.detail-section-head h3{
+  margin:0;
+  color:var(--hz-ink);
+  font-size:.95rem;
+}
+.detail-section-head p{
+  margin:4px 0 0;
+  color:var(--hz-muted);
+  font-size:.73rem;
+}
+#report .detail-export{
+  flex:0 0 auto;
+  min-height:38px;
+  padding:8px 13px;
+  font-size:.75rem!important;
+}
+.band-filter-shell{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:11px;
+}
+.band-filter-tabs{
+  display:flex;
+  min-width:0;
+  gap:7px;
+  overflow-x:auto;
+  padding:2px 1px 5px;
+  scrollbar-width:thin;
+}
+#report .band-filter-tab{
+  display:inline-flex;
+  flex:0 0 auto;
+  align-items:center;
+  gap:6px;
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid var(--hz-line)!important;
+  border-radius:999px!important;
+  color:var(--hz-muted)!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  font-size:.72rem!important;
+}
+#report .band-filter-tab span{
+  display:grid;
+  min-width:20px;
+  height:20px;
+  place-items:center;
+  padding:0 5px;
+  border-radius:999px;
+  color:var(--hz-ink-2);
+  background:var(--hz-soft);
+  font-size:.62rem;
+}
+#report .band-filter-tab.active{
+  border-color:var(--hz-primary)!important;
+  color:#fff!important;
+  background:linear-gradient(120deg,var(--hz-primary-dark),var(--hz-primary-2))!important;
+}
+#report .band-filter-tab.active span{
+  color:var(--hz-primary);
+  background:#fff;
+}
+.band-search{
+  display:flex;
+  flex:0 0 min(310px,32vw);
+  align-items:center;
+  gap:7px;
+  height:40px;
+  padding:0 12px;
+  border:1px solid var(--hz-line);
+  border-radius:12px;
+  color:var(--hz-muted);
+  background:#fff;
+}
+.band-search:focus-within{
+  border-color:var(--hz-primary);
+  box-shadow:0 0 0 3px rgba(96,60,255,.1);
+}
+.band-search input{
+  min-width:0;
+  width:100%;
+  border:0;
+  outline:0;
+  color:var(--hz-ink);
+  background:transparent;
+  font:600 .74rem/1 inherit;
+}
+.band-search input::placeholder{color:#a8b0c5}
+.band-groups{display:grid;gap:9px}
+.band-group{
+  overflow:hidden;
+  border:1px solid var(--hz-line);
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 8px 20px -19px rgba(63,53,140,.65);
+}
+.band-group[hidden]{display:none}
+.band-group summary{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:50px;
+  padding:10px 45px 10px 15px;
+  color:var(--hz-ink);
+  cursor:pointer;
+  list-style:none;
+}
+.band-group summary::-webkit-details-marker{display:none}
+.band-group summary::after{
+  position:absolute;
+  right:17px;
+  top:50%;
+  color:var(--hz-primary);
+  content:"⌄";
+  font-size:1.1rem;
+  transform:translateY(-55%);
+  transition:.18s ease;
+}
+.band-group[open] summary::after{transform:translateY(-45%) rotate(180deg)}
+.band-name{
+  min-width:58px;
+  color:var(--hz-primary);
+  font-size:.8rem;
+  font-weight:850;
+}
+.band-count{
+  padding:4px 8px;
+  border-radius:999px;
+  color:var(--hz-ink-2);
+  background:var(--hz-soft);
+  font-size:.68rem;
+  font-weight:750;
+}
+.band-open-label{
+  margin-left:auto;
+  color:var(--hz-muted);
+  font-size:.68rem;
+}
+.band-list{
+  max-height:540px;
+  overflow:auto;
+  padding:0 15px 10px;
+  border-top:1px solid var(--hz-line);
+}
+.band-row[hidden]{display:none!important}
+
+.box.is-collapsible:not(.is-expanded) > .line.is-extra{display:none}
+#report .list-toggle{
+  width:100%;
+  min-height:38px;
+  margin-top:10px;
+  border:1px dashed #ccc7ff!important;
+  color:var(--hz-primary)!important;
+  background:var(--hz-soft-purple)!important;
+  box-shadow:none!important;
+  font-size:.72rem!important;
+}
+#report .list-toggle:hover{
+  border-style:solid!important;
+  box-shadow:none!important;
+}
+.is-focus-pulse{
+  animation:focus-panel 1.1s ease;
+  scroll-margin-top:18px;
+}
+@keyframes focus-panel{
+  0%,100%{box-shadow:var(--hz-shadow)}
+  35%{box-shadow:0 0 0 4px rgba(96,60,255,.2),0 18px 32px -20px rgba(96,60,255,.75)}
+}
+
+@media(max-width:1100px){
+  .insight-viz-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:900px){
+  .owner-row{grid-template-columns:auto minmax(0,1fr)}
+  .owner-select{grid-column:1/-1}
+  .owner-summary{grid-column:1/-1}
+  .band-filter-shell{align-items:stretch;flex-direction:column}
+  .band-search{flex-basis:auto;width:100%}
+  .report-workspace{grid-template-columns:1fr;gap:10px}
+  .report-flow-nav{
+    top:6px;
+    flex-direction:row;
+    overflow-x:auto;
+    padding:8px;
+    border-radius:14px;
+    scrollbar-width:thin;
+  }
+  .report-flow-nav > span{display:none}
+  #report .report-flow-nav button{flex:0 0 auto;width:auto;min-height:36px;padding:7px 11px}
+  #report .report-flow-nav button.active::before{display:none}
+}
+@media(max-width:700px){
+  .purpose-strip{
+    align-items:flex-start;
+    flex-wrap:wrap;
+    margin:-4px 0 14px;
+    line-height:1.45;
+  }
+  .purpose-strip i{display:none}
+  .workflow-steps{grid-template-columns:1fr}
+  .workflow-step:not(:last-child)::after{display:none}
+  .owner-row{display:flex;align-items:stretch}
+  .owner-title,.owner-tabs,.owner-select,.owner-summary{width:100%}
+  .owner-summary{min-width:0}
+  .insight-dashboard{padding:14px}
+  .insight-dashboard-head{align-items:flex-start;flex-direction:column;gap:8px}
+  .insight-viz-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #report .insight-viz-item{min-height:100px}
+  .priority-panel{padding:14px}
+  .priority-panel-head{flex-direction:column;gap:8px}
+  .priority-grid{grid-template-columns:1fr}
+  #report .priority-card{min-height:0}
+  .detail-section-head{align-items:flex-start;flex-direction:column}
+  #report .detail-export{width:100%}
+  .band-group summary{padding-left:12px}
+  .band-open-label{display:none}
+}
+</style>
 </head>
 <body>
 <h1>货盘动销分析 <span style="font-size:0.9rem;color:#888">周对周 · 多周趋势</span></h1>
-<div class="sub">上传 Amazon 业务报告 (Business Report CSV)，自动生成动销、价格段、ASP 与多周趋势分析。</div>
+<div class="sub">把 Amazon 业务报告转成按负责人排序的可执行货盘清单：先处理停售与转化风险，再判断库存和价格结构。</div>
+<div class="purpose-strip">
+  <span class="purpose-kicker">工具目的</span>
+  <b>回答 3 个问题：</b>
+  <span>哪里出了问题</span><i>→</i><span>谁来处理</span><i>→</i><span>先处理哪一批 ASIN</span>
+</div>
 
 <div class="tabbar">
   <button class="tab active" id="tabWow" onclick="switchView('wow')">📊 周对周报告</button>
@@ -92,33 +1699,39 @@ table.wk td:first-child,table.wk th:first-child{text-align:center;color:#b388ff}
 
 <div id="viewWow">
 <div class="up-panel">
-  <h2>📤 上传数据生成报告</h2>
+  <h2>📤 开始一次周对周货盘诊断</h2>
+  <div class="workflow-steps" aria-label="使用流程">
+    <div class="workflow-step active"><span>1</span><b>上传两周数据</b><small>当前周 + 对比周业务报告</small></div>
+    <div class="workflow-step"><span>2</span><b>选择负责人</b><small>快速收敛到自己的货盘</small></div>
+    <div class="workflow-step"><span>3</span><b>按优先级处理</b><small>停售 → 量价 → 转化 → 结构</small></div>
+  </div>
   <div class="up-row">
     <div class="up-field">
-      <label>本周 / 当前周 CSV（较新）</label>
+      <label>当前周业务报告 CSV（较新）</label>
       <input type="file" id="fileCur" accept=".csv">
     </div>
     <div class="up-field">
-      <label>本周标签</label>
+      <label>当前周名称</label>
       <input type="text" id="labelCur" value="本周">
     </div>
     <div class="up-field">
-      <label>上周 / 对比周 CSV（较旧）</label>
+      <label>对比周业务报告 CSV（较旧）</label>
       <input type="file" id="filePrev" accept=".csv">
     </div>
     <div class="up-field">
-      <label>上周标签</label>
+      <label>对比周名称</label>
       <input type="text" id="labelPrev" value="上周">
     </div>
-    <button class="btn" id="btnRun">生成报告</button>
-    <button class="btn green" id="btnDemo">加载示例 (WK29 vs WK28)</button>
+    <button class="btn" id="btnRun">开始分析</button>
+    <button class="btn green" id="btnDemo">查看示例 (WK29 vs WK28)</button>
   </div>
-  <div class="hint">支持亚马逊后台导出的「业务报告 / Business Report」CSV，自动识别是否含「子ASIN」列两种格式。价格段依据 ASP = 销售额 / 销量 计算。</div>
+  <div class="hint">从亚马逊后台导出同一报表口径的两周「业务报告 / Business Report」CSV，支持中英文表头。系统会校验空报告与重复周期；价格段按 ASP = 销售额 / 销量归类。</div>
   <div class="err" id="errMsg"></div>
 </div>
 <div class="owner-panel">
   <div class="owner-row">
     <div class="owner-title">👤 负责人筛选</div>
+    <div id="ownerTabs" class="owner-tabs" role="tablist" aria-label="负责人快速筛选"></div>
     <select id="ownerSelect" class="owner-select" aria-label="负责人筛选"></select>
     <div id="ownerSummary" class="owner-summary">负责人数据已载入，生成报告后可按负责人查看。</div>
   </div>
@@ -173,10 +1786,13 @@ function parseCSV(text){
 
 function num(v){
   if(v==null) return 0;
-  var s = String(v).replace(/[^\d.]/g,'');
+  var raw=String(v).trim();
+  var negative=/^\s*\(/.test(raw) || raw.indexOf('-')>=0;
+  var s = raw.replace(/,/g,'').replace(/[^\d.]/g,'');
   if(s==='' || s==='.') return 0;
   var n = parseFloat(s);
-  return isNaN(n)?0:n;
+  if(isNaN(n)) return 0;
+  return negative ? -n : n;
 }
 
 // 按表头识别列，兼容完整业务报告和只保留「低价商品店铺」字段的精简报告。
@@ -197,28 +1813,35 @@ function findHeader(headers, names){
 }
 function detectLayout(rows){
   var headers = rows[0] || [];
-  var child = findHeader(headers, ['（子）ASIN','子ASIN']);
-  var parent = findHeader(headers, ['（父）ASIN','父ASIN']);
+  var child = findHeader(headers, ['（子）ASIN','子ASIN','(Child) ASIN','Child ASIN']);
+  var parent = findHeader(headers, ['（父）ASIN','父ASIN','(Parent) ASIN','Parent ASIN']);
   var asin = child>=0 ? child : findHeader(headers, ['ASIN']);
   if(asin<0) asin=parent;
   return {
     asin: asin,
-    title: findHeader(headers, ['标题','商品标题']),
-    gv: findHeader(headers, ['页面浏览量 - 总计','页面浏览量-总计']),
+    title: findHeader(headers, ['标题','商品标题','Title','Product Title']),
+    gv: findHeader(headers, ['页面浏览量 - 总计','页面浏览量-总计','Page Views - Total','Page Views – Total','Page Views']),
+    sessions: findHeader(headers, ['会话数 - 总计','会话数-总计','Sessions - Total','Sessions – Total','Sessions']),
     units: findHeader(headers, [
       '已订购商品数量',
       '已订购商品数量 - 低价商品店铺',
       '订单商品总数',
-      '订单商品总数 - 低价商品店铺'
+      '订单商品总数 - 低价商品店铺',
+      'Units Ordered',
+      'Units Ordered - B2B',
+      'Ordered Items',
+      'Ordered Items - B2B'
     ]),
     sales: findHeader(headers, [
       '已订购商品销售额',
-      '已订购商品销售额 - 低价商品店铺'
+      '已订购商品销售额 - 低价商品店铺',
+      'Ordered Product Sales',
+      'Ordered Product Sales - B2B'
     ])
   };
 }
 
-// 从一份业务报告 CSV 文本 -> { map: {asin:{n,g,u,s}}, total }
+// 从一份业务报告 CSV 文本 -> { map: {asin:{n,g,q,u,s}}, total }，q 为 Sessions。
 function readReport(text){
   var rows = parseCSV(text);
   var L = detectLayout(rows);
@@ -232,13 +1855,14 @@ function readReport(text){
   for(var r=1; r<rows.length; r++){
     var v = rows[r];
     if(!v || v.length < 3) continue;
-    var asin = (v[L.asin]||'').trim() || (v[0]||'').trim();
-    if(!asin || !/^B0[A-Z0-9]{8}$/i.test(asin)) continue;
+    var asin = ((v[L.asin]||'').trim() || (v[0]||'').trim()).toUpperCase();
+    if(!asin || !/^[A-Z0-9]{10}$/.test(asin)) continue;
     var title = L.title>=0?(v[L.title]||'').trim():'';
     var item = map[asin];
-    if(!item) item = map[asin] = { n:title, g:0, u:0, s:0 };
+    if(!item) item = map[asin] = { n:title, g:0, q:0, u:0, s:0 };
     if(!item.n && title) item.n=title;
     item.g += Math.round(num(v[L.gv]));
+    if(L.sessions>=0) item.q += Math.round(num(v[L.sessions]));
     item.u += Math.round(num(v[L.units]));
     item.s += num(v[L.sales]);
   }
@@ -253,11 +1877,11 @@ function combine(cur, prev, curLabel, prevLabel){
   var records=[];
   for(var a in all){
     var c=cur.map[a], p=prev.map[a];
-    var cg=c?c.g:0, cu=c?c.u:0, cs=c?c.s:0;
-    var pg=p?p.g:0, pu=p?p.u:0, ps=p?p.s:0;
+    var cg=c?c.g:0, cq=c&&c.q?c.q:0, cu=c?c.u:0, cs=c?c.s:0;
+    var pg=p?p.g:0, pq=p&&p.q?p.q:0, pu=p?p.u:0, ps=p?p.s:0;
     // 保留当前周/上周均为零的在售 ASIN，用于准确统计不动销库存。
     var n = (c&&c.n)?c.n:(p?p.n:'');
-    records.push({a:a,n:n,cg:cg,cu:cu,cs:cs,pg:pg,pu:pu,ps:ps,cp:!!c,pp:!!p});
+    records.push({a:a,n:n,cg:cg,cq:cq,cu:cu,cs:cs,pg:pg,pq:pq,pu:pu,ps:ps,cp:!!c,pp:!!p});
   }
   return { curLabel:curLabel, prevLabel:prevLabel, curActive:cur.total, prevActive:prev.total, records:records, curAsins:Object.keys(cur.map), prevAsins:Object.keys(prev.map) };
 }
@@ -338,12 +1962,48 @@ function applyOwnerFilter(){
   if(!LAST_BASE_DATA) return;
   render(analyze(filteredData(LAST_BASE_DATA,currentOwner())));
 }
+function ownerTabLabel(value){
+  if(value==='ALL') return '全部';
+  if(value==='__UNMATCHED__') return '未匹配';
+  return value;
+}
+function ownerTabCount(value){
+  if(LAST_BASE_DATA && LAST_BASE_DATA.records){
+    return LAST_BASE_DATA.records.filter(function(r){return ownerMatches(r.a,value);}).length;
+  }
+  if(value==='ALL') return Object.keys(SKU_META).length;
+  if(value==='__UNMATCHED__') return 0;
+  return OWNER_COUNTS[value]||0;
+}
+function ownerOptionText(value){
+  return ownerLabel(value)+'（'+fmt(ownerTabCount(value))+' 个报告 ASIN）';
+}
+function syncOwnerTabs(){
+  var select=document.getElementById('ownerSelect'), tabs=document.getElementById('ownerTabs');
+  if(!select || !tabs) return;
+  var active=select.value;
+  Array.prototype.forEach.call(select.options,function(opt){ opt.textContent=ownerOptionText(opt.value); });
+  tabs.innerHTML=Array.prototype.map.call(select.options,function(opt){
+    var selected=opt.value===active;
+    return "<button type='button' role='tab' title='当前报告 ASIN 数' class='owner-tab"+(selected?' active':'')+"' data-owner='"+attr(opt.value)+"' aria-selected='"+selected+"' onclick='setOwnerFilter(this.dataset.owner)'><span>"+esc(ownerTabLabel(opt.value))+"</span><small>"+fmt(ownerTabCount(opt.value))+"</small></button>";
+  }).join('');
+}
+function setOwnerFilter(owner){
+  var select=document.getElementById('ownerSelect');
+  if(!select) return;
+  select.value=owner;
+  select.dispatchEvent(new Event('change',{bubbles:true}));
+}
 function initOwnerFilter(){
   var select=document.getElementById('ownerSelect');
   select.innerHTML="<option value='ALL'>全部负责人</option>"+OWNER_OPTIONS.map(function(o){
-    return "<option value='"+attr(o)+"'>"+esc(o)+"（"+fmt(OWNER_COUNTS[o])+" 个 ASIN）</option>";
+    return "<option value='"+attr(o)+"'>"+esc(o)+"</option>";
   }).join('')+"<option value='__UNMATCHED__'>未匹配 Excel</option>";
-  select.addEventListener('change',applyOwnerFilter);
+  select.addEventListener('change',function(){
+    applyOwnerFilter();
+    syncOwnerTabs();
+  });
+  syncOwnerTabs();
 }
 function updateOwnerSummary(A){
   var seen={},matched=0,stock=0,sales7=0;
@@ -352,16 +2012,17 @@ function updateOwnerSummary(A){
     var m=metaOf(key); if(m){matched++;stock+=m.i;sales7+=m.d7;}
   });
   var count=Object.keys(seen).length;
-  document.getElementById('ownerSummary').innerHTML='当前：<b style="color:#fff">'+esc(A.ownerLabel)+'</b> · 报告 ASIN '+fmt(count)+' · Excel 匹配 '+fmt(matched)+' · FBA 可售 <b style="color:#8de0ba">'+fmt(stock)+'</b> · 近 7 日销量 <b style="color:#ffd978">'+fmt(sales7)+'</b>';
+  document.getElementById('ownerSummary').innerHTML='当前：<b style="color:#603cff">'+esc(A.ownerLabel)+'</b> · 报告 ASIN '+fmt(count)+' · Excel 匹配 '+fmt(matched)+' · FBA 可售 <b style="color:#05a86e">'+fmt(stock)+'</b> · 近 7 日销量 <b style="color:#d98200">'+fmt(sales7)+'</b>';
 }
 
 function analyze(data){
   var recs = data.records;
   var CUR=data.curLabel, PREV=data.prevLabel;
 
-  var T={cg:0,cu:0,cs:0,pg:0,pu:0,ps:0,awasC:0,awasP:0};
+  var T={cg:0,cq:0,cu:0,cs:0,pg:0,pq:0,pu:0,ps:0,awasC:0,awasP:0};
   recs.forEach(function(r){
-    T.cg+=r.cg; T.cu+=r.cu; T.cs+=r.cs; T.pg+=r.pg; T.pu+=r.pu; T.ps+=r.ps;
+    T.cg+=r.cg; T.cq+=(r.cq||0); T.cu+=r.cu; T.cs+=r.cs;
+    T.pg+=r.pg; T.pq+=(r.pq||0); T.pu+=r.pu; T.ps+=r.ps;
     if(r.cu>0) T.awasC++;
     if(r.pu>0) T.awasP++;
   });
@@ -370,16 +2031,16 @@ function analyze(data){
 
   var bandC={}, bandP={};
   BANDS.forEach(function(b){ bandC[b.k]={gv:0,u:0,s:0,n:0}; bandP[b.k]={gv:0,u:0,s:0,n:0}; });
-  var trafficNoSaleC={n:0,gv:0}, trafficNoSaleP={n:0,gv:0};
+  var trafficNoSaleC={n:0,gv:0,sessions:0}, trafficNoSaleP={n:0,gv:0,sessions:0};
   recs.forEach(function(r){
     if(r.cu>0){ var bk=bandOf(r.cs/r.cu); bandC[bk].gv+=r.cg; bandC[bk].u+=r.cu; bandC[bk].s+=r.cs; bandC[bk].n++; }
-    else if(r.cg>0){ trafficNoSaleC.n++; trafficNoSaleC.gv+=r.cg; }
+    else if(r.cg>0 || (r.cq||0)>0){ trafficNoSaleC.n++; trafficNoSaleC.gv+=r.cg; trafficNoSaleC.sessions+=(r.cq||0); }
     if(r.pu>0){ var bp=bandOf(r.ps/r.pu); bandP[bp].gv+=r.pg; bandP[bp].u+=r.pu; bandP[bp].s+=r.ps; bandP[bp].n++; }
-    else if(r.pg>0){ trafficNoSaleP.n++; trafficNoSaleP.gv+=r.pg; }
+    else if(r.pg>0 || (r.pq||0)>0){ trafficNoSaleP.n++; trafficNoSaleP.gv+=r.pg; trafficNoSaleP.sessions+=(r.pq||0); }
   });
 
   var sold = recs.filter(function(r){ return r.cu>0; }).map(function(r){
-    var asp=r.cs/r.cu; return {a:r.a,n:r.n,gv:r.cg,u:r.cu,asp:asp,band:bandOf(asp),cs:r.cs,
+    var asp=r.cs/r.cu; return {a:r.a,n:r.n,gv:r.cg,sessions:r.cq||0,u:r.cu,asp:asp,band:bandOf(asp),cs:r.cs,
       pg:r.pg,pu:r.pu,ps:r.ps, paspPrev:(r.pu>0?r.ps/r.pu:null)};
   });
   LAST_SOLD = sold;
@@ -396,19 +2057,28 @@ function analyze(data){
   }
   var invSold=inventoryGroup(currentInventoryRecords.filter(function(r){return r.cu>0;}));
   var invIdle=inventoryGroup(currentInventoryRecords.filter(function(r){return r.cu===0;}));
-  var trafficNoSaleList=currentInventoryRecords.filter(function(r){return r.cg>0&&r.cu===0;}).sort(function(a,b){return b.cg-a.cg;});
+  var trafficNoSaleList=currentInventoryRecords.filter(function(r){return (r.cg>0||(r.cq||0)>0)&&r.cu===0;}).sort(function(a,b){
+    return ((b.cq||b.cg)-(a.cq||a.cg));
+  });
 
-  var priceVolDown = recs.filter(function(r){return r.pu>0 && r.cu<r.pu && r.cg<r.pg;})
-      .sort(function(a,b){return (a.cg-a.pg)-(b.cg-b.pg);}).slice(0,12);
-  var gvDownUnitUp = recs.filter(function(r){return r.cg<r.pg && r.cu>r.pu;})
-      .sort(function(a,b){return (a.cg-a.pg)-(b.cg-b.pg);}).slice(0,10);
+  // 量价齐跌：同一 ASIN 两周均有销量，且 Units 与 ASP 同时下降；停售另列，不混入本清单。
+  var priceVolDown = recs.filter(function(r){
+    return r.pu>0 && r.cu>0 && r.cu<r.pu && (r.cs/r.cu)<(r.ps/r.pu);
+  }).sort(function(a,b){return (a.cs-a.ps)-(b.cs-b.ps);});
+  // 降价走量：同一 ASIN 两周均有销量，ASP 下降而 Units 上升。
+  var gvDownUnitUp = recs.filter(function(r){
+    return r.pu>0 && r.cu>r.pu && (r.cs/r.cu)<(r.ps/r.pu);
+  }).sort(function(a,b){return (b.cu-b.pu)-(a.cu-a.pu);});
   var gvDropTop = recs.filter(function(r){return (r.cg-r.pg)<0;})
       .sort(function(a,b){return (a.cg-a.pg)-(b.cg-b.pg);}).slice(0,12);
   var gvUpTop = recs.filter(function(r){return (r.cg-r.pg)>0;})
       .sort(function(a,b){return (b.cg-b.pg)-(a.cg-a.pg);}).slice(0,12);
   var gvThresh = 50;
-  var highGvLowConv = recs.filter(function(r){ return r.cg>=gvThresh && (r.cu/r.cg)<0.01; })
-      .sort(function(a,b){return b.cg-a.cg;}).slice(0,15);
+  // Amazon 官方转化口径优先使用 Units / Sessions；旧示例无 Sessions 时才回退为 Units / GV 代理。
+  var highGvLowConv = recs.filter(function(r){
+    var denominator=(r.cq||0)>0?r.cq:r.cg;
+    return r.cg>=gvThresh && denominator>0 && (r.cu/denominator)<0.01;
+  }).sort(function(a,b){return b.cg-a.cg;});
   var stopped = recs.filter(function(r){return r.pu>0 && r.cu===0;})
       .sort(function(a,b){return b.pu-a.pu;});
 
@@ -431,9 +2101,58 @@ function downloadCSV(filename, aoa){
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();
 }
 // 小导出按钮
-function xb(fn){ return "<button onclick='"+fn+"' style='background:#2e7d46;color:#fff;border:none;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:0.72rem;margin-left:8px'>📥 导出Excel</button>"; }
+function xb(fn){ return "<button onclick='"+fn+"' style='background:#2e7d46;color:#fff;border:none;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:0.72rem;margin-left:8px'>📥 导出 CSV</button>"; }
 
 var LAST_A=null;
+
+function renderInsightDashboard(A){
+  var items=[
+    {label:'停售风险',value:A.stopped.length,tone:'danger',target:'risk-stopped'},
+    {label:'量价齐跌',value:A.priceVolDown.length,tone:'danger',target:'risk-price-down'},
+    {label:'高曝慢销',value:A.highGvLowConv.length,tone:'warning',target:'risk-highgv'},
+    {label:'有流量零销量',value:A.trafficNoSaleC.n,tone:'info',target:'risk-traffic-no-sale'},
+    {label:'动销 ASIN',value:A.invSold.asinCount,tone:'success',target:'inventory-panel'},
+    {label:'不动销 ASIN',value:A.invIdle.asinCount,tone:'warning',target:'inventory-panel'}
+  ];
+  var max=Math.max.apply(null,items.map(function(x){return x.value;} ).concat([1]));
+  var h="<section class='insight-dashboard' aria-label='负责人风险与动销总览'><div class='insight-dashboard-head'><div><h3>负责人动销与风险总览</h3><p>风险指标会展开对应明细；动销指标会定位到库存结构。</p></div><span class='insight-owner-badge'>"+esc(A.ownerLabel)+"</span></div><div class='insight-viz-grid'>";
+  items.forEach(function(item){
+    var pct=Math.max(5,Math.round(item.value/max*100));
+    h+="<button type='button' class='insight-viz-item tone-"+item.tone+"' style='--viz:"+pct+"%' onclick='focusInsightPanel(\""+item.target+"\")'><span class='insight-viz-value'>"+fmt(item.value)+"</span><span class='insight-viz-label'>"+esc(item.label)+"</span><span class='insight-viz-track' aria-hidden='true'></span></button>";
+  });
+  return h+"</div></section>";
+}
+
+var ACTIVE_REPORT_VIEW='actions';
+function reportViewClass(key){ return "report-view"+(ACTIVE_REPORT_VIEW===key?" is-active":""); }
+function renderReportFlowNav(){
+  var items=[
+    {key:'actions',label:'1 今日待办'},
+    {key:'performance',label:'2 经营结果'},
+    {key:'inventory',label:'3 库存结构'},
+    {key:'pricing',label:'4 价格诊断'},
+    {key:'risks',label:'5 风险明细'}
+  ];
+  var h="<nav class='report-flow-nav' aria-label='报告功能栏'><span>功能视图</span>";
+  items.forEach(function(item){
+    var active=ACTIVE_REPORT_VIEW===item.key;
+    h+="<button type='button' role='tab' class='"+(active?'active':'')+"' data-report-tab='"+item.key+"' aria-selected='"+active+"' onclick='setReportView(this.dataset.reportTab,this)'>"+item.label+"</button>";
+  });
+  return h+"</nav>";
+}
+function renderPriorityActions(A){
+  var actions=[
+    {level:'P0 · 立即',title:'排查停售 ASIN',value:A.stopped.length,help:'先确认库存、Buy Box、Listing 与价格状态',target:'risk-stopped',tone:'danger'},
+    {level:'P1 · 当日',title:'处理量价齐跌',value:A.priceVolDown.length,help:'销量与 ASP 同时下滑，优先确认降价是否有效',target:'risk-price-down',tone:'danger'},
+    {level:'P1 · 当日',title:'优化高曝慢销',value:A.highGvLowConv.length,help:'优先检查定价、主图、优惠与转化承接',target:'risk-highgv',tone:'warning'},
+    {level:'P2 · 本周',title:'诊断零转化流量',value:A.trafficNoSaleC.n,help:'按会话与曝光排序，逐个检查流量承接',target:'risk-traffic-no-sale',tone:'info'}
+  ];
+  var h="<section class='priority-panel' id='decision-panel'><div class='priority-panel-head'><div><h2>一、今日优先处理</h2><p>按业务影响与处理时效排序，先消除异常，再做结构优化。</p></div><span class='priority-order'>P0 → P1 → P2</span></div><div class='priority-grid'>";
+  actions.forEach(function(item){
+    h+="<button type='button' class='priority-card "+item.tone+"' onclick='focusInsightPanel(\""+item.target+"\")'><span class='priority-level'>"+item.level+"</span><span class='priority-value'>"+fmt(item.value)+"</span><span class='priority-title'>"+item.title+"</span><span class='priority-help'>"+item.help+"</span><span class='priority-cta'>查看并展开明细 →</span></button>";
+  });
+  return h+"</div></section>";
+}
 
 function render(A){
   LAST_A = A;
@@ -443,7 +2162,13 @@ function render(A){
 
   var gvD=A.T.cg-A.T.pg, uD=A.T.cu-A.T.pu, awasD=A.T.awasC-A.T.awasP, aspD=A.aspC-A.aspP, activeD=A.curActive-A.prevActive;
   var rateC=A.curActive>0?A.T.awasC/A.curActive*100:0, rateP=A.prevActive>0?A.T.awasP/A.prevActive*100:0, rateD=rateC-rateP;
-  h += "<h2>一、整体表现总结"+xb('expSummary()')+"</h2><div class='cards'>";
+  h += "<div class='report-workspace'>"+renderReportFlowNav()+"<main class='report-main'>";
+  h += "<section class='"+reportViewClass('actions')+"' data-report-view='actions'>";
+  h += renderPriorityActions(A);
+  h += renderInsightDashboard(A);
+  h += "</section>";
+  h += "<section class='"+reportViewClass('performance')+"' data-report-view='performance'>";
+  h += "<h2 id='performance-panel'>二、经营结果概览"+xb('expSummary()')+"</h2><div class='cards'>";
   h += card('在售 ASIN 数', fmt(A.curActive), '上周 '+fmt(A.prevActive)+' ('+sign(activeD)+')');
   h += card('动销 ASIN (AWAS)', fmt(A.T.awasC), 'WoW '+delSpan(awasD));
   h += card('ASIN 动销率', rateC.toFixed(1)+'%', '上周 '+rateP.toFixed(1)+'% · WoW '+(rateD>=0?'<span style="color:#4caf50">+':'<span style="color:#ff5252">')+rateD.toFixed(1)+'pp</span>');
@@ -454,16 +2179,20 @@ function render(A){
   h += "</div>";
   var gvTxt = gvD>=0?"<b style='color:#4caf50'>增长</b>":"<b style='color:#ff5252'>下滑</b>";
   var uTxt = uD>=0?"<b style='color:#4caf50'>增长</b>":"<b style='color:#ff5252'>下滑</b>";
-  var aspTxt = aspD>=0? ("客单价(ASP)环比上升 $"+aspD.toFixed(2)+"，结构上移或提价。") : ("客单价(ASP)环比下降 $"+Math.abs(aspD).toFixed(2)+"，多为降价带动。");
+  var aspTxt = aspD>=0? ("客单价(ASP)环比上升 $"+aspD.toFixed(2)+"，价格结构整体上移。") : ("客单价(ASP)环比下降 $"+Math.abs(aspD).toFixed(2)+"，价格结构整体下移，需结合销量验证降价效果。");
   h += "<div class='interp'>本周曝光 "+gvTxt+" ("+sign(gvD)+")，销量 "+uTxt+" ("+sign(uD)+")。 "+aspTxt+" 动销 ASIN "+(awasD>=0?'增加':'减少')+" "+Math.abs(awasD)+" 个。</div>";
+  h += "</section>";
 
-  h += "<h2>二、库存动销结构（当前负责人）"+xb('expInventoryStatus()')+"</h2>";
+  h += "<section class='"+reportViewClass('inventory')+"' data-report-view='inventory'>";
+  h += "<h2 id='inventory-panel'>三、库存动销结构（当前负责人）"+xb('expInventoryStatus()')+"</h2>";
   h += "<div class='inventory-grid'>";
   h += "<div class='inv-card sold'><div class='inv-title'>✅ 动销 ASIN 对应库存</div><div class='inv-stock'>"+fmt(A.invSold.stock)+"</div><div class='inv-detail'>动销 ASIN "+fmt(A.invSold.asinCount)+" 个 · Excel 匹配 "+fmt(A.invSold.matchedCount)+" 个<br>判定：当前周 Units &gt; 0</div></div>";
   h += "<div class='inv-card idle'><div class='inv-title'>⏸ 不动销 ASIN 对应库存</div><div class='inv-stock'>"+fmt(A.invIdle.stock)+"</div><div class='inv-detail'>不动销 ASIN "+fmt(A.invIdle.asinCount)+" 个 · Excel 匹配 "+fmt(A.invIdle.matchedCount)+" 个<br>判定：当前周在售且 Units = 0</div></div>";
   h += "</div><div class='hint'>库存取自 SKU 负责人 Excel 的 FBA 可售；未匹配 Excel 的 ASIN 不计入库存合计。点击标题旁的按钮可导出全部明细。</div>";
+  h += "</section>";
 
-  h += "<h2>三、价格段分布 (按 ASP 归段 · 出单ASIN数 / GV / Units / ASP · 环比 "+esc(A.PREV)+"→"+esc(A.CUR)+")"+xb('expBands()')+"</h2>";
+  h += "<section class='"+reportViewClass('pricing')+"' data-report-view='pricing'>";
+  h += "<h2 id='price-band-panel'>四、价格结构诊断 (按 ASP 归段 · 出单ASIN数 / GV / Units / ASP · 环比 "+esc(A.PREV)+"→"+esc(A.CUR)+")"+xb('expBands()')+"</h2>";
   h += "<div class='pbdist'>";
   BANDS.forEach(function(b){
     var c=A.bandC[b.k], p=A.bandP[b.k];
@@ -483,32 +2212,46 @@ function render(A){
   h += "<div>ASIN <b>"+fmt(tns.n)+"</b> "+delSpan(tns.n-tnsP.n)+"</div>";
   h += "<div>GV "+fmt(tns.gv)+" "+delSpan(tns.gv-tnsP.gv)+"</div>";
   h += "<div>Units <b>0</b></div>";
-  h += "<div style='color:#888;font-size:0.66rem;margin-top:3px'>有曝光但0转化，无法按ASP归段</div>";
+  h += "<div style='color:#888;font-size:0.66rem;margin-top:3px'>有会话/曝光但 Units=0，无法按 ASP 归段</div>";
   h += "</div></div>";
 
-  h += "<h3 style='color:#00d4ff;font-size:0.92rem;margin:16px 0 8px'>各价格段 · 出单 ASIN 明细 ("+esc(A.CUR)+" 有销量, 共 "+A.sold.length+" 个) <button onclick='expCsv()' style='background:#4caf50;color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-left:10px'>📥 一键导出 Excel</button></h3>";
+  h += "<div class='detail-section-head' id='price-detail-panel'><div><h3>各价格段 · 出单 ASIN 明细（"+esc(A.CUR)+" 共 "+A.sold.length+" 个）</h3><p>按价格段筛选，或搜索 ASIN、产品名、MSKU；点击分组可展开明细。</p></div><button type='button' class='detail-export' onclick='expCsv()'>📥 导出 CSV</button></div>";
+  h += "<div class='band-filter-shell'><div class='band-filter-tabs' role='tablist' aria-label='价格段筛选'>";
+  h += "<button type='button' class='band-filter-tab active' data-band='ALL' role='tab' aria-selected='true' onclick='setBandView(this.dataset.band,this)'>全部 <span>"+A.sold.length+"</span></button>";
+  BANDS.forEach(function(b){
+    var count=A.sold.filter(function(r){return r.band===b.k;}).length;
+    if(count===0) return;
+    h += "<button type='button' class='band-filter-tab' data-band='"+attr(b.k)+"' role='tab' aria-selected='false' onclick='setBandView(this.dataset.band,this)'>"+esc(b.k)+" <span>"+count+"</span></button>";
+  });
+  h += "</div><label class='band-search'><span aria-hidden='true'>⌕</span><input id='bandSearch' type='search' placeholder='搜索 ASIN / 产品名 / MSKU' oninput='applyBandFilters()'></label></div>";
+  h += "<div id='bandDetails' class='band-groups'>";
   BANDS.forEach(function(b){
     var list=A.sold.filter(function(r){return r.band===b.k;}).sort(function(x,y){return y.u-x.u;});
     if(list.length===0) return;
-    h += "<div style='margin-bottom:10px'><div style='color:#b388ff;font-weight:bold;font-size:0.82rem;margin-bottom:2px'>"+b.k+" · "+list.length+" 个出单</div>";
+    h += "<details class='band-group' data-band='"+attr(b.k)+"'><summary><span class='band-name'>"+esc(b.k)+"</span><span class='band-count'>"+list.length+" 个出单</span><span class='band-open-label'>展开明细</span></summary><div class='band-list'>";
     list.forEach(function(r){
-      h += "<div class='line'>"+asinHead(r.a,r.n,50)+" · GV "+fmt(r.gv)+" · Units <b style='color:#4caf50'>"+r.u+"</b> · ASP <b style='color:#ffd700'>$"+r.asp.toFixed(2)+"</b></div>";
+      h += "<div class='line band-row'>"+asinHead(r.a,r.n,50)+" · GV "+fmt(r.gv)+" · Units <b style='color:#4caf50'>"+r.u+"</b> · ASP <b style='color:#ffd700'>$"+r.asp.toFixed(2)+"</b></div>";
     });
-    h += "</div>";
-  });
-
-  h += "<h2>四、ASIN 级洞察 (原始周数据 "+esc(A.PREV)+" → "+esc(A.CUR)+")</h2>";
-  h += "<div class='grid2'>";
-  h += "<div class='box down'><h3>🚨 量价齐跌 ASIN (需预警)"+xb('expInsight(\"priceVolDown\")')+"</h3>";
-  if(A.priceVolDown.length===0) h+="<div class='line' style='color:#777'>无</div>";
-  A.priceVolDown.forEach(function(r){
-    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>GV <span style='color:#ff5252'>"+sign(r.cg-r.pg)+"</span> ("+fmt(r.pg)+"→"+fmt(r.cg)+"), Units <span style='color:#ff5252'>"+sign(r.cu-r.pu)+"</span> ("+r.pu+"→"+r.cu+")</div>";
+    h += "</div></details>";
   });
   h += "</div>";
-  h += "<div class='box'><h3>💧 GV跌但Units涨 ASIN (降价走量)"+xb('expInsight(\"gvDownUnitUp\")')+"</h3>";
+  h += "</section>";
+
+  h += "<section class='"+reportViewClass('risks')+"' data-report-view='risks'>";
+  h += "<h2 id='asin-detail-panel'>五、ASIN 风险明细 (原始周数据 "+esc(A.PREV)+" → "+esc(A.CUR)+")</h2>";
+  h += "<div class='grid2'>";
+  h += "<div class='box down' id='risk-price-down'><h3>🚨 量价齐跌 ASIN（销量与 ASP 同时下降）"+xb('expInsight(\"priceVolDown\")')+"</h3>";
+  if(A.priceVolDown.length===0) h+="<div class='line' style='color:#777'>无</div>";
+  A.priceVolDown.forEach(function(r){
+    var pa=r.ps/r.pu, ca=r.cs/r.cu;
+    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>Units <span style='color:#ff5252'>"+sign(r.cu-r.pu)+"</span> ("+r.pu+"→"+r.cu+") · ASP <span style='color:#ff5252'>-$"+(pa-ca).toFixed(2)+"</span> ($"+pa.toFixed(2)+"→$"+ca.toFixed(2)+") · GV "+fmt(r.pg)+"→"+fmt(r.cg)+"</div>";
+  });
+  h += "</div>";
+  h += "<div class='box'><h3>💧 降价走量 ASIN（ASP 下降、销量上升）"+xb('expInsight(\"gvDownUnitUp\")')+"</h3>";
   if(A.gvDownUnitUp.length===0) h+="<div class='line' style='color:#777'>无</div>";
   A.gvDownUnitUp.forEach(function(r){
-    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>GV <span style='color:#ff5252'>"+sign(r.cg-r.pg)+"</span> ("+fmt(r.pg)+"→"+fmt(r.cg)+"), Units <span style='color:#4caf50'>"+sign(r.cu-r.pu)+"</span> ("+r.pu+"→"+r.cu+")</div>";
+    var pa=r.ps/r.pu, ca=r.cs/r.cu;
+    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>Units <span style='color:#4caf50'>"+sign(r.cu-r.pu)+"</span> ("+r.pu+"→"+r.cu+") · ASP <span style='color:#ff5252'>-$"+(pa-ca).toFixed(2)+"</span> ($"+pa.toFixed(2)+"→$"+ca.toFixed(2)+") · GV "+fmt(r.pg)+"→"+fmt(r.cg)+"</div>";
   });
   h += "</div></div>";
 
@@ -526,19 +2269,29 @@ function render(A){
   });
   h += "</div></div>";
 
-  h += "<div class='box' style='margin-top:14px;border-color:#ff9800;background:#2a2214'><h3 style='color:#ff9800'>🐢 高曝光·动销慢 ASIN — 建议降价促转化 ("+A.highGvLowConv.length+" 个)"+xb('expHighGv()')+"</h3>";
-  h += "<div style='color:#888;font-size:0.74rem;margin-bottom:6px'>以下 ASIN 有较高曝光(GV≥50)但几乎不出单(转化率&lt;1%)，多为定价偏高/压货，建议降价或优化主图刺激成交。</div>";
+  h += "<div class='box' id='risk-highgv' style='margin-top:14px;border-color:#ff9800;background:#2a2214'><h3 style='color:#ff9800'>🐢 高曝光·低转化 ASIN ("+A.highGvLowConv.length+" 个)"+xb('expHighGv()')+"</h3>";
+  h += "<div style='color:#888;font-size:0.74rem;margin-bottom:6px'>筛选条件：GV≥50 且转化率&lt;1%。优先按 Units / Sessions 计算；报告缺少 Sessions 时标记为 GV 代理口径。</div>";
   if(A.highGvLowConv.length===0) h+="<div class='line' style='color:#777'>无</div>";
   A.highGvLowConv.forEach(function(r){
-    var conv = r.cg>0?(r.cu/r.cg*100):0;
-    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>曝光 GV <b>"+fmt(r.cg)+"</b> · 销量 Units <b style='color:#ff5252'>"+r.cu+"</b> · 转化率 <b style='color:#ff9800'>"+conv.toFixed(1)+"%</b></div>";
+    var denominator=(r.cq||0)>0?r.cq:r.cg;
+    var conv=denominator>0?(r.cu/denominator*100):0;
+    var basis=(r.cq||0)>0?'Sessions':'GV 代理';
+    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>GV <b>"+fmt(r.cg)+"</b>"+((r.cq||0)>0?" · Sessions <b>"+fmt(r.cq)+"</b>":"")+" · Units <b style='color:#ff5252'>"+r.cu+"</b> · 转化率 <b style='color:#ff9800'>"+conv.toFixed(1)+"%</b> <span style='color:#888'>("+basis+")</span></div>";
   });
   h += "</div>";
 
-  h += "<div class='box' style='margin-top:14px;border-color:#e91e63;background:#2a1420'><h3 style='color:#e91e63'>⛔ 上周有动销·本周停售 ASIN ("+A.stopped.length+" 个)"+xb('expStopped()')+"</h3>";
+  h += "<div class='box' id='risk-traffic-no-sale' style='margin-top:14px;border-color:#d7a82f;background:#2a2416'><h3 style='color:#d7a82f'>🚦 有流量·零销量 ASIN ("+A.trafficNoSaleList.length+" 个)"+xb('expTrafficNoSale()')+"</h3>";
+  h += "<div style='color:#888;font-size:0.74rem;margin-bottom:6px'>当前周有 Sessions 或 GV，但 Units=0。按流量从高到低排列，优先检查详情页承接、价格与 Buy Box。</div>";
+  if(A.trafficNoSaleList.length===0) h+="<div class='line' style='color:#777'>无</div>";
+  A.trafficNoSaleList.forEach(function(r){
+    h += "<div class='line'>"+asinHead(r.a,r.n,42)+"<br>GV <b>"+fmt(r.cg)+"</b>"+((r.cq||0)>0?" · Sessions <b>"+fmt(r.cq)+"</b>":"")+" · Units <b style='color:#d7a82f'>0</b></div>";
+  });
+  h += "</div>";
+
+  h += "<div class='box' id='risk-stopped' style='margin-top:14px;border-color:#e91e63;background:#2a1420'><h3 style='color:#e91e63'>⛔ 上周有动销·本周停售 ASIN ("+A.stopped.length+" 个)"+xb('expStopped()')+"</h3>";
   h += "<div style='color:#888;font-size:0.74rem;margin-bottom:6px'>上周还有销量、本周销量归零。优先排查断货 / 丢 Buy Box / 价格或Listing异常。</div>";
   if(A.stopped.length===0) h+="<div class='line' style='color:#777'>无</div>";
-  A.stopped.slice(0,40).forEach(function(r){
+  A.stopped.forEach(function(r){
     var flag='';
     if(r.pg>0 && r.cg < r.pg*0.5) flag=" · <span style='color:#ff5252'>曝光也大跌(疑似断货/下架)</span>";
     else if(r.cg>0) flag=" · <span style='color:#ff9800'>仍有曝光(疑似掉BuyBox/价格问题)</span>";
@@ -546,27 +2299,126 @@ function render(A){
   });
   h += "</div>";
 
-  h += "<h2>五、行动建议</h2><ul>";
+  h += "<h2>六、处理原则（完成优先清单后）</h2><ul>";
   h += "<li><b style='color:#e91e63'>"+A.stopped.length+" 个 ASIN 上周有销量、本周停售</b>：最紧急，优先排查是否断货 / 丢 Buy Box / 价格或Listing异常。</li>";
-  h += "<li><b style='color:#ff9800'>"+A.highGvLowConv.length+" 个 ASIN 曝光高但动销慢</b>(转化&lt;1%)：建议<b>降价</b>促转化 / 优化主图与 A+ / 或安排清仓，避免压货占库容。</li>";
-  h += "<li><b>优先跟进量价齐跌 ASIN</b>("+A.priceVolDown.length+"个)：排查是否断货、丢失 Buy Box 或流量下滑，及时补货/修复。</li>";
+  h += "<li><b style='color:#ff9800'>"+A.highGvLowConv.length+" 个 ASIN 高曝光低转化</b>(转化&lt;1%)：先检查 Buy Box、价格竞争力、主图和优惠，再决定降价或清货。</li>";
+  h += "<li><b>优先跟进量价齐跌 ASIN</b>("+A.priceVolDown.length+"个)：销量与 ASP 同时下降，确认降价是否带来有效增量，并检查流量与转化变化。</li>";
   if(A.gvDownUnitUp.length>0) h += "<li>有 "+A.gvDownUnitUp.length+" 个 ASIN 靠<b>降价走量</b>，销量在涨，关注利润(ASP/毛利)是否被过度侵蚀。</li>";
   h += "<li>对 GV 增长的 ASIN 追加库存与广告投入，趁势放大。</li>";
   h += "<li>持续上新优质选品，扩大动销面与曝光。</li>";
   h += "</ul>";
   h += "<p style='color:#666;font-size:0.75rem;margin-top:14px'>数据周期: "+esc(A.PREV)+" → "+esc(A.CUR)+" · 价格段依据 ASP=销售额/销量 · 生成时间 "+new Date().toLocaleString('zh-CN')+"</p>";
+  h += "</section></main></div>";
 
   document.getElementById('report').innerHTML = h;
+  enhanceLongLists();
+  syncOwnerTabs();
+}
+
+function setBandView(key,button){
+  document.querySelectorAll('#report .band-filter-tab').forEach(function(tab){
+    var active=tab.dataset.band===key;
+    tab.classList.toggle('active',active);
+    tab.setAttribute('aria-selected',active?'true':'false');
+  });
+  applyBandFilters();
+  if(key!=='ALL'){
+    var group=document.querySelector("#report .band-group[data-band='"+CSS.escape(key)+"']");
+    if(group){
+      group.hidden=false;
+      group.open=true;
+      var label=group.querySelector('.band-open-label');
+      if(label) label.textContent='收起明细';
+      group.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+  }
+}
+function applyBandFilters(){
+  var active=document.querySelector('#report .band-filter-tab.active');
+  var key=active?active.dataset.band:'ALL';
+  var input=document.getElementById('bandSearch');
+  var query=input?input.value.trim().toLowerCase():'';
+  document.querySelectorAll('#report .band-group').forEach(function(group){
+    var matches=0;
+    group.querySelectorAll('.band-row').forEach(function(row){
+      var hit=!query || row.textContent.toLowerCase().indexOf(query)>=0;
+      row.hidden=!hit;
+      if(hit) matches++;
+    });
+    group.hidden=(key!=='ALL' && group.dataset.band!==key) || (query && matches===0);
+    if(query && matches>0) group.open=true;
+  });
+}
+function setListExpanded(box,expanded){
+  box.classList.toggle('is-expanded',expanded);
+  var button=box.querySelector(':scope > .list-toggle');
+  if(!button) return;
+  var hiddenCount=parseInt(button.dataset.hiddenCount||'0',10);
+  button.setAttribute('aria-expanded',expanded?'true':'false');
+  button.textContent=expanded?'收起明细':'展开全部（另有 '+hiddenCount+' 条）';
+}
+function enhanceLongLists(){
+  document.querySelectorAll('#report .box').forEach(function(box){
+    var rows=Array.prototype.filter.call(box.children,function(node){
+      return node.classList && node.classList.contains('line');
+    });
+    if(rows.length<=6) return;
+    box.classList.add('is-collapsible');
+    rows.slice(6).forEach(function(row){row.classList.add('is-extra');});
+    var button=document.createElement('button');
+    button.type='button';
+    button.className='list-toggle';
+    button.dataset.hiddenCount=String(rows.length-6);
+    button.setAttribute('aria-expanded','false');
+    button.textContent='展开全部（另有 '+(rows.length-6)+' 条）';
+    button.addEventListener('click',function(){setListExpanded(box,!box.classList.contains('is-expanded'));});
+    box.appendChild(button);
+  });
+  document.querySelectorAll('#report .band-group').forEach(function(group){
+    group.addEventListener('toggle',function(){
+      var label=group.querySelector('.band-open-label');
+      if(label) label.textContent=group.open?'收起明细':'展开明细';
+    });
+  });
+}
+function setReportView(key,button,skipScroll){
+  ACTIVE_REPORT_VIEW=key;
+  document.querySelectorAll('#report .report-view').forEach(function(view){
+    var active=view.dataset.reportView===key;
+    view.classList.toggle('is-active',active);
+    view.setAttribute('aria-hidden',active?'false':'true');
+  });
+  document.querySelectorAll('#report [data-report-tab]').forEach(function(tab){
+    var active=tab.dataset.reportTab===key;
+    tab.classList.toggle('active',active);
+    tab.setAttribute('aria-selected',active?'true':'false');
+  });
+  if(!skipScroll){
+    var main=document.querySelector("#report .report-view[data-report-view='"+key+"']");
+    if(main) main.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+function focusInsightPanel(id){
+  var panel=document.getElementById(id);
+  if(!panel) return;
+  var view=panel.closest('.report-view');
+  if(view) setReportView(view.dataset.reportView,null,true);
+  if(panel.classList.contains('is-collapsible')) setListExpanded(panel,true);
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+  panel.classList.remove('is-focus-pulse');
+  void panel.offsetWidth;
+  panel.classList.add('is-focus-pulse');
+  window.setTimeout(function(){panel.classList.remove('is-focus-pulse');},1200);
 }
 
 function tag(){ if(!LAST_A) return ''; var who=LAST_A.owner==='ALL'?'':('_'+LAST_A.ownerLabel.replace(/[^\w\u4e00-\u9fa5-]/g,'')); return LAST_A.PREV+'_'+LAST_A.CUR+who; }
 
 // 各价格段出单ASIN明细
 function expCsv(){
-  var rows=[['价格段','ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV','Units','ASP','销售额']];
+  var rows=[['价格段','ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV','Sessions','Units','ASP','销售额']];
   LAST_SOLD.slice().sort(function(a,b){return b.u-a.u;}).forEach(function(r){
     var m=metaExport(r.a);
-    rows.push([r.band,r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.gv,r.u,r.asp.toFixed(2),r.cs.toFixed(2)]);
+    rows.push([r.band,r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.gv,r.sessions||'',r.u,r.asp.toFixed(2),r.cs.toFixed(2)]);
   });
   downloadCSV('货盘动销_价格段出单ASIN_'+tag()+'.csv', rows);
 }
@@ -589,10 +2441,10 @@ function expSummary(){
 // 有流量、零销量 ASIN 明细
 function expTrafficNoSale(){
   var A=LAST_A; if(!A) return;
-  var rows=[['ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV_'+A.CUR,'Units_'+A.CUR,'Units_'+A.PREV]];
+  var rows=[['ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV_'+A.CUR,'Sessions_'+A.CUR,'Units_'+A.CUR,'Units_'+A.PREV]];
   A.trafficNoSaleList.forEach(function(r){
     var m=metaExport(r.a);
-    rows.push([r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.cg,r.cu,r.pu]);
+    rows.push([r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.cg,r.cq||'',r.cu,r.pu]);
   });
   downloadCSV('货盘动销_有流量零销量_'+tag()+'.csv', rows);
 }
@@ -630,12 +2482,13 @@ function expBands(){
 // 通用 ASIN 洞察清单导出
 function expInsight(key){
   var A=LAST_A; if(!A) return;
-  var titleMap={priceVolDown:'量价齐跌',gvDownUnitUp:'GV跌Units涨',gvDropTop:'GV掉幅最大',gvUpTop:'GV增长最多'};
+  var titleMap={priceVolDown:'量价齐跌',gvDownUnitUp:'降价走量',gvDropTop:'GV掉幅最大',gvUpTop:'GV增长最多'};
   var list=A[key]||[];
-  var rows=[['ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV_'+A.PREV,'GV_'+A.CUR,'GV变化','Units_'+A.PREV,'Units_'+A.CUR,'Units变化','ASP_'+A.CUR]];
+  var rows=[['ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV_'+A.PREV,'GV_'+A.CUR,'GV变化','Units_'+A.PREV,'Units_'+A.CUR,'Units变化','ASP_'+A.PREV,'ASP_'+A.CUR,'ASP变化']];
   list.forEach(function(r){
-    var asp=r.cu>0?(r.cs/r.cu):0, m=metaExport(r.a);
-    rows.push([r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.pg,r.cg,r.cg-r.pg,r.pu,r.cu,r.cu-r.pu,asp?asp.toFixed(2):'']);
+    var asp=r.cu>0?(r.cs/r.cu):null, prevAsp=r.pu>0?(r.ps/r.pu):null, m=metaExport(r.a);
+    rows.push([r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.pg,r.cg,r.cg-r.pg,r.pu,r.cu,r.cu-r.pu,
+      prevAsp===null?'':prevAsp.toFixed(2),asp===null?'':asp.toFixed(2),(asp===null||prevAsp===null)?'':(asp-prevAsp).toFixed(2)]);
   });
   downloadCSV('货盘动销_'+(titleMap[key]||key)+'_'+tag()+'.csv', rows);
 }
@@ -643,10 +2496,10 @@ function expInsight(key){
 // 高曝光动销慢
 function expHighGv(){
   var A=LAST_A; if(!A) return;
-  var rows=[['ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV_'+A.CUR,'Units_'+A.CUR,'转化率%']];
+  var rows=[['ASIN','MSKU','FBA可售','7日销量','负责人','产品名','GV_'+A.CUR,'Sessions_'+A.CUR,'Units_'+A.CUR,'转化率%','转化口径']];
   A.highGvLowConv.forEach(function(r){
-    var conv=r.cg>0?(r.cu/r.cg*100):0, m=metaExport(r.a);
-    rows.push([r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.cg,r.cu,conv.toFixed(2)]);
+    var denominator=(r.cq||0)>0?r.cq:r.cg, conv=denominator>0?(r.cu/denominator*100):0, m=metaExport(r.a);
+    rows.push([r.a,m.msku,m.stock,m.sales7,m.owner,r.n,r.cg,r.cq||'',r.cu,conv.toFixed(2),(r.cq||0)>0?'Units/Sessions':'Units/GV（代理）']);
   });
   downloadCSV('货盘动销_高曝光动销慢_'+tag()+'.csv', rows);
 }
@@ -739,7 +2592,7 @@ function renderTrend(weeks){
   if(hasWoc) h+="<div class='chart-box'><h3>WoC 库存周数</h3>"+lineChart(weeks,'woc','#26a69a',f1)+"</div>";
   else h+="<div class='chart-box'><h3>WoC 库存周数</h3><div class='hint' style='margin-top:20px'>在下方表格填写<b>所有周</b>的 WoC 并点「应用」后显示曲线。</div></div>";
   h+="</div>";
-  h+="<h2>周度指标汇总 <button class='btn' style='padding:5px 12px;font-size:0.8rem;margin-left:8px' onclick='applyManual()'>✅ 应用库容/WoC 并更新图表</button><button class='btn green' style='padding:5px 12px;font-size:0.8rem;margin-left:8px' onclick='expTrend()'>📥 导出Excel</button></h2>";
+  h+="<h2>周度指标汇总 <button class='btn' style='padding:5px 12px;font-size:0.8rem;margin-left:8px' onclick='applyManual()'>✅ 应用库容/WoC 并更新图表</button><button class='btn green' style='padding:5px 12px;font-size:0.8rem;margin-left:8px' onclick='expTrend()'>📥 导出 CSV</button></h2>";
   h+="<table class='wk'><tr><th>周</th><th>GV</th><th>Units</th><th>销售额</th><th>ASP</th><th>动销ASIN</th><th>在售ASIN</th><th>动销率</th><th>库容使用率%</th><th>WoC</th></tr>";
   weeks.forEach(function(w,i){
     var capV = (typeof w.cap==='number' && !isNaN(w.cap))? w.cap : '';
@@ -778,6 +2631,9 @@ function readFileText(file){
   });
 }
 function setErr(msg){ document.getElementById('errMsg').textContent = msg||''; }
+function normalizedReportText(text){
+  return String(text==null?'':text).replace(/\uFEFF/g,'').replace(/\r\n/g,'\n').trim();
+}
 
 function switchView(v){
   document.getElementById('viewWow').style.display = (v==='wow')?'block':'none';
@@ -795,9 +2651,14 @@ document.getElementById('btnRun').addEventListener('click', function(){
   var lp=document.getElementById('labelPrev').value.trim()||'上周';
   Promise.all([readFileText(fc), readFileText(fp)]).then(function(texts){
     try{
+      if(normalizedReportText(texts[0])===normalizedReportText(texts[1])){
+        setErr('两份报告内容完全相同，请选择不同周期的业务报告。');
+        return;
+      }
       var cur=readReport(texts[0]);
       var prev=readReport(texts[1]);
-      if(cur.total===0){ setErr('本周文件未解析到数据，请确认是亚马逊业务报告 CSV。'); return; }
+      if(cur.total===0){ setErr('当前周文件未解析到有效 ASIN，请确认文件内容与报表类型。'); return; }
+      if(prev.total===0){ setErr('对比周文件未解析到有效 ASIN，请确认文件内容与报表类型。'); return; }
       var data=combine(cur,prev,lc,lp);
       setBaseData(data);
       window.scrollTo(0, document.getElementById('report').offsetTop-10);
@@ -821,8 +2682,15 @@ document.getElementById('btnTrend').addEventListener('click', function(){
   for(var i=0;i<files.length;i++) arr.push(files[i]);
   Promise.all(arr.map(function(f){return readFileText(f);})).then(function(texts){
     try{
+      var seenReports=Object.create(null);
       var weeks=texts.map(function(t,i){
+        var normalized=normalizedReportText(t);
+        if(seenReports[normalized]){
+          throw new Error('文件「'+arr[i].name+'」与另一周内容完全相同，请移除重复周期。');
+        }
+        seenReports[normalized]=true;
         var rep=readReport(t);
+        if(rep.total===0) throw new Error('文件「'+arr[i].name+'」未解析到有效 ASIN。');
         var lbl=(labels && labels[i])? labels[i] : arr[i].name.replace(/\.csv$/i,'');
         return weekAgg(rep, lbl);
       });
