@@ -68,12 +68,12 @@ svg{display:block;width:100%;height:auto}
 <div class="wrap">
 <div class="upload-grid">
  <div class="card upload-card"><b>① 每周销售数据</b><small>可多选 WK27–WK32 CSV，按文件名识别周次。</small><input id="salesFiles" type="file" accept=".csv" multiple><button class="btn" onclick="uploadMany('sales','salesFiles')">载入销售CSV</button></div>
- <div class="card upload-card"><b>② 店铺库存报告数据</b><small>大文件流式读取，解析库龄桶用于滞销诊断。</small><input id="inventoryFile" type="file" accept=".xlsx"><button class="btn" onclick="uploadOne('inventory','inventoryFile')">载入库存报告XLSX</button></div>
+ <div class="card upload-card"><b>② 店铺库存报告数据</b><small>大文件流式读取，优先读取 Raw Data 工作表并解析库龄桶。</small><input id="inventoryFile" type="file" accept=".xlsx"><button class="btn" onclick="uploadOne('inventory','inventoryFile')">载入库存报告XLSX</button></div>
  <div class="card upload-card"><b>③ ASIN + SKU + 负责人</b><small>三项齐全才纳入分析，无SKU记录自动剔除。</small><input id="mappingFile" type="file" accept=".xlsx"><button class="btn" onclick="uploadOne('mapping','mappingFile')">载入映射XLSX</button></div>
  <div class="card upload-card"><b>④ 国际订单</b><small>按订单号去重，仅SKU精确匹配负责人。</small><input id="intlFile" type="file" accept=".csv"><button class="btn" onclick="uploadOne('international','intlFile')">载入国际订单CSV</button></div>
  <div class="card upload-card" style="border-left:5px solid #0891b2"><b>⑤ 领星后台数据</b><small>FBA可售作为最新库存口径，含7/14/30日均销量与负责人。</small><input id="lxFile" type="file" accept=".xlsx"><button class="btn" style="background:#0891b2" onclick="uploadOne('lingxing','lxFile')">载入领星XLSX</button></div>
 </div>
-<div class="card" style="margin-top:10px;border-left:5px solid #2563eb"><b>最快用法：</b>点下面的“选择整个卖家分析文件夹”，一次性载入周销售、店铺库存报告、映射、国际订单、领星数据，子文件夹会自动识别为独立店铺。也可以只用上方任意一个入口单独载入某一类数据，载入一类就会立即重新分析并刷新全部板块。<div style="margin-top:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input id="folderInput" type="file" webkitdirectory directory multiple><button class="btn" onclick="loadFolder()">选择整个卖家分析文件夹</button><button class="btn alt" onclick="resetAll()">清空已载入数据</button><span id="ioProgress" style="font-size:12px;color:#64748b"></span></div><div style="margin-top:7px;font-size:12px;color:#64748b">全部计算都在你本机浏览器内完成，不会上传到任何服务器。超大库存报告采用流式解析，首次解析可能需要 1-3 分钟。建议使用 Chrome 或 Edge。</div></div>
+<div class="card" style="margin-top:10px;border-left:5px solid #2563eb"><b>最快用法：</b>点下面的“选择整个 WK34 / 卖家分析文件夹”，一次性载入销售数据、库存数据、国际订单、领星数据，也兼容映射文件。每个板块下面都可以放多个文件夹和多个文件，工具会递归收集、自动合并；库存数据会优先读取 Excel 的 Raw Data 工作表。<div style="margin-top:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input id="folderInput" type="file" webkitdirectory directory multiple><button class="btn" onclick="loadFolder()">选择整个 WK34 / 卖家分析文件夹</button><button class="btn alt" onclick="resetAll()">清空已载入数据</button><span id="ioProgress" style="font-size:12px;color:#64748b"></span></div><div style="margin-top:7px;font-size:12px;color:#64748b">全部计算都在你本机浏览器内完成，不会上传到任何服务器。超大库存报告采用流式解析，首次解析可能需要 1-3 分钟。建议使用 Chrome 或 Edge。</div></div>
 <div id="status" class="status">正在读取数据…</div>
 <div class="shell">
  <div class="side" id="side"></div>
@@ -137,23 +137,25 @@ const p1=v=>(n(v)*100).toFixed(1)+'%';
 const q1=s=>String(s).replace(/'/g,'&#39;');
 function csvRows(text){const out=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}else if(c==='"')q=true;else if(c===','){row.push(cur);cur=''}else if(c==='\n'){row.push(cur);out.push(row);row=[];cur=''}else if(c!=='\r')cur+=c}if(cur||row.length){row.push(cur);out.push(row)}return out}
 function norm(s){return String(s??'').replace(/^\ufeff/,'').replace(/[\s\u00a0（）()\-]/g,'').toLowerCase()}
-function startInfo(name){const m=name.match(/(\d{1,2})[.\-]+(\d{1,2})/);if(!m)return null;const mo=+m[1],d=+m[2];return{mo,d,ord:mo*100+d,doy:Math.round(new Date(2026,mo-1,d).getTime()/86400000),txt:`${String(mo).padStart(2,'0')}.${String(d).padStart(2,'0')}`}}
+function startInfo(name){const wk=String(name||'').match(/\bWK\s*0?(\d{1,2})\b/i);
+ if(wk){const n=+wk[1];return{wk:n,doy:n*7,txt:'WK'+n,label:'WK'+n}}
+ const m=String(name||'').match(/(\d{1,2})[.\-]+(\d{1,2})/);if(!m)return null;const mo=+m[1],d=+m[2];return{mo,d,ord:mo*100+d,doy:Math.round(new Date(2026,mo-1,d).getTime()/86400000),txt:`${String(mo).padStart(2,'0')}.${String(d).padStart(2,'0')}`}}
 function buildWeeks(files){const infos=files.map(f=>({f,s:startInfo(f.name)})).filter(x=>x.s).sort((a,b)=>a.s.doy-b.s.doy);
  const clusters=[];infos.forEach(x=>{const c=clusters.find(c=>Math.abs(c.doy-x.s.doy)<=3);if(c){c.members.push(x);c.doy=Math.min(c.doy,x.s.doy);if(x.s.doy<c.doy)c.txt=x.s.txt}else clusters.push({doy:x.s.doy,txt:x.s.txt,members:[x]})});
  clusters.sort((a,b)=>a.doy-b.doy);
- const weeks=clusters.map((c,i)=>({key:'WK'+(27+i),label:'WK'+(27+i),full:'WK'+(27+i)+' '+c.txt}));
+ const weeks=clusters.map((c,i)=>{const wk=c.members.map(m=>m.s.wk).filter(Boolean)[0],label=wk?'WK'+wk:'WK'+(27+i);return{key:label,label,full:wk?label:label+' '+c.txt}});
  const idxOf=new Map();clusters.forEach((c,i)=>c.members.forEach(m=>idxOf.set(m.f,i)));
  return{weeks,idxOf}}
 function colIndex(h,tests,fb){const nn=h.map(norm);for(const t of tests){const i=nn.indexOf(norm(t));if(i>=0)return i}return fb}
 function wkOrder(){return WEEKS.map((w,i)=>i).reverse()}
 function process(){
- LXROWS=(RAW.lingxing||[]).map(r=>({asin:String(r.ASIN||'').trim().toUpperCase(),sku:String(r.SKU||'').trim(),msku:String(r.MSKU||'').trim(),name:String(r['品名']||''),owner:String(r['Listing负责人']||'').trim(),parent:String(r['父ASIN']||''),fba:n(r['FBA可售']),d7:n(r['7日均销量']),d14:n(r['14日均销量']),d30:n(r['30日均销量'])})).filter(x=>x.asin);
+ LXROWS=(RAW.lingxing||[]).map(r=>({asin:String(r.ASIN||'').trim().toUpperCase(),sku:String(r.SKU||'').trim(),msku:String(r.MSKU||'').trim(),name:String(r['品名']||''),owner:String(r['Listing负责人']||'').trim(),parent:String(r['父ASIN']||''),fba:n(r['FBA可售']),d7:n(r['7日均销量']),d14:n(r['14日均销量']),d30:n(r['30日均销量']),store:String(r.store||'')})).filter(x=>x.asin);
  LX={};LXROWS.forEach(r=>{const z=LX[r.asin]||(LX[r.asin]={fba:0,d7:0,d14:0,d30:0,skus:[]});z.fba+=r.fba;z.d7+=r.d7;z.d14+=r.d14;z.d30+=r.d30;if(r.sku&&!z.skus.includes(r.sku))z.skus.push(r.sku)});
  const seenMap=new Set();
  MAP=[];
  (RAW.mapping||[]).forEach(r=>{const x={asin:String(r.ASIN||'').trim().toUpperCase(),sku:String(r.SKU||'').trim(),name:String(r['品名']||''),owner:String(r['Listing负责人']||'').trim(),store:String(r.store||'')};
   if(!x.asin||!x.sku||!x.owner)return;const k=x.asin+'|'+x.sku;if(seenMap.has(k))return;seenMap.add(k);MAP.push(x)});
- LXROWS.forEach(r=>{if(!r.asin||!r.sku||!r.owner)return;const k=r.asin+'|'+r.sku;if(seenMap.has(k))return;seenMap.add(k);MAP.push({asin:r.asin,sku:r.sku,name:r.name,owner:r.owner,store:''})});
+ LXROWS.forEach(r=>{if(!r.asin||!r.sku||!r.owner)return;const k=r.asin+'|'+r.sku;if(seenMap.has(k))return;seenMap.add(k);MAP.push({asin:r.asin,sku:r.sku,name:r.name,owner:r.owner,store:r.store||''})});
  const files=(RAW.sales||[]).slice();const wk=buildWeeks(files);WEEKS=wk.weeks;
  STORES=[...new Set(files.map(f=>f.store||'主店铺'))];
  const byAsin={};
@@ -174,13 +176,15 @@ function inventoryMap(){const m={};INVROWS.forEach(r=>{const a=String(r.asin||''
  const z=m[a]||(m[a]={qty:0,a0:0,a31:0,a61:0,a91:0,aged60:0,segment:'',snapshot:'',band:'',pt:'',store:r.store||''});
  z.qty+=n(r.onhand_units);z.a0+=n(r.age_0_30_units);z.a31+=n(r.age_31_60_units);z.a61+=n(r.age_61_90_units);z.a91+=n(r.age_91_plus_units);z.aged60=z.a61+z.a91;
  z.segment=r.velocity_seller_adj||z.segment;z.snapshot=r.period_end||z.snapshot;z.band=r.price_band||z.band;z.pt=r.product_type||z.pt});return m}
-function processIntl(){const b=RAW.international;if(!b){INTL=[];return}
- const rows=csvRows(b.text),h=rows.shift()||[],ix={};h.forEach((x,i)=>ix[norm(x)]=i);
- const get=(r,k,fb='')=>r[ix[norm(k)]]??fb;const skuMap={};MAP.forEach(m=>{if(m.sku)skuMap[m.sku]=m});
+function processIntl(){const files=Array.isArray(RAW.international)?RAW.international:(RAW.international?[RAW.international]:[]);
+ if(!files.length){INTL=[];return}
+ const skuMap={};MAP.forEach(m=>{if(m.sku)skuMap[m.sku]=m});
  const seen=new Set();INTL=[];
- rows.forEach(r=>{const order=String(get(r,'亚马逊订单编号')).trim();if(order&&seen.has(order))return;if(order)seen.add(order);
-  const sku=String(get(r,'SKU')).trim();if(!sku)return;const asin=String(get(r,'ASIN')).trim().toUpperCase(),m=skuMap[sku];
-  INTL.push({asin,sku,owner:m?.owner||'未匹配',name:m?.name||'',date:get(r,'客户配送日期'),qty:n(get(r,'已配送数量')),order,country:get(r,'目的地国家/地区')||'未知',currency:get(r,'货币'),price:n(get(r,'单价')),store:get(r,'店铺')})})}
+ files.forEach(b=>{const rows=csvRows(b.text),h=rows.shift()||[],ix={};h.forEach((x,i)=>ix[norm(x)]=i);
+  const get=(r,k,fb='')=>r[ix[norm(k)]]??fb;
+  rows.forEach(r=>{const order=String(get(r,'亚马逊订单编号')).trim();if(order&&seen.has(order))return;if(order)seen.add(order);
+   const sku=String(get(r,'SKU')).trim();if(!sku)return;const asin=String(get(r,'ASIN')).trim().toUpperCase(),m=skuMap[sku];
+   INTL.push({asin,sku,owner:m?.owner||'未匹配',name:m?.name||'',date:get(r,'客户配送日期'),qty:n(get(r,'已配送数量')),order,country:get(r,'目的地国家/地区')||'未知',currency:get(r,'货币'),price:n(get(r,'单价')),store:get(r,'店铺')||b.store||''})})})}
 function buildSide(){const l=WEEKS.length-1;
  const item=(sec,owner,cls,label,badge)=>{const act=view.sec===sec&&(owner||null)===(view.owner||null);
   return `<div class="nav-item ${cls} ${act?'active':''} ${owner?'owner':''}" onclick="go('${sec}',${owner?`'${q1(owner)}'`:'null'})"><span>${esc(label)}</span>${badge?`<span class="badge">${badge}</span>`:''}</div>`};
@@ -533,7 +537,7 @@ function render(){if(!RAW)return;const rows=filtered();const cls=SEC[view.sec]?.
  else h=qualityPage();
  $('view').innerHTML=`<div class="sec ${cls}">${h}</div>`}
 /* ==== 单机版 IO: 全部在浏览器内解析, 不依赖任何服务器 ==== */
-let LOCAL={sales:[],mapping:[],inventory:null,international:null,lingxing:[],names:{}};
+let LOCAL={sales:[],mapping:[],inventory:null,international:[],lingxing:[],names:{}};
 function ioProg(msg){const e=$('ioProgress');if(e)e.textContent=msg||''}
 function status(s,e=false){$('status').innerHTML=s;$('status').className='status'+(e?' err':'')}
 
@@ -606,6 +610,25 @@ function sheetPaths(entries,bySizeDesc){
  const list=Object.keys(entries).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k));
  if(bySizeDesc)return list.sort((a,b)=>(entries[b].uncomp||entries[b].comp||0)-(entries[a].uncomp||entries[a].comp||0));
  return list.sort((a,b)=>(+a.match(/(\d+)/)[1])-(+b.match(/(\d+)/)[1]))}
+async function workbookSheets(file,entries){
+ const fallback=sheetPaths(entries).map((path,i)=>({name:'Sheet'+(i+1),path}));
+ if(!entries['xl/workbook.xml']||!entries['xl/_rels/workbook.xml.rels'])return fallback;
+ const wb=await entryText(file,entries['xl/workbook.xml']);
+ const rels=await entryText(file,entries['xl/_rels/workbook.xml.rels']);
+ const relMap={};let rm;
+ const relRe=/<Relationship\b([^>]*)\/?>/g;
+ while((rm=relRe.exec(rels))){
+  const attrs=rm[1]||'',id=(/Id="([^"]+)"/.exec(attrs)||[])[1],target=(/Target="([^"]+)"/.exec(attrs)||[])[1];
+  if(id&&target){
+   let path=target.replace(/^\/+/,'');
+   if(!path.startsWith('xl/'))path='xl/'+path.replace(/^\.\.\//,'');
+   relMap[id]=path}}
+ const out=[];let sm;
+ const sheetRe=/<sheet\b([^>]*)\/?>/g;
+ while((sm=sheetRe.exec(wb))){
+  const attrs=sm[1]||'',name=unxml((/name="([^"]*)"/.exec(attrs)||[])[1]||''),id=(/\br:id="([^"]+)"/.exec(attrs)||/\bid="([^"]+)"/.exec(attrs)||[])[1];
+  if(id&&relMap[id]&&entries[relMap[id]])out.push({name,path:relMap[id]})}
+ return out.length?out:fallback}
 // 流式遍历某个工作表的行, onRow 返回 'stop' 可提前结束
 async function streamSheet(file,ent,ss,onRow,onProgress){
  const r=(await entryStream(file,ent)).getReader(),dec=new TextDecoder();
@@ -677,24 +700,33 @@ async function parseLingxingFile(file){
   if(C)return rows}
  throw new Error(`${file.name} 中找不到 ASIN + FBA可售 表头`)}
 
+function inventoryFieldName(v){
+ const fields=['period','period_end','merchant_name','asin','parent_asin','fnsku','velocity_seller_adj','product_type','item_type_keyword','price_band','onhand_units','sellable_units','age_0_30_units','age_31_60_units','age_61_90_units','age_91_plus_units'];
+ const s=norm(v);
+ for(const f of fields)if(s.includes(norm(f)))return f;
+ return String(v||'').trim()}
 async function parseInventoryFile(file,wantedAsins,storeName){
  const ents=await zipEntries(file);
  const ss=ents['xl/sharedStrings.xml']?parseSharedStrings(await entryText(file,ents['xl/sharedStrings.xml'])):[];
  const want=new Set([...wantedAsins].map(a=>String(a).toUpperCase()));
- for(const sp of sheetPaths(ents,true)){
+ const sheets=await workbookSheets(file,ents);
+ const raw=sheets.filter(s=>norm(s.name)==='rawdata');
+ const paths=(raw.length?raw.map(s=>s.path):sheetPaths(ents,true));
+ if(raw.length)ioProg(`库存 ${file.name}：读取 Raw Data 工作表`);
+ for(const sp of paths){
   let hdr=null,asinCol=null,scanned=0;
   const rows=[],samples=[],snaps=new Set();let processed=0;
   const total=await streamSheet(file,ents[sp],ss,seg=>{
    const c=parseRowXml(seg,ss);
    if(!hdr){scanned++;
     let a=null,onhand=false;
-    for(const k in c){if(a===null&&eqh(c[k],'asin'))a=k;if(eqh(c[k],'onhand_units'))onhand=true}
-    if(a&&onhand){hdr={};for(const k in c)hdr[k]=String(c[k]).trim();asinCol=a;return}
+    for(const k in c){if(a===null&&eqh(c[k],'asin'))a=k;if(hash(c[k],'onhand_units'))onhand=true}
+    if(a&&onhand){hdr={};for(const k in c)hdr[k]=inventoryFieldName(c[k]);asinCol=a;return}
     if(scanned>40)return 'stop';
     return}
    processed++;
    const asin=(c[asinCol]||'').toUpperCase();
-   const hit=asin&&want.has(asin);
+   const hit=asin&&(!want.size||want.has(asin));
    if(!hit&&samples.length>=8)return;
    const item={store:storeName};
    for(const k in hdr)item[hdr[k]]=c[k]!=null?c[k]:'';
@@ -706,11 +738,23 @@ async function parseInventoryFile(file,wantedAsins,storeName){
 
 /* ---------- 组装数据并重新分析 ---------- */
 function relPath(f){return f.webkitRelativePath||f.name}
-function storeOfPath(f){
- const parts=relPath(f).split('/');
- // 结构: <根目录>/销售数据/<店铺子文件夹>/xxx.csv
- const si=parts.findIndex(p=>p==='销售数据');
- if(si>=0&&parts.length-si>=3)return parts[si+1];
+const BOARD_ALIASES={sales:['销售数据','周销售','sales'],inventory:['库存数据','库存报告','inventory'],international:['国际订单','international'],lingxing:['领星数据','领星','lingxing'],mapping:['映射','负责人','mapping']};
+function pathParts(f){return relPath(f).split('/').filter(Boolean)}
+function partHas(part,words){const s=norm(part);return words.some(w=>s.includes(norm(w)))}
+function boardIndex(parts,kind){return parts.findIndex(p=>partHas(p,BOARD_ALIASES[kind]||[]))}
+function detectBoard(f){
+ const parts=pathParts(f),base=f.name;
+ for(const k of ['sales','inventory','international','lingxing','mapping'])if(boardIndex(parts,k)>=0)return k;
+ if(/国际/.test(base))return 'international';
+ if(/领星/i.test(base))return 'lingxing';
+ if(/库存|Seller\s*Profile/i.test(base))return 'inventory';
+ return /\.(xlsx|xlsm)$/i.test(base)?'mapping':'sales'}
+function storeOfPath(f,kind='sales'){
+ const parts=pathParts(f),i=boardIndex(parts,kind);
+ if(i>=0&&parts.length-i>=3)return parts[i+1];
+ const stem=f.name.replace(/\.[^.]+$/,'');
+ const seller=stem.match(/Seller\s*Profile[_\s-]+(.+?)(?:[_\s-]+WK\d+)?$/i);
+ if(seller)return seller[1].trim();
  return '主店铺'}
 async function rebuild(){
  const mapAsins=new Set();
@@ -725,9 +769,10 @@ async function rebuild(){
    inv.rows=inv.rows.concat(r.rows);
    if(inv.samples.length<8)inv.samples=inv.samples.concat(r.samples).slice(0,8);
    r.snapshots.forEach(s=>{if(!inv.snapshots.includes(s))inv.snapshots.push(s)})}}
+ const sourceStores=[...new Set([...(LOCAL.sales||[]).map(s=>s.store),...(LOCAL.inventory||[]).map(s=>s.store),...(LOCAL.lingxing||[]).map(s=>s.store),...(LOCAL.international||[]).map(s=>s.store)].filter(Boolean))].sort();
  RAW={mapping:LOCAL.mapping,lingxing:LOCAL.lingxing,inventory:inv,sales:LOCAL.sales,international:LOCAL.international,
-  files:{sourceFolder:LOCAL.names.folder||'（本机选择的文件）',exportFolder:'浏览器下载文件夹',lingxing:LOCAL.names.lingxing||'',
-   stores:[...new Set(LOCAL.sales.map(s=>s.store))].map(nm=>({name:nm,sales:LOCAL.sales.filter(s=>s.store===nm).map(s=>s.name),
+  files:{sourceFolder:LOCAL.names.folder||'（本机选择的文件）',exportFolder:'浏览器下载文件夹',lingxing:(LOCAL.names.lingxing||[]).join('、'),international:(LOCAL.names.international||[]).join('、'),
+   stores:sourceStores.map(nm=>({name:nm,sales:LOCAL.sales.filter(s=>s.store===nm).map(s=>s.name),
     mapping:LOCAL.names.mapping||[],inventory:(LOCAL.inventory||[]).filter(f=>f.store===nm).map(f=>f.file.name)}))}};
  process();
  const l=WEEKS.length-1,st=l>=0?sellThrough(ITEMS,l):{rate:0,act:0,base:0,soldNoStock:0};
@@ -739,9 +784,9 @@ async function uploadOne(type,id){
  try{
   if(type==='mapping'){status(`正在解析映射 ${esc(f.name)}…`);const rows=await parseMappingFile(f);
    LOCAL.mapping=rows.map(r=>({...r,store:'主店铺'}));LOCAL.names.mapping=[f.name]}
-  else if(type==='lingxing'){status(`正在解析领星 ${esc(f.name)}…`);LOCAL.lingxing=await parseLingxingFile(f);LOCAL.names.lingxing=f.name}
+  else if(type==='lingxing'){status(`正在解析领星 ${esc(f.name)}…`);LOCAL.lingxing=(await parseLingxingFile(f)).map(r=>({...r,store:'主店铺'}));LOCAL.names.lingxing=[f.name]}
   else if(type==='inventory'){LOCAL.inventory=[{file:f,store:'主店铺'}]}
-  else if(type==='international'){LOCAL.international={name:f.name,text:await f.text()}}
+  else if(type==='international'){LOCAL.international=[{name:f.name,text:await f.text(),store:'主店铺'}];LOCAL.names.international=[f.name]}
   else if(type==='sales'){LOCAL.sales=[{store:'主店铺',name:f.name,text:await f.text()}]}
   await rebuild()}
  catch(e){console.error(e);status('解析失败：'+e.message,true);ioProg('')}}
@@ -756,38 +801,40 @@ async function uploadMany(type,id){
 
 async function loadFolder(){
  const fs=[...$('folderInput').files];
- if(!fs.length)return status('请选择包含数据的文件夹（例如桌面的 卖家分析）',true);
+ if(!fs.length)return status('请选择包含数据的文件夹（例如桌面的 WK34 或卖家分析）',true);
  try{
   status('正在识别文件夹内容…');
-  LOCAL={sales:[],mapping:[],inventory:[],international:null,lingxing:[],names:{folder:relPath(fs[0]).split('/')[0],mapping:[]}};
-  const csvSales=[],mapFiles=[],invFiles=[],lxFiles=[];let intl=null;
+  LOCAL={sales:[],mapping:[],inventory:[],international:[],lingxing:[],names:{folder:relPath(fs[0]).split('/')[0],mapping:[],lingxing:[],international:[]}};
+  const csvSales=[],mapFiles=[],invFiles=[],lxFiles=[],intlFiles=[];
   for(const f of fs){
-   const rel=relPath(f),base=f.name;
+   const rel=relPath(f),base=f.name,kind=detectBoard(f);
    if(/^~\$/.test(base))continue;
-   if(/\.csv$/i.test(base)){if(/国际/.test(base))intl=f;else if(/销售数据/.test(rel))csvSales.push(f);else csvSales.push(f);continue}
+   if(/\.(csv|tsv)$/i.test(base)){if(kind==='international')intlFiles.push(f);else csvSales.push(f);continue}
    if(!/\.xlsx$/i.test(base))continue;
-   if(/领星/.test(base))lxFiles.push(f);
-   else if(/库存/.test(base))invFiles.push(f);
+   if(kind==='lingxing')lxFiles.push(f);
+   else if(kind==='inventory')invFiles.push(f);
    else mapFiles.push(f)}
-  for(const f of csvSales){ioProg(`读取 ${f.name}`);LOCAL.sales.push({store:storeOfPath(f),name:f.name,text:await f.text()})}
-  if(intl){ioProg(`读取 ${intl.name}`);LOCAL.international={name:intl.name,text:await intl.text()}}
+  for(const f of csvSales){ioProg(`读取 ${f.name}`);LOCAL.sales.push({store:storeOfPath(f,'sales'),name:f.name,text:await f.text()})}
+  for(const f of intlFiles){ioProg(`读取 ${f.name}`);LOCAL.international.push({name:f.name,text:await f.text(),store:storeOfPath(f,'international')});LOCAL.names.international.push(f.name)}
   for(const f of mapFiles){status(`正在解析映射 ${esc(f.name)}…`);
-   const store=storeOfPath(f);const rows=await parseMappingFile(f).catch(()=>[]);
+   const store=storeOfPath(f,'mapping');const rows=await parseMappingFile(f).catch(()=>[]);
    if(rows.length){LOCAL.mapping=LOCAL.mapping.concat(rows.map(r=>({...r,store})));LOCAL.names.mapping.push(f.name)}}
-  for(const f of lxFiles){status(`正在解析领星 ${esc(f.name)}…`);LOCAL.lingxing=LOCAL.lingxing.concat(await parseLingxingFile(f));LOCAL.names.lingxing=f.name}
-  LOCAL.inventory=invFiles.map(f=>({file:f,store:storeOfPath(f)}));
+  for(const f of lxFiles){status(`正在解析领星 ${esc(f.name)}…`);
+   const store=storeOfPath(f,'lingxing');LOCAL.lingxing=LOCAL.lingxing.concat((await parseLingxingFile(f)).map(r=>({...r,store})));LOCAL.names.lingxing.push(f.name)}
+  LOCAL.inventory=invFiles.map(f=>({file:f,store:storeOfPath(f,'inventory')}));
   await rebuild()}
  catch(e){console.error(e);status('解析失败：'+e.message,true);ioProg('')}}
 
-function resetAll(){LOCAL={sales:[],mapping:[],inventory:null,international:null,lingxing:[],names:{}};
+function resetAll(){LOCAL={sales:[],mapping:[],inventory:null,international:[],lingxing:[],names:{}};
  RAW=null;MAP=[];WEEKS=[];ITEMS=[];INTL=[];OWNERS=[];INVROWS=[];INV={};LX={};LXROWS=[];STORES=[];
  $('side').innerHTML='';$('view').innerHTML='';ioProg('');status('已清空，请重新载入数据。')}
 
 async function load(){
- status('单机版：请先在上方载入数据。可点“选择整个卖家分析文件夹”一次性载入全部数据，或使用任意单个入口。');
+ status('单机版：请先在上方载入数据。可点“选择整个 WK34 / 卖家分析文件夹”一次性载入全部数据，或使用任意单个入口。');
  $('side').innerHTML='';$('view').innerHTML=
   '<div class="card"><b>使用步骤</b><ol style="margin:8px 0 0;padding-left:20px;line-height:1.9">'
-  +'<li>点击上方 <b>选择整个卖家分析文件夹</b>，选中桌面的「卖家分析」文件夹（含销售数据、库存数据、映射、领星数据）。</li>'
+  +'<li>点击上方 <b>选择整个 WK34 / 卖家分析文件夹</b>，选中桌面的「WK34」文件夹（含销售数据、库存数据、国际订单、领星数据）。</li>'
+  +'<li>每个板块下面可以继续放店铺文件夹或批次文件夹，工具会递归收集并合并；库存 XLSX 会优先读取 Raw Data 工作表。</li>'
   +'<li>或者用 ①–⑤ 任意一个入口单独载入某类数据，载入一类即可立即分析。</li>'
   +'<li>解析完成后左侧会出现全部板块，导出的 CSV / HTML 会保存到浏览器下载文件夹。</li>'
   +'</ol><div style="margin-top:9px;color:#64748b;font-size:12.5px">全部计算在本机浏览器完成，数据不会外发。超大库存报告为流式解析，请耐心等待进度提示。</div></div>'}
