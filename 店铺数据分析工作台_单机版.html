@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>店铺数据分析工作台（单机版）</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--blue:#2563eb;--green:#0d9f6e;--red:#e02424;--amber:#d97706;--purple:#7c3aed;--nav:#0f172a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 "Microsoft YaHei",Segoe UI,sans-serif}
+.top{background:linear-gradient(115deg,#0f172a,#1e40af 60%,#3730a3);color:#fff;padding:18px 24px}
+.top h1{margin:0;font-size:23px}.top p{margin:5px 0 0;color:#cfe0ff;font-size:12.5px}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11.5px;color:#cfe0ff;margin-top:7px}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.wrap{max-width:1720px;margin:auto;padding:14px}
+.shell{display:grid;grid-template-columns:206px 1fr;gap:14px;align-items:start}
+.side{position:sticky;top:10px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px;box-shadow:0 1px 3px #0f172a0f}
+.side .grp{font-size:11px;color:var(--muted);font-weight:700;padding:8px 9px 4px;letter-spacing:.6px}
+.nav-item{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:9px 11px;margin:3px 0;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;color:#334155;border-left:4px solid var(--ac,#cbd5e1);background:#f8fafc;transition:.15s}
+.nav-item:hover{background:#eef2f7}
+.nav-item.active{background:var(--ac,#2563eb);color:#fff;border-left-color:#0f172a}
+.nav-item.owner{font-size:12.5px;margin-left:10px;padding:7px 10px}
+.nav-item .badge{font-size:10.5px;font-weight:700;background:#fff;color:#334155;border-radius:99px;padding:1px 6px;border:1px solid var(--line)}
+.nav-item.active .badge{background:#ffffff33;color:#fff;border-color:transparent}
+.upload-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;box-shadow:0 1px 3px #0f172a0f}
+.upload-card b{display:block;margin-bottom:4px;font-size:13px}.upload-card small{display:block;color:var(--muted);min-height:32px;font-size:11.5px}
+.upload-card input{width:100%;margin:6px 0;font-size:12px}
+.btn{border:0;border-radius:8px;padding:8px 12px;background:var(--blue);color:#fff;cursor:pointer;font-weight:600;font-size:12.5px}
+.btn.alt{background:#334155}.btn.green{background:var(--green)}.btn.mini{padding:5px 9px;font-size:11.5px}
+.btn.ghost{background:#eef2ff;color:#1d4ed8}
+.status{margin:12px 0;padding:11px 14px;border-radius:9px;background:#e8f0ff;color:#1d4ed8;font-size:13px;border-left:5px solid var(--blue)}
+.status.err{background:#fdecec;color:var(--red);border-left-color:var(--red)}
+.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 12px}
+.toolbar input,.toolbar select{border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#fff;font-size:12.5px}
+.sec{--ac:#2563eb}
+.ac-blue{--ac:#2563eb}.ac-purple{--ac:#7c3aed}.ac-green{--ac:#0d9f6e}.ac-red{--ac:#e02424}.ac-amber{--ac:#d97706}.ac-grey{--ac:#64748b}.ac-pink{--ac:#db2777}.ac-cyan{--ac:#0891b2}.ac-lime{--ac:#65a30d}
+.sechead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-left:7px solid var(--ac);color:var(--ink);padding:12px 15px;border-radius:11px;margin:0 0 12px;box-shadow:0 1px 3px #0f172a0f}
+.sechead h2{margin:0;border:0;padding:0;font-size:20px;font-weight:800;color:var(--ac)}
+.sechead .meta{font-size:12.5px;color:var(--muted);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0}
+.kpi{border-left:5px solid var(--ac)}.kpi.good{border-left-color:var(--green)}.kpi.bad{border-left-color:var(--red)}.kpi.warn{border-left-color:var(--amber)}.kpi.info{border-left-color:var(--purple)}
+.kpi .label{color:var(--muted);font-size:11.5px;font-weight:600}
+.kpi .value{font-size:24px;font-weight:800;margin:3px 0;letter-spacing:-.5px}
+.kpi .sub{font-size:11.5px;color:var(--muted)}
+.up{color:var(--green);font-weight:700}.down{color:var(--red);font-weight:700}.flat{color:var(--muted)}
+.blockbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:20px 0 8px}
+h2{font-size:16.5px;margin:0;padding-left:9px;border-left:4px solid var(--ac)}
+h2.danger{border-left-color:var(--red)}h2.warnh{border-left-color:var(--amber)}h2.okh{border-left-color:var(--green)}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}
+th{position:sticky;top:0;background:#f1f5f9;text-align:left;color:#334155;font-size:11.5px;z-index:2}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;white-space:nowrap}
+th.wk{background:#e8eef7}
+tr:hover td{background:#f8fbff}
+tr.rowbad td{background:#fff6f6}tr.rowbad:hover td{background:#ffecec}
+tr.rowgood td{background:#f4fdf8}tr.rowgood:hover td{background:#e8f9f1}
+.table-wrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:10px}
+.pill{display:inline-block;border-radius:99px;padding:2px 8px;background:#eaf1ff;color:#1d4ed8;font-size:11px;font-weight:700}
+.pill.red{background:#fdecec;color:var(--red)}.pill.green{background:#e9faf3;color:var(--green)}.pill.amber{background:#fef4e6;color:var(--amber)}.pill.grey{background:#eef2f6;color:#64748b}
+.note{padding:10px 12px;border-left:4px solid var(--amber);background:#fffbeb;margin:10px 0;font-size:12.5px;border-radius:0 8px 8px 0}
+.note.info{border-left-color:var(--blue);background:#eff6ff}
+.alert{padding:11px 13px;border-left:5px solid var(--red);background:#fdecec;border-radius:0 9px 9px 0;margin:10px 0;font-size:13px}
+.charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.chart-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.chart-card .ct{font-size:12.5px;font-weight:700}.chart-card .cs{font-size:11.5px;color:var(--muted);margin-bottom:3px}
+svg{display:block;width:100%;height:auto}
+@media(max-width:1100px){.shell{grid-template-columns:1fr}.side{position:static}.charts{grid-template-columns:1fr}.upload-grid,.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.upload-grid,.kpis{grid-template-columns:1fr}}
+</style></head><body>
+<div class="top"><h1>店铺数据分析工作台<span style="font-size:13px;font-weight:600;background:#ffffff2e;padding:2px 8px;border-radius:99px;margin-left:8px">单机版 · 双击即可打开</span></h1><p>周销售趋势 · SKU/负责人货盘 · 店铺库存报告 · 领星实时库存 · 国际订单 · 本机离线处理</p>
+<div class="legend"><span><b style="background:#0d9f6e"></b>增长/健康</span><span><b style="background:#d97706"></b>注意</span><span><b style="background:#e02424"></b>下降/风险</span><span><b style="background:#7c3aed"></b>参考</span><span>动销率 = 当周有销量SKU ÷ 有库存(onhand&gt;0)SKU；库存为0一律不计入</span><span>周表格均为最新周在前</span></div></div>
+<div class="wrap">
+<div class="upload-grid">
+ <div class="card upload-card"><b>① 每周销售数据</b><small>可多选 WK27–WK32 CSV，按文件名识别周次。</small><input id="salesFiles" type="file" accept=".csv" multiple><button class="btn" onclick="uploadMany('sales','salesFiles')">载入销售CSV</button></div>
+ <div class="card upload-card"><b>② 店铺库存报告数据</b><small>大文件流式读取，解析库龄桶用于滞销诊断。</small><input id="inventoryFile" type="file" accept=".xlsx"><button class="btn" onclick="uploadOne('inventory','inventoryFile')">载入库存报告XLSX</button></div>
+ <div class="card upload-card"><b>③ ASIN + SKU + 负责人</b><small>三项齐全才纳入分析，无SKU记录自动剔除。</small><input id="mappingFile" type="file" accept=".xlsx"><button class="btn" onclick="uploadOne('mapping','mappingFile')">载入映射XLSX</button></div>
+ <div class="card upload-card"><b>④ 国际订单</b><small>按订单号去重，仅SKU精确匹配负责人。</small><input id="intlFile" type="file" accept=".csv"><button class="btn" onclick="uploadOne('international','intlFile')">载入国际订单CSV</button></div>
+ <div class="card upload-card" style="border-left:5px solid #0891b2"><b>⑤ 领星后台数据</b><small>FBA可售作为最新库存口径，含7/14/30日均销量与负责人。</small><input id="lxFile" type="file" accept=".xlsx"><button class="btn" style="background:#0891b2" onclick="uploadOne('lingxing','lxFile')">载入领星XLSX</button></div>
+</div>
+<div class="card" style="margin-top:10px;border-left:5px solid #2563eb"><b>最快用法：</b>点下面的“选择整个卖家分析文件夹”，一次性载入周销售、店铺库存报告、映射、国际订单、领星数据，子文件夹会自动识别为独立店铺。也可以只用上方任意一个入口单独载入某一类数据，载入一类就会立即重新分析并刷新全部板块。<div style="margin-top:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input id="folderInput" type="file" webkitdirectory directory multiple><button class="btn" onclick="loadFolder()">选择整个卖家分析文件夹</button><button class="btn alt" onclick="resetAll()">清空已载入数据</button><span id="ioProgress" style="font-size:12px;color:#64748b"></span></div><div style="margin-top:7px;font-size:12px;color:#64748b">全部计算都在你本机浏览器内完成，不会上传到任何服务器。超大库存报告采用流式解析，首次解析可能需要 1-3 分钟。建议使用 Chrome 或 Edge。</div></div>
+<div id="status" class="status">正在读取数据…</div>
+<div class="shell">
+ <div class="side" id="side"></div>
+ <div>
+  <div class="toolbar"><label>搜索 <input id="search" placeholder="ASIN / SKU / 品名" oninput="render()"></label>
+   <button class="btn green" onclick="exportPairs()">导出当前板块 ASIN+SKU</button>
+   <button class="btn alt" onclick="exportCurrentHtml()">导出当前页面HTML</button>
+   <button class="btn ghost" onclick="exportAllOwners()">批量导出全部负责人HTML</button>
+   <span id="saveMsg" style="font-size:12px"></span></div>
+  <div id="view"></div>
+ </div>
+</div>
+</div>
+<script>
+const OWNER_COLORS=['ac-green','ac-blue','ac-purple','ac-pink','ac-cyan','ac-lime','ac-amber'];
+const SEC={overview:{name:'店铺总览',cls:'ac-blue'},sku:{name:'SKU周趋势',cls:'ac-purple'},owner:{name:'负责人页面',cls:'ac-green'},inv:{name:'库存健康报告',cls:'ac-red'},lx:{name:'领星实时数据更新',cls:'ac-cyan'},intl:{name:'国际订单',cls:'ac-amber'},qa:{name:'数据质量',cls:'ac-grey'}};
+let view={sec:'overview',owner:null},SHOW_ALL_WEEKS=false,SKU_OWNER='全部',SKU_STORE='全部',SKU_STATUS='全部';
+let INV_OWNER='全部',INV_ADVICE='全部',INV_TIER='全部';
+let LX_OWNER='全部',LX_ADVICE='全部',LX_WEEKS=3,LX_BASE='d7';
+let INTL_OWNER='全部',INTL_COUNTRY='全部',INTL_ONLYREC=false;
+const STATUS_LIST=['增长','下滑','持平','连续2周未动销','高流量低转化','无库存'];
+function statusOf(x){const l=WEEKS.length-1,p=Math.max(0,l-1),a=x.w[l]||{},b=x.w[p]||{},cv=a.gv?a.units/a.gv:0;
+ if(!hasStock(x))return '无库存';
+ if((a.units||0)===0&&(b.units||0)===0)return '连续2周未动销';
+ if((a.gv||0)>=20&&cv<0.02)return '高流量低转化';
+ if((a.units||0)>(b.units||0))return '增长';
+ if((a.units||0)<(b.units||0))return '下滑';
+ return '持平'}
+function statusPill(s){const c=s==='增长'?'green':s==='下滑'||s==='连续2周未动销'?'red':s==='高流量低转化'?'amber':'grey';return `<span class="pill ${c}">${s}</span>`}
+const TIERS=['91天+ 最严重滞销','61-90天 严重滞销','31-60天 需折扣清库','0-30天 正常'];
+function tierOf(asin){const z=INV[asin];if(!z||z.qty<=0)return null;
+ if(z.a91>0)return TIERS[0];if(z.a61>0)return TIERS[1];if(z.a31>0)return TIERS[2];return TIERS[3]}
+function tierPill(t){if(!t)return '-';const i=TIERS.indexOf(t);return `<span class="pill ${i===0?'red':i===1?'red':i===2?'amber':'green'}">${t}</span>`}
+const INV_ADVICES=['立即深度折扣/清货','限制补货+分批清理','开始折扣提升动销','正常观察'];
+function invAdvice(x){const t=tierOf(x.asin),l=WEEKS.length-1,u3=l>=0?x.w.slice(-3).reduce((s,w)=>s+(w.units||0),0):0;
+ if(!t)return INV_ADVICES[3];
+ if(t===TIERS[0])return INV_ADVICES[0];
+ if(t===TIERS[1])return u3===0?INV_ADVICES[0]:INV_ADVICES[1];
+ if(t===TIERS[2])return INV_ADVICES[2];
+ return INV_ADVICES[3]}
+function advicePill(a){const i=INV_ADVICES.indexOf(a);return `<span class="pill ${i===0?'red':i===1?'red':i===2?'amber':'green'}">${a}</span>`}
+const LX_ADVICES=['断货：立即补货','低于安全库存：需补货','库存健康','库存偏多：控制补货','有库存无销量：清库存'];
+function lxBaseDaily(r){return LX_BASE==='d7'?r.d7:LX_BASE==='d14'?r.d14:r.d30}
+function lxCalc(r){const daily=lxBaseDaily(r),weekly=daily*7,safety=weekly*LX_WEEKS;
+ const coverWeeks=weekly>0?r.fba/weekly:null,gap=Math.max(0,safety-r.fba);
+ let advice;
+ if(weekly<=0)advice=r.fba>0?LX_ADVICES[4]:LX_ADVICES[2];
+ else if(r.fba<=0)advice=LX_ADVICES[0];
+ else if(r.fba<safety)advice=LX_ADVICES[1];
+ else if(r.fba>safety*2)advice=LX_ADVICES[3];
+ else advice=LX_ADVICES[2];
+ return{daily,weekly,safety,coverWeeks,gap,advice}}
+function lxAdvicePill(a){const i=LX_ADVICES.indexOf(a);return `<span class="pill ${i===0?'red':i===1?'amber':i===3?'amber':i===4?'red':'green'}">${a}</span>`}
+let RAW=null,MAP=[],WEEKS=[],ITEMS=[],INTL=[],OWNERS=[],INVROWS=[],INV={},STORES=[],LX={},LXROWS=[];
+const $=id=>document.getElementById(id);
+const n=v=>{const x=parseFloat(String(v??'').replace(/[^0-9.\-]/g,''));return Number.isFinite(x)?x:0};
+const pct=v=>n(v)/100, money=v=>'$'+n(v).toLocaleString('en-US',{maximumFractionDigits:0});
+const num=v=>n(v).toLocaleString('en-US',{maximumFractionDigits:1});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const p1=v=>(n(v)*100).toFixed(1)+'%';
+const q1=s=>String(s).replace(/'/g,'&#39;');
+function csvRows(text){const out=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}else if(c==='"')q=true;else if(c===','){row.push(cur);cur=''}else if(c==='\n'){row.push(cur);out.push(row);row=[];cur=''}else if(c!=='\r')cur+=c}if(cur||row.length){row.push(cur);out.push(row)}return out}
+function norm(s){return String(s??'').replace(/^\ufeff/,'').replace(/[\s\u00a0（）()\-]/g,'').toLowerCase()}
+function startInfo(name){const m=name.match(/(\d{1,2})[.\-]+(\d{1,2})/);if(!m)return null;const mo=+m[1],d=+m[2];return{mo,d,ord:mo*100+d,doy:Math.round(new Date(2026,mo-1,d).getTime()/86400000),txt:`${String(mo).padStart(2,'0')}.${String(d).padStart(2,'0')}`}}
+function buildWeeks(files){const infos=files.map(f=>({f,s:startInfo(f.name)})).filter(x=>x.s).sort((a,b)=>a.s.doy-b.s.doy);
+ const clusters=[];infos.forEach(x=>{const c=clusters.find(c=>Math.abs(c.doy-x.s.doy)<=3);if(c){c.members.push(x);c.doy=Math.min(c.doy,x.s.doy);if(x.s.doy<c.doy)c.txt=x.s.txt}else clusters.push({doy:x.s.doy,txt:x.s.txt,members:[x]})});
+ clusters.sort((a,b)=>a.doy-b.doy);
+ const weeks=clusters.map((c,i)=>({key:'WK'+(27+i),label:'WK'+(27+i),full:'WK'+(27+i)+' '+c.txt}));
+ const idxOf=new Map();clusters.forEach((c,i)=>c.members.forEach(m=>idxOf.set(m.f,i)));
+ return{weeks,idxOf}}
+function colIndex(h,tests,fb){const nn=h.map(norm);for(const t of tests){const i=nn.indexOf(norm(t));if(i>=0)return i}return fb}
+function wkOrder(){return WEEKS.map((w,i)=>i).reverse()}
+function process(){
+ LXROWS=(RAW.lingxing||[]).map(r=>({asin:String(r.ASIN||'').trim().toUpperCase(),sku:String(r.SKU||'').trim(),msku:String(r.MSKU||'').trim(),name:String(r['品名']||''),owner:String(r['Listing负责人']||'').trim(),parent:String(r['父ASIN']||''),fba:n(r['FBA可售']),d7:n(r['7日均销量']),d14:n(r['14日均销量']),d30:n(r['30日均销量'])})).filter(x=>x.asin);
+ LX={};LXROWS.forEach(r=>{const z=LX[r.asin]||(LX[r.asin]={fba:0,d7:0,d14:0,d30:0,skus:[]});z.fba+=r.fba;z.d7+=r.d7;z.d14+=r.d14;z.d30+=r.d30;if(r.sku&&!z.skus.includes(r.sku))z.skus.push(r.sku)});
+ const seenMap=new Set();
+ MAP=[];
+ (RAW.mapping||[]).forEach(r=>{const x={asin:String(r.ASIN||'').trim().toUpperCase(),sku:String(r.SKU||'').trim(),name:String(r['品名']||''),owner:String(r['Listing负责人']||'').trim(),store:String(r.store||'')};
+  if(!x.asin||!x.sku||!x.owner)return;const k=x.asin+'|'+x.sku;if(seenMap.has(k))return;seenMap.add(k);MAP.push(x)});
+ LXROWS.forEach(r=>{if(!r.asin||!r.sku||!r.owner)return;const k=r.asin+'|'+r.sku;if(seenMap.has(k))return;seenMap.add(k);MAP.push({asin:r.asin,sku:r.sku,name:r.name,owner:r.owner,store:''})});
+ const files=(RAW.sales||[]).slice();const wk=buildWeeks(files);WEEKS=wk.weeks;
+ STORES=[...new Set(files.map(f=>f.store||'主店铺'))];
+ const byAsin={};
+ files.forEach(f=>{const wi=wk.idxOf.get(f);if(wi==null)return;const rows=csvRows(f.text),h=rows.shift()||[];
+  const ix={parent:colIndex(h,['父ASIN'],0),asin:colIndex(h,['子ASIN'],1),title:colIndex(h,['标题'],2),gv:colIndex(h,['会话数总计'],3),cvr:colIndex(h,['转化率总计'],5),pv:colIndex(h,['页面浏览量总计'],7),units:colIndex(h,['已订购商品数量'],13),sales:colIndex(h,['已订购商品销售额'],18)};
+  rows.forEach(r=>{const asin=String(r[ix.asin]||'').trim().toUpperCase();if(!asin)return;
+   const a=byAsin[asin]||(byAsin[asin]={asin,store:f.store||'主店铺',parent:r[ix.parent]||'',title:r[ix.title]||'',w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cw:0}))});
+   const w=a.w[wi],gv=n(r[ix.gv]);w.gv+=gv;w.pv+=n(r[ix.pv]);w.units+=n(r[ix.units]);w.sales+=n(r[ix.sales]);w.cw+=pct(r[ix.cvr])*gv;if(!a.title)a.title=r[ix.title]||''})});
+ Object.values(byAsin).forEach(a=>a.w.forEach(w=>{w.cvr=w.gv?w.cw/w.gv:0;w.asp=w.units?w.sales/w.units:0}));
+ const mapByAsin={};MAP.forEach(m=>(mapByAsin[m.asin]=mapByAsin[m.asin]||[]).push(m));
+ ITEMS=[];Object.values(byAsin).forEach(a=>{const mm=mapByAsin[a.asin]||[];mm.forEach(m=>ITEMS.push({...m,store:m.store||a.store,title:a.title||m.name,parent:a.parent,w:a.w,shared:mm.length>1}))});
+ MAP.filter(m=>!byAsin[m.asin]).forEach(m=>ITEMS.push({...m,title:m.name,parent:'',w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cvr:0,asp:0})),shared:(mapByAsin[m.asin]||[]).length>1}));
+ INVROWS=RAW.inventory?.rows||[];INV=inventoryMap();processIntl();
+ STORES=[...new Set(ITEMS.map(x=>x.store).filter(Boolean))].sort();
+ OWNERS=[...new Set(MAP.map(x=>x.owner))].sort();buildSide();
+}
+function inventoryMap(){const m={};INVROWS.forEach(r=>{const a=String(r.asin||'').trim().toUpperCase();if(!a)return;
+ const z=m[a]||(m[a]={qty:0,a0:0,a31:0,a61:0,a91:0,aged60:0,segment:'',snapshot:'',band:'',pt:'',store:r.store||''});
+ z.qty+=n(r.onhand_units);z.a0+=n(r.age_0_30_units);z.a31+=n(r.age_31_60_units);z.a61+=n(r.age_61_90_units);z.a91+=n(r.age_91_plus_units);z.aged60=z.a61+z.a91;
+ z.segment=r.velocity_seller_adj||z.segment;z.snapshot=r.period_end||z.snapshot;z.band=r.price_band||z.band;z.pt=r.product_type||z.pt});return m}
+function processIntl(){const b=RAW.international;if(!b){INTL=[];return}
+ const rows=csvRows(b.text),h=rows.shift()||[],ix={};h.forEach((x,i)=>ix[norm(x)]=i);
+ const get=(r,k,fb='')=>r[ix[norm(k)]]??fb;const skuMap={};MAP.forEach(m=>{if(m.sku)skuMap[m.sku]=m});
+ const seen=new Set();INTL=[];
+ rows.forEach(r=>{const order=String(get(r,'亚马逊订单编号')).trim();if(order&&seen.has(order))return;if(order)seen.add(order);
+  const sku=String(get(r,'SKU')).trim();if(!sku)return;const asin=String(get(r,'ASIN')).trim().toUpperCase(),m=skuMap[sku];
+  INTL.push({asin,sku,owner:m?.owner||'未匹配',name:m?.name||'',date:get(r,'客户配送日期'),qty:n(get(r,'已配送数量')),order,country:get(r,'目的地国家/地区')||'未知',currency:get(r,'货币'),price:n(get(r,'单价')),store:get(r,'店铺')})})}
+function buildSide(){const l=WEEKS.length-1;
+ const item=(sec,owner,cls,label,badge)=>{const act=view.sec===sec&&(owner||null)===(view.owner||null);
+  return `<div class="nav-item ${cls} ${act?'active':''} ${owner?'owner':''}" onclick="go('${sec}',${owner?`'${q1(owner)}'`:'null'})"><span>${esc(label)}</span>${badge?`<span class="badge">${badge}</span>`:''}</div>`};
+ let h='<div class="grp">数据板块</div>';
+ h+=item('overview',null,'ac-blue','店铺总览',p1(sellThrough(ITEMS,l).rate));
+ h+=item('sku',null,'ac-purple','SKU周趋势',ITEMS.length);
+ h+='<div class="grp">负责人页面</div>';
+ OWNERS.forEach((o,i)=>{const rows=ITEMS.filter(x=>x.owner===o);h+=item('owner',o,OWNER_COLORS[i%OWNER_COLORS.length],o,p1(sellThrough(rows,l).rate))});
+ h+='<div class="grp">库存板块</div>';
+ h+=item('inv',null,'ac-red','库存健康报告',Object.values(INV).filter(z=>z.aged60>0).length);
+ h+=item('lx',null,'ac-cyan','领星实时数据更新',LXROWS.length);
+ h+='<div class="grp">其他板块</div>';
+ h+=item('intl',null,'ac-amber','国际订单',INTL.length);
+ h+=item('qa',null,'ac-grey','数据质量','');
+ $('side').innerHTML=h}
+function go(sec,owner){view={sec,owner:owner||null};buildSide();window.scrollTo({top:0});render()}
+function filtered(){const q=norm($('search').value);let rows=ITEMS;if(view.sec==='owner'&&view.owner)rows=rows.filter(x=>x.owner===view.owner);
+ return rows.filter(x=>!q||norm(x.asin+x.sku+x.name+x.title+x.owner).includes(q))}
+function uniqAsin(rows){const m={};rows.forEach(x=>{if(!m[x.asin])m[x.asin]=x});return Object.values(m)}
+function stockOf(asin){const l=LX[asin];if(l)return{qty:l.fba,src:'领星'};const z=INV[asin];return{qty:z?z.qty:0,src:z?'库存报告':'无'}}
+function hasStock(x){return stockOf(x.asin).qty>0}
+function lxCover(asin){const l=LX[asin];if(!l)return null;if(l.d7>0)return l.fba/l.d7;if(l.d30>0)return l.fba/l.d30;return null}
+function sumWeek(rows,wi){return uniqAsin(rows).reduce((a,x)=>{const w=x.w[wi]||{};a.gv+=w.gv||0;a.pv+=w.pv||0;a.units+=w.units||0;a.sales+=w.sales||0;return a},{gv:0,pv:0,units:0,sales:0})}
+function sellThrough(rows,wi){const st=rows.filter(hasStock),act=st.filter(x=>(x.w[wi]?.units||0)>0);
+ const soldNoStock=rows.filter(x=>!hasStock(x)&&(x.w[wi]?.units||0)>0).length;
+ return{rate:st.length?act.length/st.length:0,act:act.length,base:st.length,soldNoStock}}
+function median(a){a=a.filter(Number.isFinite).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:0}
+function delta(a,b,fmt=num){const d=a-b,c=d>0?'up':d<0?'down':'flat';return `<span class="${c}">${d>0?'+':''}${fmt(d)}</span>`}
+function trendPill(a,b){const d=a-b;if(!b&&!a)return '<span class="pill grey">无数据</span>';const r=b?d/b*100:100;
+ return d>0?`<span class="pill green">↑ ${r.toFixed(0)}%</span>`:d<0?`<span class="pill red">↓ ${Math.abs(r).toFixed(0)}%</span>`:'<span class="pill grey">持平</span>'}
+function chart(title,sub,labels,values,fmt,color){
+ const W=520,H=210,L=58,R=14,T=16,B=36,iw=W-L-R,ih=H-T-B;
+ const mx=Math.max(...values,0)||1,x=i=>L+(labels.length<2?iw/2:i*iw/(labels.length-1)),y=v=>T+ih-(v/mx)*ih;
+ const first=values[0]||0,last=values[values.length-1]||0,c=color||(last>=first?'#0d9f6e':'#e02424');
+ const pts=values.map((v,i)=>x(i)+','+y(v)).join(' ');
+ let g='';[0,.5,1].forEach(f=>{const yy=T+ih-f*ih;g+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e2e8f0"/><text x="${L-7}" y="${yy+4}" text-anchor="end" font-size="10" fill="#94a3b8">${fmt(mx*f)}</text>`});
+ let d='';values.forEach((v,i)=>{d+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${c}"/><text x="${x(i)}" y="${y(v)-9}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0f172a">${fmt(v)}</text>`});
+ let xl='';labels.forEach((l,i)=>{xl+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="10.5" fill="#475569">${esc(l)}</text>`});
+ return `<div class="chart-card"><div class="ct">${esc(title)} ${trendPill(last,first)}</div><div class="cs">${esc(sub)}（左→右：早→最新）</div>
+ <svg viewBox="0 0 ${W} ${H}"><polygon points="${L},${T+ih} ${pts} ${x(values.length-1)},${T+ih}" fill="${c}" opacity="0.08"/>${g}<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.5"/>${d}${xl}</svg></div>`}
+function kpis(list){return `<div class="kpis">${list.map(x=>`<div class="card kpi ${x[3]||''}"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]||''}</div></div>`).join('')}</div>`}
+function table(headers,rows){return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>typeof h==='object'?`<th class="wk">${h.t}</th>`:`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>{const cls=Array.isArray(r)?'':r.cls,cells=Array.isArray(r)?r:r.cells;return `<tr class="${cls||''}">${cells.map(c=>`<td>${c??''}</td>`).join('')}</tr>`}).join(''):`<tr><td colspan="${headers.length}">无符合条件的数据</td></tr>`}</tbody></table></div>`}
+function tag(x){return `<b>${esc(x.asin)}</b><br><small style="color:#64748b">${esc(x.sku)} · ${esc(x.owner)}</small>${x.shared?' <span class="pill grey">共享ASIN</span>':''}`}
+function stockCell(x){const s=stockOf(x.asin),z=INV[x.asin];if(!s.qty)return '<span class="pill grey">无库存</span>';
+ return `${num(s.qty)} <span class="pill ${s.src==='领星'?'':'grey'}">${s.src}</span>${z&&z.aged60>0?` <span class="pill red">60天+ ${num(z.aged60)}</span>`:''}`}
+function lastAsp(x){for(let i=x.w.length-1;i>=0;i--)if(x.w[i].units>0)return{wk:WEEKS[i].label,asp:x.w[i].asp};return null}
+function priceChange(x){const hist=[];x.w.forEach((w,i)=>{if(w.units>0)hist.push({i,asp:w.asp})});
+ if(!hist.length)return '<span class="pill grey">无成交价记录</span>';
+ if(hist.length===1)return `<span class="pill amber">仅${WEEKS[hist[0].i].label} $${hist[0].asp.toFixed(2)}</span>`;
+ const a=hist[hist.length-2].asp,b=hist[hist.length-1].asp,d=b-a;
+ return `$${a.toFixed(2)} → $${b.toFixed(2)} ${d<0?`<span class="pill green">已降${Math.abs(d/a*100).toFixed(0)}%</span>`:d>0?`<span class="pill red">涨${(d/a*100).toFixed(0)}%</span>`:'<span class="pill grey">未变</span>'}`}
+function discountAdvice(x){const z=INV[x.asin]||{aged60:0},l=WEEKS.length-1,gv=x.w[l]?.gv||0;
+ if(z.aged60>0&&gv>=20)return '<span class="pill red">有流量无转化：降价10-15%+Coupon</span>';
+ if(z.aged60>0)return '<span class="pill red">无流量+超60天：深度折扣/清货</span>';
+ if(gv>=20)return '<span class="pill amber">有流量：先测5-10%折扣</span>';
+ return '<span class="pill amber">流量不足：补广告+小幅折扣</span>'}
+function blockLists(rows){const l=WEEKS.length-1,p=Math.max(0,l-1),ua=uniqAsin(rows);
+ return{gvup:ua.filter(x=>x.w[l].gv>x.w[p].gv).sort((a,b)=>(b.w[l].gv-b.w[p].gv)-(a.w[l].gv-a.w[p].gv)).slice(0,30),
+  units:ua.filter(x=>x.w[l].units>0).sort((a,b)=>b.w[l].units-a.w[l].units).slice(0,30),
+  gvdown:ua.filter(x=>x.w[l].gv<x.w[p].gv).sort((a,b)=>(a.w[l].gv-a.w[p].gv)-(b.w[l].gv-b.w[p].gv)).slice(0,30),
+  unsold:rows.filter(x=>hasStock(x)&&(x.w[l]?.units||0)===0&&(x.w[p]?.units||0)===0).sort((a,b)=>(INV[b.asin]?.aged60||0)-(INV[a.asin]?.aged60||0)||(INV[b.asin]?.qty||0)-(INV[a.asin]?.qty||0))}}
+function bar(title,cls,kind,scope,count){return `<div class="blockbar"><h2 class="${cls}">${esc(title)}${count!=null?`（${count} 个）`:''}</h2><button class="btn mini green" onclick="exportBlock('${kind}','${scope?q1(scope):''}')">一键导出该板块 ASIN+SKU</button></div>`}
+function topTable(rows,mode){const l=WEEKS.length-1,p=Math.max(0,l-1);
+ const hs=['ASIN / SKU / 负责人','状态','转化率','GV环比','销量环比','库存','品名',{t:WEEKS[l].label+' 销量'},{t:WEEKS[l].label+' 销售额'},{t:WEEKS[l].label+' GV'},{t:WEEKS[p].label+' GV'}];
+ return table(hs,rows.map(x=>{const a=x.w[l],b=x.w[p],cv=a.gv?a.units/a.gv:0;
+  const stt=mode==='drop'?'<span class="pill red">GV下滑</span>':mode==='gv'?'<span class="pill green">GV上涨</span>':'<span class="pill green">主力销量</span>';
+  return{cls:mode==='drop'?'rowbad':'rowgood',cells:[tag(x),stt,p1(cv),delta(a.gv,b.gv),delta(a.units,b.units),stockCell(x),esc((x.name||x.title).slice(0,34)),num(a.units),money(a.sales),num(a.gv),num(b.gv)]}}))}
+function unsoldTable(rows){const l=WEEKS.length-1,p=Math.max(0,l-1);
+ return table(['ASIN / SKU / 负责人','折扣建议','成交价变化','最后成交周','动销分层','价格带','总库存','60天以上库存','品名',{t:WEEKS[l].label+' GV'},{t:WEEKS[p].label+' GV'},'GV环比'],
+ rows.map(x=>{const z=INV[x.asin]||{qty:0,aged60:0,band:'',segment:''},la=lastAsp(x);
+ return{cls:'rowbad',cells:[tag(x),discountAdvice(x),priceChange(x),la?`${la.wk} $${la.asp.toFixed(2)}`:'<span class="pill grey">6周内无成交</span>',esc(z.segment||'-'),esc(z.band||'-'),num(z.qty),z.aged60>0?`<span class="down">${num(z.aged60)}</span>`:'0',esc((x.name||x.title).slice(0,30)),num(x.w[l].gv),num(x.w[p].gv),delta(x.w[l].gv,x.w[p].gv)]}}))}
+function stNote(st,scope){return st.soldNoStock?`<div class="note">动销率口径提醒：${esc(scope)}本周有 <b>${st.soldNoStock}</b> 个SKU有销量但库存为0（已售罄），按规则不计入动销率分子和分母；分母仅 ${st.base} 个有库存SKU。</div>`:''}
+function weeklyTable(rows,withRate){const ord=wkOrder();
+ return table(['周次','销售额','环比上一周','销量','GV','转化率(销量/GV)',...(withRate?['动销率(有库存SKU)','动销/有库存SKU']:[])],
+ ord.map(i=>{const s=sumWeek(rows,i),pv=i>0?sumWeek(rows,i-1):null,t=sellThrough(rows,i);
+  return{cls:pv&&s.sales<pv.sales?'rowbad':pv&&s.sales>pv.sales?'rowgood':'',
+   cells:[`<b>${WEEKS[i].full}</b>${i===WEEKS.length-1?' <span class="pill">最新</span>':''}`,money(s.sales),pv?delta(s.sales,pv.sales,money):'-',num(s.units),num(s.gv),s.gv?p1(s.units/s.gv):'0%',...(withRate?[`<b>${p1(t.rate)}</b>`,`${t.act}/${t.base}`]:[])]}}))}
+function storeOverview(rows){const l=WEEKS.length-1,p=Math.max(0,l-1);
+ const now=sumWeek(rows,l),pre=sumWeek(rows,p),st=sellThrough(rows,l),stPre=sellThrough(rows,p);
+ const stocked=uniqAsin(rows.filter(hasStock)),active=stocked.filter(x=>(x.w[l]?.units||0)>0),idle=stocked.filter(x=>(x.w[l]?.units||0)===0);
+ const q=a=>a.reduce((s,x)=>s+(INV[x.asin]?.qty||0),0),ag=a=>a.reduce((s,x)=>s+(INV[x.asin]?.aged60||0),0);
+ const L=blockLists(rows);
+ let h=`<div class="sechead"><h2>店铺总览</h2><span class="meta">${WEEKS[0].full} → ${WEEKS[l].full}</span></div>`;
+ h+=`<div class="${now.sales<pre.sales||st.rate<stPre.rate?'alert':'note info'}"><b>本周关键结论：</b>销售额 ${money(now.sales)}（${now.sales<pre.sales?'环比下降':'环比上升'} ${money(Math.abs(now.sales-pre.sales))}）；有库存SKU动销率 ${p1(st.rate)}（${st.rate<stPre.rate?'下降':'上升'} ${Math.abs((st.rate-stPre.rate)*100).toFixed(1)}个百分点）；未动销库存 ${num(q(idle))} 件，其中超60天 ${num(ag(idle))} 件需立即处理。</div>`;
+ h+=stNote(st,'店铺');
+ h+=kpis([['最新周销售额',money(now.sales),`环比 ${delta(now.sales,pre.sales,money)}`,now.sales>=pre.sales?'good':'bad'],
+  ['最新周销量',num(now.units),`环比 ${delta(now.units,pre.units)}`,now.units>=pre.units?'good':'bad'],
+  ['GV / Sessions',num(now.gv),`环比 ${delta(now.gv,pre.gv)}`,now.gv>=pre.gv?'good':'bad'],
+  ['有库存SKU动销率',p1(st.rate),`${st.act}/${st.base} 有库存SKU`,st.rate>=stPre.rate?'good':'bad'],
+  ['成交客单价','$'+(now.units?now.sales/now.units:0).toFixed(2),'销售额÷销量，非挂牌价','info'],
+  ['动销ASIN库存',num(q(active)),`${active.length} 个ASIN有销量`,'good'],
+  ['未动销库存',num(q(idle)),`${idle.length} 个ASIN零销量`,'bad'],
+  ['未动销超60天',num(ag(idle)),'最高优先清理','bad']]);
+ h+=`<div class="blockbar"><h2>趋势图</h2></div><div class="charts">
+  ${chart('每周销售额','单位美元',WEEKS.map(w=>w.label),WEEKS.map((w,i)=>sumWeek(rows,i).sales),v=>'$'+Math.round(v).toLocaleString())}
+  ${chart('有库存SKU动销率','仅统计onhand>0',WEEKS.map(w=>w.label),WEEKS.map((w,i)=>sellThrough(rows,i).rate*100),v=>v.toFixed(1)+'%')}
+  ${chart('GV / Sessions','流量',WEEKS.map(w=>w.label),WEEKS.map((w,i)=>sumWeek(rows,i).gv),v=>Math.round(v).toLocaleString())}</div>`;
+ h+='<div class="blockbar"><h2>每周表现（最新周在最上）</h2></div>'+weeklyTable(rows,true);
+ h+=bar('Top 30 GV增速 ASIN','okh','gvup','',L.gvup.length)+topTable(L.gvup,'gv');
+ h+=bar('Top 30 销量 ASIN','okh','units','',L.units.length)+topTable(L.units,'units');
+ h+=bar('Top 30 GV下滑 ASIN','danger','gvdown','',L.gvdown.length)+topTable(L.gvdown,'drop');
+ h+=bar('连续2周未动销（折扣执行清单）','danger','unsold','',L.unsold.length);
+ h+=`<div class="note">判定：${WEEKS[p].label} 与 ${WEEKS[l].label} 销量均为0且当前有库存。周报无挂牌价，价格变化基于成交ASP。</div>`+unsoldTable(L.unsold);
+ return h}
+function skuFiltered(all){return all.filter(x=>(SKU_OWNER==='全部'||x.owner===SKU_OWNER)&&(SKU_STORE==='全部'||x.store===SKU_STORE)&&(SKU_STATUS==='全部'||statusOf(x)===SKU_STATUS))}
+function skuTrends(all){const l=WEEKS.length-1,p=Math.max(0,l-1);
+ const show=SHOW_ALL_WEEKS?wkOrder():wkOrder().slice(0,3);
+ const rows=skuFiltered(all);
+ const st=sellThrough(rows,l);
+ const sorted=rows.slice().sort((a,b)=>(b.w[l]?.sales||0)-(a.w[l]?.sales||0));
+ let h=`<div class="sechead ac-purple"><h2>SKU周趋势</h2><span class="meta">${show.length} 周展示 · ${rows.length} 个SKU · 动销率 ${p1(st.rate)}</span></div>`;
+ h+=`<div class="toolbar" style="margin:0 0 10px"><label>负责人 <select onchange="SKU_OWNER=this.value;render()">${['全部'].concat(OWNERS).map(o=>`<option ${o===SKU_OWNER?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label>状态 <select onchange="SKU_STATUS=this.value;render()">${['全部'].concat(STATUS_LIST).map(o=>`<option ${o===SKU_STATUS?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  ${STORES.length>1?`<label>店铺 <select onchange="SKU_STORE=this.value;render()">${['全部'].concat(STORES).map(o=>`<option ${o===SKU_STORE?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`:''}
+  <button class="btn mini" onclick="SHOW_ALL_WEEKS=!SHOW_ALL_WEEKS;render()">${SHOW_ALL_WEEKS?'仅显示最近3周':'显示全部'+WEEKS.length+'周'}</button>
+  <button class="btn mini green" onclick="exportSkuTrend()">导出当前筛选 ASIN+SKU</button>
+  <span style="font-size:12px;color:#64748b">当前筛选：${esc(SKU_OWNER)} · ${esc(SKU_STATUS)}${STORES.length>1?' · '+esc(SKU_STORE):''}</span></div>`;
+ h+=`<div class="note info">状态定义：增长/下滑=最新周销量对比上一周；连续2周未动销=最近两周销量均为0且有库存；高流量低转化=GV≥20且转化率&lt;2%；无库存=当前无可售库存。销售为子ASIN口径，同ASIN多SKU无法拆分。</div>`;
+ const hs=['ASIN / SKU / 负责人','品名',...(STORES.length>1?['店铺']:[]),'状态','最新转化率','GV环比','销量环比','库存',...show.flatMap(i=>[{t:WEEKS[i].label+' 销量'},{t:WEEKS[i].label+' 销售额'},{t:WEEKS[i].label+' GV'}])];
+ h+=table(hs,sorted.map(x=>{const a=x.w[l],b=x.w[p],cv=a.gv?a.units/a.gv:0,s=statusOf(x);
+  return{cls:s==='连续2周未动销'||s==='下滑'?'rowbad':s==='增长'?'rowgood':'',
+   cells:[tag(x),esc((x.name||x.title).slice(0,30)),...(STORES.length>1?[`<span class="pill grey">${esc(x.store||'-')}</span>`]:[]),statusPill(s),p1(cv),delta(a.gv,b.gv),delta(a.units,b.units),stockCell(x),...show.flatMap(i=>[num(x.w[i].units),money(x.w[i].sales),num(x.w[i].gv)])]}}));
+ return h}
+async function exportSkuTrend(){try{const rows=dedupe(skuFiltered(filtered()));
+ if(!rows.length)return status('当前筛选没有可导出的ASIN',true);
+ const name=`SKU周趋势_${SKU_OWNER}_${SKU_STATUS}${STORES.length>1?'_'+SKU_STORE:''}_ASIN_SKU.csv`,csv=pairsCsv(rows);
+ await saveServer(name,csv,'text/csv;charset=utf-8');download(name,csv,'text/csv;charset=utf-8')}catch(e){status(e.message,true)}}
+function ownerPage(owner,rows){const l=WEEKS.length-1,p=Math.max(0,l-1),idx=OWNERS.indexOf(owner);
+ const now=sumWeek(rows,l),pre=sumWeek(rows,p),st=sellThrough(rows,l),stPre=sellThrough(rows,p);
+ const stocked=uniqAsin(rows.filter(hasStock)),idle=stocked.filter(x=>(x.w[l]?.units||0)===0);
+ const q=a=>a.reduce((s,x)=>s+(INV[x.asin]?.qty||0),0),ag=a=>a.reduce((s,x)=>s+(INV[x.asin]?.aged60||0),0);
+ const L=blockLists(rows);
+ let h=`<div class="sechead"><h2>${esc(owner)} · 负责人页面</h2><span class="meta">${rows.length} 个SKU · 有库存 ${st.base} 个</span>
+  <button class="btn mini alt" onclick="exportOwner('${q1(owner)}')">导出该负责人HTML</button>
+  <button class="btn mini green" onclick="exportBlock('all','${q1(owner)}')">导出全部ASIN+SKU</button></div>`;
+ h+=`<div class="${now.sales<pre.sales||st.rate<stPre.rate?'alert':'note info'}"><b>${esc(owner)}本周结论：</b>销售额 ${money(now.sales)}（${now.sales<pre.sales?'下降':'上升'} ${money(Math.abs(now.sales-pre.sales))}）；动销率 ${p1(st.rate)}（${st.rate<stPre.rate?'下降':'上升'} ${Math.abs((st.rate-stPre.rate)*100).toFixed(1)}pt）；连续2周未动销 ${L.unsold.length} 个，占用库存 ${num(q(idle))} 件。</div>`;
+ h+=stNote(st,esc(owner));
+ h+=kpis([['最新周动销率',p1(st.rate),`${st.act}/${st.base} 有库存SKU · 环比 ${((st.rate-stPre.rate)*100>=0?'+':'')+((st.rate-stPre.rate)*100).toFixed(1)}pt`,st.rate>=stPre.rate?'good':'bad'],
+  ['最新周销售额',money(now.sales),`环比 ${delta(now.sales,pre.sales,money)}`,now.sales>=pre.sales?'good':'bad'],
+  ['最新周GV',num(now.gv),`环比 ${delta(now.gv,pre.gv)}`,now.gv>=pre.gv?'good':'bad'],
+  ['最新周销量',num(now.units),`环比 ${delta(now.units,pre.units)}`,now.units>=pre.units?'good':'bad'],
+  ['连续2周未动销',num(L.unsold.length),`占用库存 ${num(q(idle))} 件`,L.unsold.length?'bad':'good'],
+  ['未动销超60天库存',num(ag(idle)),'需立即折扣/清货',ag(idle)>0?'bad':'good'],
+  ['GV上涨ASIN',num(L.gvup.length),'可加广告/补货','good'],
+  ['GV下滑ASIN',num(L.gvdown.length),'需排查流量',L.gvdown.length?'warn':'good']]);
+ h+=`<div class="blockbar"><h2>趋势图</h2></div><div class="charts">
+  ${chart('动销率趋势（有库存SKU）',owner,WEEKS.map(w=>w.label),WEEKS.map((w,i)=>sellThrough(rows,i).rate*100),v=>v.toFixed(1)+'%')}
+  ${chart('销售额趋势',owner,WEEKS.map(w=>w.label),WEEKS.map((w,i)=>sumWeek(rows,i).sales),v=>'$'+Math.round(v).toLocaleString())}
+  ${chart('GV趋势',owner,WEEKS.map(w=>w.label),WEEKS.map((w,i)=>sumWeek(rows,i).gv),v=>Math.round(v).toLocaleString())}</div>`;
+ h+='<div class="blockbar"><h2>每周表现（最新周在最上）</h2></div>'+weeklyTable(rows,true);
+ h+=bar('Top 30 GV增速','okh','gvup',owner,L.gvup.length)+topTable(L.gvup,'gv');
+ h+=bar('Top 30 销量','okh','units',owner,L.units.length)+topTable(L.units,'units');
+ h+=bar('Top 30 GV下滑','danger','gvdown',owner,L.gvdown.length)+topTable(L.gvdown,'drop');
+ h+=bar('连续2周未动销（需做折扣）','danger','unsold',owner,L.unsold.length)+unsoldTable(L.unsold);
+ return h}
+function ownerRanking(){const l=WEEKS.length-1,p=Math.max(0,l-1);
+ const rows=OWNERS.map(o=>{const a=ITEMS.filter(x=>x.owner===o),s=sumWeek(a,l),sp=sumWeek(a,p),t=sellThrough(a,l),tp=sellThrough(a,p);
+  const aged=uniqAsin(a.filter(hasStock)).reduce((z,x)=>z+(INV[x.asin]?.aged60||0),0);
+  return{o,skus:a.length,base:t.base,rate:t.rate,drate:t.rate-tp.rate,sales:s.sales,psales:sp.sales,u2:blockLists(a).unsold.length,aged}}).sort((a,b)=>b.aged-a.aged||b.u2-a.u2);
+ return table(['负责人','SKU数','有库存SKU','最新动销率','动销率环比','最新销售额','销售额环比','连续2周未动销','超60天库存'],
+ rows.map(r=>({cls:r.aged>0||r.sales<r.psales?'rowbad':'rowgood',
+  cells:[`<b>${esc(r.o)}</b>`,r.skus,r.base,`<b>${p1(r.rate)}</b>`,`<span class="${r.drate>=0?'up':'down'}">${(r.drate*100>=0?'+':'')+(r.drate*100).toFixed(1)}pt</span>`,money(r.sales),delta(r.sales,r.psales,money),r.u2?`<span class="down">${r.u2}</span>`:'0',r.aged?`<span class="down">${num(r.aged)}</span>`:'0']})))}
+function inventoryPage(rows){const l=WEEKS.length-1;
+ const withInv=rows.filter(x=>(INV[x.asin]?.qty||0)>0);
+ const stocked=uniqAsin(withInv),active=stocked.filter(x=>l>=0&&(x.w[l]?.units||0)>0),idle=stocked.filter(x=>l<0||(x.w[l]?.units||0)===0);
+ const q=a=>a.reduce((s,x)=>s+(INV[x.asin]?.qty||0),0),ag=a=>a.reduce((s,x)=>s+(INV[x.asin]?.aged60||0),0);
+ const totQty=q(stocked),severe=stocked.filter(x=>(INV[x.asin]?.aged60||0)>0).sort((a,b)=>INV[b.asin].aged60-INV[a.asin].aged60);
+ const byOwner={};severe.forEach(x=>{const z=byOwner[x.owner]||(byOwner[x.owner]={cnt:0,qty:0,aged:0,idle:0});z.cnt++;z.qty+=INV[x.asin].qty;z.aged+=INV[x.asin].aged60;if(l<0||(x.w[l]?.units||0)===0)z.idle++});
+ let h=`<div class="sechead ac-red"><h2>库存健康报告</h2><span class="meta">库存快照 ${esc((RAW.inventory?.snapshots||[]).join('、')||'未识别')} · 库龄口径</span></div>`;
+ if(LXROWS.length)h+='<div class="note info">本板块使用库存报告的 onhand_units 与库龄桶做健康诊断；实时可售数量请看“领星实时数据更新”，全站动销率已改用领星 FBA可售。</div>';
+ h+=`<div class="note">严重滞销严格口径：<b>onhand_units &gt; 0 且 age_61_90_units + age_91_plus_units &gt; 0</b>。仅一期快照，无法计算库存历史变化；源文件无挂牌价，仅有价格带。</div>`;
+ h+=kpis([['库存报告在库总量',num(totQty),`${stocked.length} 个ASIN`,'info'],
+  ['动销ASIN库存',num(q(active)),`${active.length} 个ASIN有销量`,'good'],
+  ['未动销ASIN库存',num(q(idle)),`${idle.length} 个ASIN零销量`,'bad'],
+  ['未动销库存占比',totQty?p1(q(idle)/totQty):'0%','未动销÷总库存',q(idle)/(totQty||1)>0.5?'bad':'warn'],
+  ['严重滞销ASIN',num(severe.length),'含60天以上库存','bad'],
+  ['超60天库存',num(ag(severe)),'61-90天+91天以上','bad'],
+  ['其中91天以上',num(severe.reduce((s,x)=>s+INV[x.asin].a91,0)),'最高清理优先','bad'],
+  ['涉及负责人',num(Object.keys(byOwner).length),'见压力排名','warn']]);
+ h+='<div class="blockbar"><h2 class="danger">负责人滞销压力排名（可单独导出）</h2></div>'+table(['负责人','滞销ASIN数','其中本周未动销','总库存','超60天库存','导出'],
+  Object.entries(byOwner).sort((a,b)=>b[1].aged-a[1].aged).map(([o,z])=>({cls:'rowbad',cells:[`<b>${esc(o)}</b>`,z.cnt,z.idle,num(z.qty),`<span class="down">${num(z.aged)}</span>`,`<button class="btn mini green" onclick="exportBlock('invtier','${q1(o)}')">导出该负责人滞销ASIN+SKU</button>`]})));
+ const list=invFiltered(rows);
+ const tierCount=t=>uniqAsin(withInv).filter(x=>tierOf(x.asin)===t).length;
+ h+=`<div class="toolbar" style="margin:16px 0 8px"><label>负责人 <select onchange="INV_OWNER=this.value;render()">${['全部'].concat(OWNERS).map(o=>`<option ${o===INV_OWNER?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label>滞销库存分层 <select onchange="INV_TIER=this.value;render()">${['全部','全部滞销(31天以上)'].concat(TIERS).map(o=>`<option ${o===INV_TIER?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label>处理建议 <select onchange="INV_ADVICE=this.value;render()">${['全部'].concat(INV_ADVICES).map(o=>`<option ${o===INV_ADVICE?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <button class="btn mini green" onclick="exportBlock('invtier','')">导出当前筛选 ASIN+SKU</button>
+  <span style="font-size:12px;color:#64748b">当前筛选：${esc(INV_OWNER)} · ${esc(INV_TIER)} · ${esc(INV_ADVICE)} → ${list.length} 个ASIN</span></div>`;
+ h+=`<div class="note">滞销程度分层：<b>${TIERS[0]}</b>（最高优先，清货或移除）＞<b>${TIERS[1]}</b>（严重，仅次于91天+）＞<b>${TIERS[2]}</b>（开始折扣清库存、提升动销）＞<b>${TIERS[3]}</b>。当前分布：${TIERS.map(t=>`${t.split(' ')[0]} ${tierCount(t)} 个`).join(' · ')}。</div>`;
+ h+='<div class="blockbar"><h2 class="danger">滞销明细（按严重程度与库存量排序）</h2></div>';
+ h+=table(['ASIN / SKU / 负责人','品名','滞销库存分层','处理建议','总库存','91天+','61-90天','31-60天','0-30天',{t:(l>=0?WEEKS[l].label:'最新周')+' 销量'},'近3周销量','动销分层','品类','价格带'],
+  list.map(x=>{const z=INV[x.asin],u3=l>=0?x.w.slice(-3).reduce((s,w)=>s+(w.units||0),0):0,t=tierOf(x.asin),ti=TIERS.indexOf(t);
+  return{cls:ti===0||ti===1?'rowbad':ti===2?'':'rowgood',
+   cells:[tag(x),esc((x.name||x.title).slice(0,28)),tierPill(t),advicePill(invAdvice(x)),num(z.qty),
+    z.a91>0?`<span class="down">${num(z.a91)}</span>`:'0',z.a61>0?`<span class="down">${num(z.a61)}</span>`:'0',z.a31>0?`<span class="warn">${num(z.a31)}</span>`:'0',num(z.a0),
+    l>=0?num(x.w[l].units):'-',num(u3),esc(z.segment||'-'),esc(z.pt||'-'),esc(z.band||'-')]}}));
+ return h}
+function invFiltered(rows){const l=WEEKS.length-1;
+ return uniqAsin(rows.filter(x=>(INV[x.asin]?.qty||0)>0))
+  .filter(x=>INV_OWNER==='全部'||x.owner===INV_OWNER)
+  .filter(x=>{const t=tierOf(x.asin);if(INV_TIER==='全部')return true;
+   if(INV_TIER==='全部滞销(31天以上)')return t===TIERS[0]||t===TIERS[1]||t===TIERS[2];return t===INV_TIER})
+  .filter(x=>INV_ADVICE==='全部'||invAdvice(x)===INV_ADVICE)
+  .sort((a,b)=>{const ta=TIERS.indexOf(tierOf(a.asin)),tb=TIERS.indexOf(tierOf(b.asin));
+   if(ta!==tb)return ta-tb;const za=INV[a.asin],zb=INV[b.asin];
+   return (zb.a91-za.a91)||(zb.a61-za.a61)||(zb.a31-za.a31)||(zb.qty-za.qty)})}
+function lingxingPage(rows){
+ if(!LXROWS.length)return `<div class="sechead ac-cyan"><h2>领星实时数据更新</h2></div><div class="note">未找到领星后台数据。请在上方“⑤ 领星后台数据-FBA可售”上传 xlsx，或把文件放到 ${esc(RAW.files.sourceFolder||'源目录')} 根目录（文件名含“领星”）。</div>`;
+ const q=norm($('search').value);
+ const own=new Map();MAP.forEach(m=>{if(!own.has(m.asin))own.set(m.asin,m)});
+ const all=lxList();
+ const list=all.filter(x=>(LX_OWNER==='全部'||x.owner===LX_OWNER)&&(LX_ADVICE==='全部'||x.c.advice===LX_ADVICE));
+ const baseName={d7:'7日均销量',d14:'14日均销量',d30:'30日均销量'}[LX_BASE];
+ const tot=list.reduce((s,x)=>s+x.fba,0),need=list.filter(x=>x.c.advice===LX_ADVICES[0]||x.c.advice===LX_ADVICES[1]);
+ const gapSum=need.reduce((s,x)=>s+x.c.gap,0),idle=list.filter(x=>x.c.advice===LX_ADVICES[4]),over=list.filter(x=>x.c.advice===LX_ADVICES[3]);
+ const byOwner={};list.forEach(x=>{const z=byOwner[x.owner]||(byOwner[x.owner]={fba:0,skus:0,need:0,gap:0,idle:0,weekly:0});z.fba+=x.fba;z.skus++;z.weekly+=x.c.weekly;
+  if(x.c.advice===LX_ADVICES[0]||x.c.advice===LX_ADVICES[1]){z.need++;z.gap+=x.c.gap}if(x.c.advice===LX_ADVICES[4])z.idle++});
+ let h=`<div class="sechead ac-cyan"><h2>领星实时数据更新</h2><span class="meta">${esc(RAW.files.lingxing||'领星后台数据')} · ${all.length} 条记录 · 最新库存口径</span>
+  <button class="btn mini green" onclick="exportBlock('lx','')">导出当前筛选 ASIN+SKU</button></div>`;
+ h+=`<div class="toolbar" style="margin:0 0 8px"><label>负责人 <select onchange="LX_OWNER=this.value;render()">${['全部'].concat(OWNERS).map(o=>`<option ${o===LX_OWNER?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label>补货建议 <select onchange="LX_ADVICE=this.value;render()">${['全部'].concat(LX_ADVICES).map(o=>`<option ${o===LX_ADVICE?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label>安全库存周数 <input type="number" min="1" max="12" step="0.5" value="${LX_WEEKS}" style="width:70px" onchange="LX_WEEKS=Math.max(0.5,parseFloat(this.value)||3);render()"></label>
+  <label>销量基准 <select onchange="LX_BASE=this.value;render()"><option value="d7" ${LX_BASE==='d7'?'selected':''}>7日均销量</option><option value="d14" ${LX_BASE==='d14'?'selected':''}>14日均销量</option><option value="d30" ${LX_BASE==='d30'?'selected':''}>30日均销量</option></select></label>
+  <span style="font-size:12px;color:#64748b">筛选后 ${list.length} 条</span></div>`;
+ h+=`<div class="note info"><b>安全库存规则（可自行调整）：</b>周均销量 = ${baseName} × 7；安全库存 = 周均销量 × <b>${LX_WEEKS}</b> 周。举例：7天卖3个（日均0.43），按3周算安全库存 = 3 × 3 = 9 个，FBA可售低于9即判为需补货，缺口 = 安全库存 − FBA可售。全站动销率与库存判断优先使用领星 FBA可售，领星缺失该ASIN时才回退库存报告的 onhand_units。</div>`;
+ h+=kpis([['FBA可售总量',num(tot),`${list.length} 条SKU记录`,'info'],
+  ['需补货SKU',num(need.length),`安全库存周数 ${LX_WEEKS} 周`,need.length?'bad':'good'],
+  ['补货缺口合计',num(gapSum),'安全库存 − FBA可售',gapSum>0?'bad':'good'],
+  ['有库存无销量',num(idle.length),`${baseName} 为 0`,idle.length?'bad':'good'],
+  ['库存偏多SKU',num(over.length),'超过安全库存2倍',over.length?'warn':'good'],
+  ['周均销量合计',num(list.reduce((s,x)=>s+x.c.weekly,0)),baseName+' × 7','info'],
+  ['涉及负责人',num(Object.keys(byOwner).length),'','info'],
+  ['同时超60天库存',num(list.filter(x=>x.aged60>0).length),'与库存健康报告交叉',list.some(x=>x.aged60>0)?'bad':'good']]);
+ h+='<div class="blockbar"><h2>负责人实时库存与补货概览（可单独导出）</h2></div>'+table(['负责人','SKU数','FBA可售','周均销量','需补货SKU','补货缺口','有库存无销量','导出'],
+  Object.entries(byOwner).sort((a,b)=>b[1].gap-a[1].gap).map(([o,z])=>({cls:z.need>0?'rowbad':'',cells:[`<b>${esc(o)}</b>`,z.skus,num(z.fba),num(z.weekly),z.need?`<span class="down">${z.need}</span>`:'0',z.gap?`<span class="down">${num(z.gap)}</span>`:'0',z.idle?`<span class="down">${z.idle}</span>`:'0',`<button class="btn mini green" onclick="exportBlock('lx','${q1(o)}')">导出该负责人ASIN+SKU</button>`]})));
+ const cols=['ASIN / SKU / 负责人','品名','补货建议','FBA可售','周均销量','安全库存','补货缺口','可售周数',baseName,'本周销量','本周GV','超60天库存'];
+ const mkRow=x=>({cls:x.c.advice===LX_ADVICES[0]||x.c.advice===LX_ADVICES[1]||x.c.advice===LX_ADVICES[4]?'rowbad':x.c.advice===LX_ADVICES[2]?'rowgood':'',
+  cells:[`<b>${esc(x.asin)}</b><br><small style="color:#64748b">${esc(x.sku||x.msku)} · ${esc(x.owner)}</small>`,esc((x.name||'').slice(0,26)),lxAdvicePill(x.c.advice),num(x.fba),num(x.c.weekly),num(x.c.safety),x.c.gap>0?`<span class="down">${num(x.c.gap)}</span>`:'0',x.c.coverWeeks!=null?num(x.c.coverWeeks)+' 周':'-',num(x.c.daily),num(x.units),num(x.gv),x.aged60>0?`<span class="down">${num(x.aged60)}</span>`:'0']});
+ h+=bar('需补货清单（低于安全库存）','danger','lxneed',LX_OWNER==='全部'?'':LX_OWNER,need.length)+table(cols,need.slice().sort((a,b)=>b.c.gap-a.c.gap).map(mkRow));
+ h+=bar('有库存无销量（需清库存）','danger','lxidle',LX_OWNER==='全部'?'':LX_OWNER,idle.length)+table(cols,idle.slice().sort((a,b)=>b.fba-a.fba).map(mkRow));
+ h+='<div class="blockbar"><h2>全部领星记录（按FBA可售排序）</h2></div>'+table(cols,list.slice().sort((a,b)=>b.fba-a.fba).slice(0,600).map(mkRow));
+ return h}
+function lxList(){const q=norm($('search').value);const own=new Map();MAP.forEach(m=>{if(!own.has(m.asin))own.set(m.asin,m)});
+ const l=WEEKS.length-1;
+ let list=LXROWS.map(r=>{const m=own.get(r.asin),owner=r.owner||m?.owner||'未匹配',it=ITEMS.find(x=>x.asin===r.asin);
+  return{...r,owner,store:it?.store||'',units:(it&&l>=0)?(it.w[l]?.units||0):0,gv:(it&&l>=0)?(it.w[l]?.gv||0):0,aged60:INV[r.asin]?.aged60||0,c:lxCalc(r)}})
+  .filter(x=>!q||norm(x.asin+x.sku+x.msku+x.name+x.owner).includes(q));
+ if(view.owner)list=list.filter(x=>x.owner===view.owner);
+ return list}
+function intlProducts(rows){const P={};rows.forEach(x=>{const k=x.asin+'|'+x.sku;
+  const p=P[k]||(P[k]={asin:x.asin,sku:x.sku,name:x.name,owner:x.owner,qty:0,orders:0,val:0,countries:{}});
+  p.qty+=x.qty;p.orders++;p.val+=x.qty*x.price;p.countries[x.country]=(p.countries[x.country]||0)+x.qty});
+ const l=WEEKS.length-1;
+ return Object.values(P).map(p=>{const it=ITEMS.find(y=>y.asin===p.asin&&y.sku===p.sku)||ITEMS.find(y=>y.asin===p.asin);
+  const lx=LXROWS.find(r=>r.asin===p.asin&&(r.sku===p.sku||r.msku===p.sku))||LXROWS.find(r=>r.asin===p.asin);
+  const stock=stockOf(p.asin).qty,cn=Object.keys(p.countries).length;
+  return{...p,cn,stock,d30:lx?lx.d30:0,fba:lx?lx.fba:0,units:(it&&l>=0)?(it.w[l]?.units||0):0,gv:(it&&l>=0)?(it.w[l]?.gv||0):0,
+   need:lx?lxCalc(lx).advice:null,top3:Object.entries(p.countries).sort((m,k)=>k[1]-m[1]).slice(0,3)}})}
+function intlRecommend(prods){if(!prods.length)return[];const med=median(prods.map(p=>p.qty))||1;
+ return prods.filter(p=>p.qty>=Math.max(2,med)&&p.cn>=2&&(p.stock>0||p.d30>0))
+  .map(p=>({...p,score:p.qty*Math.max(1,p.cn)}))
+  .sort((a,b)=>b.score-a.score)}
+function internationalPage(){const q=norm($('search').value);
+ let a=INTL.filter(x=>(!q||norm(x.asin+x.sku+x.owner+x.country+x.order+x.name).includes(q)));
+ const allCountries=[...new Set(a.map(x=>x.country))].sort();
+ if(INTL_OWNER!=='全部')a=a.filter(x=>x.owner===INTL_OWNER);
+ if(INTL_COUNTRY!=='全部')a=a.filter(x=>x.country===INTL_COUNTRY);
+ const qty=a.reduce((s,x)=>s+x.qty,0),val=a.reduce((s,x)=>s+x.qty*x.price,0);
+ const C={};a.forEach(x=>{const z=C[x.country]||(C[x.country]={orders:0,qty:0,val:0,items:{},owners:{}});z.orders++;z.qty+=x.qty;z.val+=x.qty*x.price;
+  const k=x.asin+'|'+x.sku;z.items[k]=z.items[k]||{asin:x.asin,sku:x.sku,name:x.name,owner:x.owner,qty:0};z.items[k].qty+=x.qty;z.owners[x.owner]=(z.owners[x.owner]||0)+x.qty});
+ const cs=Object.entries(C).sort((x,y)=>y[1].qty-x[1].qty),top=cs[0],top3=cs.slice(0,3).reduce((s,c)=>s+c[1].qty,0);
+ const prods=intlProducts(a),recs=intlRecommend(prods);
+ const ps=INTL_ONLYREC?recs:prods.slice().sort((x,y)=>y.qty-x.qty);
+ const O={};a.forEach(x=>{const z=O[x.owner]||(O[x.owner]={qty:0,orders:0,val:0,countries:{},items:{}});z.qty+=x.qty;z.orders++;z.val+=x.qty*x.price;
+  z.countries[x.country]=(z.countries[x.country]||0)+x.qty;const k=x.asin+'|'+x.sku;z.items[k]=z.items[k]||{asin:x.asin,sku:x.sku,qty:0};z.items[k].qty+=x.qty});
+ let h=`<div class="sechead ac-amber"><h2>国际订单</h2><span class="meta">${a.length} 单 · ${cs.length} 个目的国 · ${prods.length} 个出单产品</span>
+  <button class="btn mini green" onclick="exportBlock('intl','${INTL_OWNER==='全部'?'':q1(INTL_OWNER)}')">导出当前清单 ASIN+SKU</button></div>`;
+ h+=`<div class="toolbar" style="margin:0 0 8px"><label>负责人 <select onchange="INTL_OWNER=this.value;render()">${['全部'].concat(OWNERS).concat(['未匹配']).map(o=>`<option ${o===INTL_OWNER?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label>目的国 <select onchange="INTL_COUNTRY=this.value;render()">${['全部'].concat(allCountries).map(o=>`<option ${o===INTL_COUNTRY?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+  <label style="font-size:12.5px"><input type="checkbox" ${INTL_ONLYREC?'checked':''} onchange="INTL_ONLYREC=this.checked;render()"> 只看重点推荐产品</label>
+  <button class="btn mini green" onclick="exportBlock('intlrec','${INTL_OWNER==='全部'?'':q1(INTL_OWNER)}')">导出重点推荐产品</button>
+  <span style="font-size:12px;color:#64748b">当前筛选：${esc(INTL_OWNER)} · ${esc(INTL_COUNTRY)} → ${a.length} 单</span></div>`;
+ h+=`<div class="note info"><b>集中度结论：</b>最集中在 <b>${esc(top?top[0]:'-')}</b>（${num(top?top[1].qty:0)} 件，占 ${qty?p1((top?top[1].qty:0)/qty):'0%'}）；前3国合计占 ${qty?p1(top3/qty):'0%'}。最热产品 <b>${esc(prods[0]?prods[0].asin:'-')}</b>（负责人 ${esc(prods[0]?prods[0].owner:'-')}）。<br><b>重点推荐规则：</b>国际数量 ≥ 中位数且 ≥2件、覆盖国家 ≥2个、且当前有库存或30日均销量&gt;0；按「数量 × 覆盖国家数」排序。</div>`;
+ h+=kpis([['国际订单数',num(a.length),'按订单号去重','info'],['配送数量',num(qty),'','info'],
+  ['最集中国家',esc(top?top[0]:'-'),`${num(top?top[1].qty:0)} 件 · ${qty?p1((top?top[1].qty:0)/qty):'0%'}`,'good'],
+  ['前3国集中度',qty?p1(top3/qty):'0%','过高需分散风险',top3/(qty||1)>0.6?'warn':'good'],
+  ['重点推荐产品',num(recs.length),'多国畅销且有货','good'],
+  ['推荐品中需补货',num(recs.filter(r=>r.need===LX_ADVICES[0]||r.need===LX_ADVICES[1]).length),'畅销但库存不足',recs.some(r=>r.need===LX_ADVICES[0]||r.need===LX_ADVICES[1])?'bad':'good'],
+  ['订单金额',money(val),'原币混合未换汇','warn'],
+  ['未匹配SKU订单',num(a.filter(x=>x.owner==='未匹配').length),'不计入负责人',a.some(x=>x.owner==='未匹配')?'warn':'good']]);
+ h+=`<div class="charts">${chart('Top 8 国家出单量','按配送数量',cs.slice(0,8).map(c=>c[0]),cs.slice(0,8).map(c=>c[1].qty),v=>Math.round(v).toLocaleString(),'#d97706')}
+  ${chart('Top 8 产品出单量','ASIN后4位',prods.slice().sort((x,y)=>y.qty-x.qty).slice(0,8).map(p=>p.asin.slice(-4)),prods.slice().sort((x,y)=>y.qty-x.qty).slice(0,8).map(p=>p.qty),v=>Math.round(v).toLocaleString(),'#2563eb')}</div>`;
+ h+='<div class="blockbar"><h2 class="okh">负责人国际出单情况（可单独导出）</h2></div>'+table(['负责人','订单数','数量','金额','覆盖国家数','主要国家','头部产品','导出'],
+  Object.entries(O).sort((x,y)=>y[1].qty-x[1].qty).map(([o,z])=>{const it=Object.values(z.items).sort((m,k)=>k.qty-m.qty)[0];
+  return{cls:o==='未匹配'?'rowbad':'rowgood',cells:[`<b>${esc(o)}</b>`,z.orders,num(z.qty),money(z.val),Object.keys(z.countries).length,
+   Object.entries(z.countries).sort((m,k)=>k[1]-m[1]).slice(0,4).map(c=>`${esc(c[0])}(${num(c[1])})`).join('、'),
+   it?`${esc(it.asin)} <small style="color:#64748b">${esc(it.sku)}</small> ${num(it.qty)}件`:'-',
+   `<button class="btn mini green" onclick="exportBlock('intl','${q1(o)}')">导出该负责人ASIN+SKU</button>`]}}));
+ h+=bar('重点推荐国际产品（多国畅销，建议加大投入）','okh','intlrec',INTL_OWNER==='全部'?'':INTL_OWNER,recs.length);
+ h+=table(['排名','ASIN / SKU / 负责人','品名','国际数量','覆盖国家数','主要国家','当前库存','30日均销量','补货状态','本周站内销量'],
+  recs.slice(0,30).map((p,i)=>({cls:p.need===LX_ADVICES[0]||p.need===LX_ADVICES[1]?'rowbad':'rowgood',
+   cells:[i+1,`<b>${esc(p.asin)}</b><br><small style="color:#64748b">${esc(p.sku)} · ${esc(p.owner)}</small>`,esc((p.name||'').slice(0,24)),num(p.qty),p.cn,
+    p.top3.map(c=>`${esc(c[0])}(${num(c[1])})`).join('、'),num(p.stock),num(p.d30),p.need?lxAdvicePill(p.need):'<span class="pill grey">领星无记录</span>',num(p.units)]})));
+ h+='<div class="blockbar"><h2>哪些品在哪些国家畅销（产品 × 国家）</h2></div>';
+ const topC=cs.slice(0,8).map(c=>c[0]);
+ h+=table(['ASIN / SKU / 负责人','品名','合计数量','覆盖国家数',...topC.map(c=>({t:c})),'其他国家'],
+  ps.slice(0,60).map(p=>{const other=p.qty-topC.reduce((s,c)=>s+(p.countries[c]||0),0);
+   return{cls:p.cn>=3?'rowgood':'',cells:[`<b>${esc(p.asin)}</b><br><small style="color:#64748b">${esc(p.sku)} · ${esc(p.owner)}</small>`,esc((p.name||'').slice(0,22)),num(p.qty),p.cn,
+    ...topC.map(c=>p.countries[c]?`<b>${num(p.countries[c])}</b>`:'-'),other>0?num(other):'-']}}));
+ h+='<div class="blockbar"><h2>国家集中度（含该国最热产品与负责人）</h2></div>'+table(['排名','国家/地区','订单数','数量','占比','金额','该国最热产品','SKU','负责人','该国主要负责人'],
+  cs.map((c,i)=>{const it=Object.values(c[1].items).sort((x,y)=>y.qty-x.qty)[0],ow=Object.entries(c[1].owners).sort((x,y)=>y[1]-x[1])[0];
+  return{cls:i===0?'rowgood':'',cells:[i+1,`<b>${esc(c[0])}</b>`,c[1].orders,num(c[1].qty),p1(c[1].qty/(qty||1)),money(c[1].val),it?`<b>${esc(it.asin)}</b>`:'-',it?esc(it.sku):'-',it?esc(it.owner):'-',ow?`${esc(ow[0])} (${num(ow[1])})`:'-']}}));
+ h+=bar(`${INTL_OWNER==='全部'?'全店':INTL_OWNER} 头部国际出单产品`,'okh','intl',INTL_OWNER==='全部'?'':INTL_OWNER,Math.min(30,ps.length));
+ h+=table(['排名','ASIN','SKU','负责人','品名','数量','订单数','金额','主要国家','覆盖国家数','当前库存'],
+  ps.slice(0,30).map((x,i)=>({cls:i<3?'rowgood':'',cells:[i+1,`<b>${esc(x.asin)}</b>`,esc(x.sku),esc(x.owner),esc((x.name||'').slice(0,24)),num(x.qty),x.orders,money(x.val),
+   x.top3.map(c=>`${esc(c[0])}(${num(c[1])})`).join('、'),x.cn,num(x.stock)]})));
+ h+='<div class="blockbar"><h2>订单明细（最新在前）</h2></div>'+table(['配送日期','ASIN','SKU','负责人','目的国','数量','单价','币种','店铺','品名'],
+  a.slice().sort((x,y)=>String(y.date).localeCompare(String(x.date))).slice(0,600).map(x=>[esc(String(x.date).slice(0,10)),esc(x.asin),esc(x.sku),esc(x.owner),`<b>${esc(x.country)}</b>`,num(x.qty),'$'+x.price.toFixed(2),esc(x.currency),esc(x.store),esc((x.name||'').slice(0,22))]));
+ return h}
+function qualityPage(){const l=WEEKS.length-1,dup=MAP.length-new Set(MAP.map(x=>x.asin+'|'+x.sku)).size;
+ const st=sellThrough(ITEMS,l),unmatched=INTL.filter(x=>x.owner==='未匹配'),noStock=ITEMS.filter(x=>!hasStock(x));
+ const soldNoStock=ITEMS.filter(x=>!hasStock(x)&&(x.w[l]?.units||0)>0);
+ const byStore={};ITEMS.forEach(x=>{const k=x.store||'-';byStore[k]=(byStore[k]||0)+1});
+ const checks=[['店铺数量',STORES.length,STORES.map(s=>`${s}(${byStore[s]||0} SKU)`).join('、')],
+  ['有效映射(ASIN+SKU+负责人)',MAP.length,'缺任一项已在解析阶段剔除'],['周销售文件',WEEKS.length,WEEKS.map(w=>w.full).join('、')],
+  ['库存扫描行',RAW.inventory?.processedRows||0,`命中有效ASIN ${RAW.inventory?.matchedRows||0} 行`],
+  ['动销率分母(有库存SKU)',st.base,'onhand_units>0'],['动销率分子(有库存且有销量)',st.act,`动销率 ${p1(st.rate)}`],
+  ['有销量但库存为0(已排除)',soldNoStock.length,'按规则不计入分子分母'],['无库存SKU(已排除)',noStock.length,'不计入动销率'],
+  ['国际订单(去重后)',INTL.length,'仅SKU精确匹配负责人'],['国际订单SKU未匹配',unmatched.length,unmatched.length?'不计入任何负责人':'正常'],
+  ['重复ASIN+SKU',dup,dup?'建议清理映射源':'已自动去重'],
+  ['领星记录',LXROWS.length,RAW.files.lingxing?`${RAW.files.lingxing}（最新库存口径）`:'未提供'],
+  ['库存来自领星的ASIN',Object.keys(LX).length,'优先使用 FBA可售'],
+  ['仅库存报告有库存的ASIN',Object.keys(INV).filter(a=>!LX[a]&&INV[a].qty>0).length,'领星缺失时回退']];
+ let h=`<div class="sechead"><h2>数据质量</h2></div>`+table(['检查项','数量','说明'],checks.map(c=>[`<b>${c[0]}</b>`,num(c[1]),esc(c[2])]));
+ h+='<div class="note"><b>口径说明：</b>① 动销率 = 当周有销量SKU ÷ 有库存(onhand_units&gt;0)SKU，库存为0的SKU即使有销量也全部排除；② 销售为子ASIN口径，同ASIN多SKU无法拆分；③ 周报无挂牌价，价格变化基于成交ASP；④ 库存仅一期快照；⑤ 国际订单金额未换汇。</div>';
+ if(soldNoStock.length)h+='<div class="blockbar"><h2 class="warnh">有销量但库存为0的SKU（已售罄，未计入动销率）</h2></div>'+table(['ASIN / SKU / 负责人','品名',WEEKS[l].label+' 销量',WEEKS[l].label+' 销售额','库存'],soldNoStock.map(x=>[tag(x),esc((x.name||x.title).slice(0,32)),num(x.w[l].units),money(x.w[l].sales),'0']));
+ const samples=RAW.inventory?.samples||[];
+ if(samples.length){const cols=Object.keys(samples[0]);h+='<div class="blockbar"><h2>库存字段样例</h2></div>'+table(cols,samples.slice(0,5).map(r=>cols.map(c=>esc(r[c]||''))))}
+ h+='<div class="blockbar"><h2>当前读取文件</h2></div><pre class="card" style="white-space:pre-wrap;font-size:12px">'+esc(JSON.stringify(RAW.files,null,2))+'</pre>';
+ return h}
+function render(){if(!RAW)return;const rows=filtered();const cls=SEC[view.sec]?.cls||'ac-blue';let h='';
+ const needWeeks=['overview','sku','owner'].includes(view.sec);
+ if(needWeeks&&!WEEKS.length){h=`<div class="sechead ${cls}"><h2>${esc(SEC[view.sec].name)}</h2></div><div class="note">还没有周销售数据。上传任意一份周销售CSV后此板块即可显示；其他板块（库存健康报告 / 领星实时数据 / 国际订单）不受影响，可独立使用。</div>`}
+ else if(view.sec==='overview')h=storeOverview(rows);
+ else if(view.sec==='sku')h=skuTrends(rows);
+ else if(view.sec==='owner')h=(view.owner?ownerPage(view.owner,rows):`<div class="sechead ${cls}"><h2>负责人对比</h2></div>`+ownerRanking());
+ else if(view.sec==='inv')h=inventoryPage(rows);
+ else if(view.sec==='lx')h=lingxingPage(rows);
+ else if(view.sec==='intl')h=internationalPage();
+ else h=qualityPage();
+ $('view').innerHTML=`<div class="sec ${cls}">${h}</div>`}
+/* ==== 单机版 IO: 全部在浏览器内解析, 不依赖任何服务器 ==== */
+let LOCAL={sales:[],mapping:[],inventory:null,international:null,lingxing:[],names:{}};
+function ioProg(msg){const e=$('ioProgress');if(e)e.textContent=msg||''}
+function status(s,e=false){$('status').innerHTML=s;$('status').className='status'+(e?' err':'')}
+
+/* ---------- ZIP (xlsx) 读取: 支持流式解压超大工作表 ---------- */
+async function zipEntries(file){
+ const tailLen=Math.min(file.size,66000);
+ const tail=new DataView(await file.slice(file.size-tailLen).arrayBuffer());
+ let eocd=-1;
+ for(let p=tail.byteLength-22;p>=0;p--){if(tail.getUint32(p,true)===0x06054b50){eocd=p;break}}
+ if(eocd<0)throw new Error('不是有效的 xlsx 文件');
+ let cdOff=tail.getUint32(eocd+16,true),cnt=tail.getUint16(eocd+10,true);
+ if(cdOff===0xffffffff||cnt===0xffff){
+  for(let p=eocd-20;p>=0;p--){if(tail.getUint32(p,true)===0x07064b50){
+   const z64=tail.getBigUint64(p+8,true);
+   const dv=new DataView(await file.slice(Number(z64),Number(z64)+56).arrayBuffer());
+   cnt=Number(dv.getBigUint64(24,true));cdOff=Number(dv.getBigUint64(48,true));break}}}
+ const cd=new DataView(await file.slice(cdOff,file.size).arrayBuffer());
+ const out={};let p=0;
+ for(let k=0;k<cnt;k++){
+  if(cd.getUint32(p,true)!==0x02014b50)break;
+  const method=cd.getUint16(p+10,true);
+  let comp=cd.getUint32(p+20,true),uncomp=cd.getUint32(p+24,true);
+  const nameLen=cd.getUint16(p+28,true),extraLen=cd.getUint16(p+30,true),commLen=cd.getUint16(p+32,true);
+  let lho=cd.getUint32(p+42,true);
+  const name=new TextDecoder().decode(new Uint8Array(cd.buffer,cd.byteOffset+p+46,nameLen));
+  if(comp===0xffffffff||uncomp===0xffffffff||lho===0xffffffff){
+   let e=p+46+nameLen,end=e+extraLen;
+   while(e<end){const id=cd.getUint16(e,true),sz=cd.getUint16(e+2,true);
+    if(id===0x0001){let q=e+4;
+     if(uncomp===0xffffffff){uncomp=Number(cd.getBigUint64(q,true));q+=8}
+     if(comp===0xffffffff){comp=Number(cd.getBigUint64(q,true));q+=8}
+     if(lho===0xffffffff){lho=Number(cd.getBigUint64(q,true));q+=8}}
+    e+=4+sz}}
+  out[name]={method,comp,uncomp,lho};
+  p+=46+nameLen+extraLen+commLen}
+ return out}
+async function entryDataStart(file,ent){
+ const dv=new DataView(await file.slice(ent.lho,ent.lho+30).arrayBuffer());
+ return ent.lho+30+dv.getUint16(26,true)+dv.getUint16(28,true)}
+async function entryStream(file,ent){
+ const start=await entryDataStart(file,ent);
+ const blob=file.slice(start,start+ent.comp);
+ if(ent.method===0)return blob.stream();
+ if(typeof DecompressionStream==='undefined')throw new Error('浏览器不支持解压 xlsx，请使用较新的 Chrome 或 Edge');
+ return blob.stream().pipeThrough(new DecompressionStream('deflate-raw'))}
+async function entryText(file,ent){
+ const r=(await entryStream(file,ent)).getReader(),dec=new TextDecoder();let t='';
+ for(;;){const{done,value}=await r.read();if(done)break;t+=dec.decode(value,{stream:true})}
+ return t+dec.decode()}
+function parseSharedStrings(xml){
+ const out=[];const re=/<si\b[^>]*>([\s\S]*?)<\/si>|<si\b[^>]*\/>/g;let m;
+ while((m=re.exec(xml))){const inner=m[1]||'';let s='';const tre=/<t\b[^>]*>([\s\S]*?)<\/t>/g;let tm;
+  while((tm=tre.exec(inner)))s+=tm[1];out.push(unxml(s))}
+ return out}
+function unxml(s){return String(s).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#(\d+);/g,(_,d)=>String.fromCharCode(+d)).replace(/&amp;/g,'&')}
+function colOf(ref){let i=0;while(i<ref.length&&ref.charCodeAt(i)>64)i++;return ref.slice(0,i)}
+function parseRowXml(xml,ss){
+ const cells={};const re=/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;let m;
+ while((m=re.exec(xml))){
+  const at=m[1]||'',body=m[2]||'';
+  const rm=/r="([A-Z]+)\d+"/.exec(at);if(!rm)continue;
+  const t=(/t="([^"]+)"/.exec(at)||[])[1]||'';
+  let v='';
+  if(t==='inlineStr'){const im=/<t\b[^>]*>([\s\S]*?)<\/t>/.exec(body);v=im?unxml(im[1]):''}
+  else{const vm=/<v\b[^>]*>([\s\S]*?)<\/v>/.exec(body);v=vm?unxml(vm[1]):'';
+   if(t==='s'){const idx=parseInt(v,10);v=(ss&&ss[idx]!=null)?ss[idx]:''}}
+  cells[rm[1]]=String(v).trim()}
+ return cells}
+function sheetPaths(entries,bySizeDesc){
+ const list=Object.keys(entries).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k));
+ if(bySizeDesc)return list.sort((a,b)=>(entries[b].uncomp||entries[b].comp||0)-(entries[a].uncomp||entries[a].comp||0));
+ return list.sort((a,b)=>(+a.match(/(\d+)/)[1])-(+b.match(/(\d+)/)[1]))}
+// 流式遍历某个工作表的行, onRow 返回 'stop' 可提前结束
+async function streamSheet(file,ent,ss,onRow,onProgress){
+ const r=(await entryStream(file,ent)).getReader(),dec=new TextDecoder();
+ let buf='',n=0,bytes=0,stop=false;
+ for(;;){const{done,value}=await r.read();if(done)break;
+  bytes+=value.byteLength;buf+=dec.decode(value,{stream:true});
+  let idx;
+  while((idx=buf.indexOf('</row>'))>=0){
+   const start=buf.lastIndexOf('<row',idx);
+   const seg=start>=0?buf.slice(start,idx):'';
+   buf=buf.slice(idx+6);
+   if(seg){n++;if(onRow(seg)==='stop'){stop=true;break}}}
+  if(stop){try{r.cancel()}catch(e){}break}
+  if(onProgress&&n%20000<2)onProgress(n,bytes);
+  if(buf.length>4e6)buf=buf.slice(-2e6)}
+ return n}
+
+/* ---------- 各类文件解析 ---------- */
+const nrm=s=>String(s??'').replace(/^\ufeff/,'').replace(/[\s\u00a0（）()\-_]/g,'').toLowerCase();
+const eqh=(v,t)=>nrm(v)===nrm(t), hash=(v,t)=>nrm(v).includes(nrm(t));
+
+async function parseMappingFile(file){
+ const ents=await zipEntries(file);
+ const ss=ents['xl/sharedStrings.xml']?parseSharedStrings(await entryText(file,ents['xl/sharedStrings.xml'])):[];
+ for(const sp of sheetPaths(ents)){
+  let cAsin=null,cSku=null,cOwner=null,cName=null,head=false;const rows=[];
+  await streamSheet(file,ents[sp],ss,seg=>{
+   const c=parseRowXml(seg,ss);
+   if(!head){let a=null,s=null,o=null,nm=null;
+    for(const k in c){const v=c[k];
+     if(a===null&&eqh(v,'asin'))a=k;
+     else if(s===null&&(eqh(v,'sku')||eqh(v,'msku')))s=k;
+     else if(o===null&&hash(v,'负责人'))o=k;
+     else if(nm===null&&(hash(v,'品名')||hash(v,'商品名')))nm=k}
+    if(a&&s&&o){head=true;cAsin=a;cSku=s;cOwner=o;cName=nm}
+    return}
+   const asin=(c[cAsin]||'').toUpperCase(),sku=c[cSku]||'',owner=c[cOwner]||'';
+   if(asin&&sku&&owner)rows.push({ASIN:asin,SKU:sku,'品名':cName?(c[cName]||''):'','Listing负责人':owner})},
+   (n)=>ioProg(`解析映射 ${file.name}：${n} 行`));
+  if(head)return rows}
+ throw new Error(`${file.name} 中找不到 ASIN + SKU/MSKU + 负责人 表头`)}
+
+async function parseLingxingFile(file){
+ const ents=await zipEntries(file);
+ const ss=ents['xl/sharedStrings.xml']?parseSharedStrings(await entryText(file,ents['xl/sharedStrings.xml'])):[];
+ for(const sp of sheetPaths(ents)){
+  let C=null;const rows=[];
+  await streamSheet(file,ents[sp],ss,seg=>{
+   const c=parseRowXml(seg,ss);
+   if(!C){const f={};
+    for(const k in c){const v=c[k];
+     if(!f.asin&&eqh(v,'asin'))f.asin=k;
+     else if(!f.parent&&hash(v,'父asin'))f.parent=k;
+     else if(!f.sku&&eqh(v,'sku'))f.sku=k;
+     else if(!f.msku&&eqh(v,'msku'))f.msku=k;
+     else if(!f.fba&&hash(v,'fba可售'))f.fba=k;
+     else if(!f.owner&&hash(v,'负责人'))f.owner=k;
+     else if(!f.name&&hash(v,'品名'))f.name=k;
+     else if(!f.d7&&hash(v,'7日均'))f.d7=k;
+     else if(!f.d14&&hash(v,'14日均'))f.d14=k;
+     else if(!f.d30&&hash(v,'30日均'))f.d30=k}
+    if(f.asin&&f.fba)C=f;
+    return}
+   const g=k=>C[k]?(c[C[k]]||''):'';
+   const asin=g('asin').toUpperCase();if(!asin)return;
+   rows.push({ASIN:asin,'父ASIN':g('parent'),SKU:g('sku')||g('msku'),MSKU:g('msku'),'品名':g('name'),
+    'Listing负责人':g('owner'),'FBA可售':g('fba'),'7日均销量':g('d7'),'14日均销量':g('d14'),'30日均销量':g('d30')})},
+   (n)=>ioProg(`解析领星 ${file.name}：${n} 行`));
+  if(C)return rows}
+ throw new Error(`${file.name} 中找不到 ASIN + FBA可售 表头`)}
+
+async function parseInventoryFile(file,wantedAsins,storeName){
+ const ents=await zipEntries(file);
+ const ss=ents['xl/sharedStrings.xml']?parseSharedStrings(await entryText(file,ents['xl/sharedStrings.xml'])):[];
+ const want=new Set([...wantedAsins].map(a=>String(a).toUpperCase()));
+ for(const sp of sheetPaths(ents,true)){
+  let hdr=null,asinCol=null,scanned=0;
+  const rows=[],samples=[],snaps=new Set();let processed=0;
+  const total=await streamSheet(file,ents[sp],ss,seg=>{
+   const c=parseRowXml(seg,ss);
+   if(!hdr){scanned++;
+    let a=null,onhand=false;
+    for(const k in c){if(a===null&&eqh(c[k],'asin'))a=k;if(eqh(c[k],'onhand_units'))onhand=true}
+    if(a&&onhand){hdr={};for(const k in c)hdr[k]=String(c[k]).trim();asinCol=a;return}
+    if(scanned>40)return 'stop';
+    return}
+   processed++;
+   const asin=(c[asinCol]||'').toUpperCase();
+   const hit=asin&&want.has(asin);
+   if(!hit&&samples.length>=8)return;
+   const item={store:storeName};
+   for(const k in hdr)item[hdr[k]]=c[k]!=null?c[k]:'';
+   if(samples.length<8)samples.push(item);
+   if(hit){rows.push(item);if(item.period_end)snaps.add(item.period_end)}},
+   (n,b)=>ioProg(`解析库存报告 ${file.name}：已扫描 ${n.toLocaleString()} 行 / 解压 ${(b/1048576).toFixed(0)}MB，命中 ${rows.length} 行`));
+  if(hdr)return{processedRows:processed,matchedRows:rows.length,rows,samples,snapshots:[...snaps],headers:Object.values(hdr)}}
+ throw new Error(`${file.name} 中找不到 asin 与 onhand_units 表头`)}
+
+/* ---------- 组装数据并重新分析 ---------- */
+function relPath(f){return f.webkitRelativePath||f.name}
+function storeOfPath(f){
+ const parts=relPath(f).split('/');
+ // 结构: <根目录>/销售数据/<店铺子文件夹>/xxx.csv
+ const si=parts.findIndex(p=>p==='销售数据');
+ if(si>=0&&parts.length-si>=3)return parts[si+1];
+ return '主店铺'}
+async function rebuild(){
+ const mapAsins=new Set();
+ LOCAL.mapping.forEach(m=>mapAsins.add(String(m.ASIN).toUpperCase()));
+ LOCAL.lingxing.forEach(r=>mapAsins.add(String(r.ASIN).toUpperCase()));
+ let inv={processedRows:0,matchedRows:0,rows:[],samples:[],snapshots:[]};
+ if(LOCAL.inventory&&LOCAL.inventory.length){
+  for(const f of LOCAL.inventory){
+   status(`正在流式解析库存报告 ${esc(f.file.name)}，大文件可能需要 1-3 分钟…`);
+   const r=await parseInventoryFile(f.file,mapAsins,f.store);
+   inv.processedRows+=r.processedRows;inv.matchedRows+=r.matchedRows;
+   inv.rows=inv.rows.concat(r.rows);
+   if(inv.samples.length<8)inv.samples=inv.samples.concat(r.samples).slice(0,8);
+   r.snapshots.forEach(s=>{if(!inv.snapshots.includes(s))inv.snapshots.push(s)})}}
+ RAW={mapping:LOCAL.mapping,lingxing:LOCAL.lingxing,inventory:inv,sales:LOCAL.sales,international:LOCAL.international,
+  files:{sourceFolder:LOCAL.names.folder||'（本机选择的文件）',exportFolder:'浏览器下载文件夹',lingxing:LOCAL.names.lingxing||'',
+   stores:[...new Set(LOCAL.sales.map(s=>s.store))].map(nm=>({name:nm,sales:LOCAL.sales.filter(s=>s.store===nm).map(s=>s.name),
+    mapping:LOCAL.names.mapping||[],inventory:(LOCAL.inventory||[]).filter(f=>f.store===nm).map(f=>f.file.name)}))}};
+ process();
+ const l=WEEKS.length-1,st=l>=0?sellThrough(ITEMS,l):{rate:0,act:0,base:0,soldNoStock:0};
+ status(`✅ 分析完成：${WEEKS.length} 周 · ${MAP.length} 条有效映射 · ${inv.matchedRows} 行库存命中 · ${LXROWS.length} 条领星记录 · ${INTL.length} 条国际订单 · ${OWNERS.length} 位负责人`+(l>=0?` · 最新周动销率 ${p1(st.rate)}（${st.act}/${st.base} 有库存SKU${st.soldNoStock?`，另有 ${st.soldNoStock} 个已售罄SKU按规则排除`:''}）`:''));
+ ioProg('');render()}
+
+async function uploadOne(type,id){
+ const f=$(id).files[0];if(!f)return status('请先选择文件',true);
+ try{
+  if(type==='mapping'){status(`正在解析映射 ${esc(f.name)}…`);const rows=await parseMappingFile(f);
+   LOCAL.mapping=rows.map(r=>({...r,store:'主店铺'}));LOCAL.names.mapping=[f.name]}
+  else if(type==='lingxing'){status(`正在解析领星 ${esc(f.name)}…`);LOCAL.lingxing=await parseLingxingFile(f);LOCAL.names.lingxing=f.name}
+  else if(type==='inventory'){LOCAL.inventory=[{file:f,store:'主店铺'}]}
+  else if(type==='international'){LOCAL.international={name:f.name,text:await f.text()}}
+  else if(type==='sales'){LOCAL.sales=[{store:'主店铺',name:f.name,text:await f.text()}]}
+  await rebuild()}
+ catch(e){console.error(e);status('解析失败：'+e.message,true);ioProg('')}}
+
+async function uploadMany(type,id){
+ const fs=[...$(id).files];if(!fs.length)return status('请至少选择一个文件',true);
+ try{
+  if(type==='sales'){LOCAL.sales=[];
+   for(const f of fs){ioProg(`读取 ${f.name}`);LOCAL.sales.push({store:storeOfPath(f),name:f.name,text:await f.text()})}}
+  await rebuild()}
+ catch(e){console.error(e);status('解析失败：'+e.message,true);ioProg('')}}
+
+async function loadFolder(){
+ const fs=[...$('folderInput').files];
+ if(!fs.length)return status('请选择包含数据的文件夹（例如桌面的 卖家分析）',true);
+ try{
+  status('正在识别文件夹内容…');
+  LOCAL={sales:[],mapping:[],inventory:[],international:null,lingxing:[],names:{folder:relPath(fs[0]).split('/')[0],mapping:[]}};
+  const csvSales=[],mapFiles=[],invFiles=[],lxFiles=[];let intl=null;
+  for(const f of fs){
+   const rel=relPath(f),base=f.name;
+   if(/^~\$/.test(base))continue;
+   if(/\.csv$/i.test(base)){if(/国际/.test(base))intl=f;else if(/销售数据/.test(rel))csvSales.push(f);else csvSales.push(f);continue}
+   if(!/\.xlsx$/i.test(base))continue;
+   if(/领星/.test(base))lxFiles.push(f);
+   else if(/库存/.test(base))invFiles.push(f);
+   else mapFiles.push(f)}
+  for(const f of csvSales){ioProg(`读取 ${f.name}`);LOCAL.sales.push({store:storeOfPath(f),name:f.name,text:await f.text()})}
+  if(intl){ioProg(`读取 ${intl.name}`);LOCAL.international={name:intl.name,text:await intl.text()}}
+  for(const f of mapFiles){status(`正在解析映射 ${esc(f.name)}…`);
+   const store=storeOfPath(f);const rows=await parseMappingFile(f).catch(()=>[]);
+   if(rows.length){LOCAL.mapping=LOCAL.mapping.concat(rows.map(r=>({...r,store})));LOCAL.names.mapping.push(f.name)}}
+  for(const f of lxFiles){status(`正在解析领星 ${esc(f.name)}…`);LOCAL.lingxing=LOCAL.lingxing.concat(await parseLingxingFile(f));LOCAL.names.lingxing=f.name}
+  LOCAL.inventory=invFiles.map(f=>({file:f,store:storeOfPath(f)}));
+  await rebuild()}
+ catch(e){console.error(e);status('解析失败：'+e.message,true);ioProg('')}}
+
+function resetAll(){LOCAL={sales:[],mapping:[],inventory:null,international:null,lingxing:[],names:{}};
+ RAW=null;MAP=[];WEEKS=[];ITEMS=[];INTL=[];OWNERS=[];INVROWS=[];INV={};LX={};LXROWS=[];STORES=[];
+ $('side').innerHTML='';$('view').innerHTML='';ioProg('');status('已清空，请重新载入数据。')}
+
+async function load(){
+ status('单机版：请先在上方载入数据。可点“选择整个卖家分析文件夹”一次性载入全部数据，或使用任意单个入口。');
+ $('side').innerHTML='';$('view').innerHTML=
+  '<div class="card"><b>使用步骤</b><ol style="margin:8px 0 0;padding-left:20px;line-height:1.9">'
+  +'<li>点击上方 <b>选择整个卖家分析文件夹</b>，选中桌面的「卖家分析」文件夹（含销售数据、库存数据、映射、领星数据）。</li>'
+  +'<li>或者用 ①–⑤ 任意一个入口单独载入某类数据，载入一类即可立即分析。</li>'
+  +'<li>解析完成后左侧会出现全部板块，导出的 CSV / HTML 会保存到浏览器下载文件夹。</li>'
+  +'</ol><div style="margin-top:9px;color:#64748b;font-size:12.5px">全部计算在本机浏览器完成，数据不会外发。超大库存报告为流式解析，请耐心等待进度提示。</div></div>'}
+
+/* ---------- 导出: 单机版直接下载 ---------- */
+function download(name,body,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+async function saveServer(name,body,type){download(name,body,type);$('saveMsg').innerHTML=`<span class="up">已下载：${esc(name)}</span>`;return name}
+
+async function exportBlock(kind,scope){try{const rows=blockRows(kind,scope||null);if(!rows.length)return status('该板块没有可导出的ASIN',true);
+ const name=`${scope||'全店'}_${KIND_LABEL[kind]||kind}_ASIN_SKU.csv`,csv=pairsCsv(rows);
+ await saveServer(name,csv,'text/csv;charset=utf-8');download(name,csv,'text/csv;charset=utf-8')}catch(e){status(e.message,true)}}
+async function exportPairs(){const map={overview:'all',sku:'all',owner:'all',inv:'invtier',lx:'lx',intl:'intl',qa:'all'};
+ return exportBlock(map[view.sec]||'all',view.sec==='owner'?view.owner:null)}
+function reportDoc(title,content){const css=document.querySelector('style').textContent;
+ return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}</style></head><body><div class="wrap"><h1 style="font-size:20px">${esc(title)}</h1><p style="color:#64748b;font-size:12px">生成时间：${new Date().toLocaleString()} · 动销率仅统计有库存SKU · 周表格最新周在前</p><div class="sec ac-blue">${content}</div></div></body></html>`}
+async function exportCurrentHtml(){try{const nm=(view.sec==='owner'&&view.owner?view.owner:SEC[view.sec].name);
+ const name=`${nm}.html`,html=reportDoc(nm,$('view').innerHTML);await saveServer(name,html,'text/html;charset=utf-8');download(name,html,'text/html;charset=utf-8')}catch(e){status(e.message,true)}}
+async function exportOwner(owner){const rows=ITEMS.filter(x=>x.owner===owner);
+ return saveServer(owner+'_负责人分析.html',reportDoc(owner+' 负责人分析',ownerPage(owner,rows)),'text/html;charset=utf-8')}
+async function exportAllOwners(){try{for(let i=0;i<OWNERS.length;i++){$('saveMsg').textContent=`正在保存 ${i+1}/${OWNERS.length} ${OWNERS[i]}`;await exportOwner(OWNERS[i])}
+ $('saveMsg').innerHTML=`<span class="up">全部 ${OWNERS.length} 位负责人页面已保存到导出目录</span>`}catch(e){status(e.message,true)}}
+const _p=new URLSearchParams(location.search),_s=_p.get('sec'),_o=_p.get('owner');
+if(_s&&SEC[_s])view={sec:_s,owner:_o||null};
+load();
+</script></body></html>
