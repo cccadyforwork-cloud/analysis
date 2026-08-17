@@ -1,0 +1,649 @@
+{
+  "listing_file": "/Users/cc/Desktop/Listing20260810-945431680082550784.xlsx",
+  "rule": "冲突以 Listing 负责人为准；Listing 有 ASIN 且有负责人则新增；TTCA/CA 开头 MSKU 归 cccady；库存和近7日销量不更新，新增置 0。",
+  "listing_asins_with_owner": 2331,
+  "owner_conflict_updated": 99,
+  "missing_added": 115,
+  "new_sku_meta_total": 2740,
+  "new_owner_counts": {
+    "公司": 1340,
+    "凯旋": 389,
+    "图图": 502,
+    "未分配": 183,
+    "cccady": 326
+  },
+  "updated_samples": [
+    {
+      "asin": "B0H4G9JD1N",
+      "old": [
+        "cccady"
+      ],
+      "new": [
+        "凯旋"
+      ],
+      "mskus": [
+        "WESKCC-BHQ-LV"
+      ]
+    },
+    {
+      "asin": "B0GS8HPL7V",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-19-01"
+      ]
+    },
+    {
+      "asin": "B0GS8NN1KJ",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-07-01"
+      ]
+    },
+    {
+      "asin": "B0H4GJBX2K",
+      "old": [
+        "cccady"
+      ],
+      "new": [
+        "凯旋"
+      ],
+      "mskus": [
+        "WESKCC-JLBH-B"
+      ]
+    },
+    {
+      "asin": "B0GS8GKWH1",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-26-01"
+      ]
+    },
+    {
+      "asin": "B0GS8G6K68",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-18-01"
+      ]
+    },
+    {
+      "asin": "B0GS89ZDRG",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-23-03"
+      ]
+    },
+    {
+      "asin": "B0GS8M9LS3",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-01-01"
+      ]
+    },
+    {
+      "asin": "B0GS8XL36M",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-03-01"
+      ]
+    },
+    {
+      "asin": "B0GS8XH3LL",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-23-01"
+      ]
+    },
+    {
+      "asin": "B0H4GK35YG",
+      "old": [
+        "cccady"
+      ],
+      "new": [
+        "凯旋"
+      ],
+      "mskus": [
+        "WESKCC-JSDK-L"
+      ]
+    },
+    {
+      "asin": "B0H2MFTBDY",
+      "old": [
+        "未分配"
+      ],
+      "new": [
+        "公司"
+      ],
+      "mskus": [
+        "QC-DB-CHUNTANHEI-6"
+      ]
+    },
+    {
+      "asin": "B0H2M6HRV1",
+      "old": [
+        "未分配"
+      ],
+      "new": [
+        "公司"
+      ],
+      "mskus": [
+        "QC-DB-H-black"
+      ]
+    },
+    {
+      "asin": "B0H11D5GH5",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-B20-L"
+      ]
+    },
+    {
+      "asin": "B0GZ213HB8",
+      "old": [
+        "公司"
+      ],
+      "new": [
+        "凯旋"
+      ],
+      "mskus": [
+        "ZD003-Yellow-9/10"
+      ]
+    },
+    {
+      "asin": "B0GSVW46L8",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-B14-M"
+      ]
+    },
+    {
+      "asin": "B0GS8JQNW8",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-10-01"
+      ]
+    },
+    {
+      "asin": "B0GS8227R4",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-16-01"
+      ]
+    },
+    {
+      "asin": "B0GS8LKMSS",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-20-01"
+      ]
+    },
+    {
+      "asin": "B0GS8R1ZZF",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-27-01"
+      ]
+    },
+    {
+      "asin": "B0GS8KPF9V",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-04-01"
+      ]
+    },
+    {
+      "asin": "B0GS8NPN13",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-24-01"
+      ]
+    },
+    {
+      "asin": "B0GL918DQV",
+      "old": [
+        "公司"
+      ],
+      "new": [
+        "凯旋"
+      ],
+      "mskus": [
+        "ZD001-White-8/9"
+      ]
+    },
+    {
+      "asin": "B0H2M64575",
+      "old": [
+        "未分配"
+      ],
+      "new": [
+        "公司"
+      ],
+      "mskus": [
+        "QC-DB-H-red"
+      ]
+    },
+    {
+      "asin": "B0GSZCYFZR",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-S3-01"
+      ]
+    },
+    {
+      "asin": "B0GS8FSLZ6",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-17-01"
+      ]
+    },
+    {
+      "asin": "B0GS8BLWC3",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-02-01"
+      ]
+    },
+    {
+      "asin": "B0GS8NRCB1",
+      "old": [
+        "凯旋"
+      ],
+      "new": [
+        "图图"
+      ],
+      "mskus": [
+        "KC-13-01"
+      ]
+    },
+    {
+      "asin": "B0H8PZN871",
+      "old": [
+        "未分配"
+      ],
+      "new": [
+        "cccady"
+      ],
+      "mskus": [
+        "Pet-XQ-RePur65"
+      ]
+    },
+    {
+      "asin": "B0H5B96D8Q",
+      "old": [
+        "cccady"
+      ],
+      "new": [
+        "凯旋"
+      ],
+      "mskus": [
+        "WESKCC-wangyanwa-7se"
+      ]
+    }
+  ],
+  "added_samples": [
+    {
+      "asin": "B0GTTZQDFY",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-qicheruanmaoshua-chang"
+      ]
+    },
+    {
+      "asin": "B0H9WXTDJP",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-MYQ-NG"
+      ]
+    },
+    {
+      "asin": "B0HCBF3H82",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-SQQJS1-2"
+      ]
+    },
+    {
+      "asin": "B0HBWCJLYN",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-YJH-HH"
+      ]
+    },
+    {
+      "asin": "B0HC469Y3C",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Towel-grey"
+      ]
+    },
+    {
+      "asin": "B0H9XV761M",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-XHYBJ-ZUO"
+      ]
+    },
+    {
+      "asin": "B0H9XXXNYF",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-XHYBJ-ZHAN"
+      ]
+    },
+    {
+      "asin": "B0H9WHHVRL",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-NMJT-1"
+      ]
+    },
+    {
+      "asin": "B0HC4GC85N",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Towel-pink"
+      ]
+    },
+    {
+      "asin": "B0HC48VRVJ",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Fishtail-Ribbon-Wit"
+      ]
+    },
+    {
+      "asin": "B0HBW1TV45",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-YJH-MTL"
+      ]
+    },
+    {
+      "asin": "B0HB4QYX2H",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-SCGL-Y"
+      ]
+    },
+    {
+      "asin": "B0HCJFJKB8",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Pet-XQ-Airtag-Blue"
+      ]
+    },
+    {
+      "asin": "B0HCJD8736",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Petchewtoy-bird"
+      ]
+    },
+    {
+      "asin": "B0HCJGM7R2",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Pettoy-Sisal"
+      ]
+    },
+    {
+      "asin": "B0HCJBPRZ3",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Pettoy-Feather"
+      ]
+    },
+    {
+      "asin": "B0HCBBZT8S",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-ZWBD-20MM"
+      ]
+    },
+    {
+      "asin": "B0HCBHQJZT",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-MTTZ-CAT"
+      ]
+    },
+    {
+      "asin": "B0HCBC3KXJ",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-SQQJS1-BAI"
+      ]
+    },
+    {
+      "asin": "B0HCB96BSC",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-SQQJS1-LAN"
+      ]
+    },
+    {
+      "asin": "B0HC6MWL5L",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-JBPK-J"
+      ]
+    },
+    {
+      "asin": "B0HC6SR8TN",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-MJCT-H-V1"
+      ]
+    },
+    {
+      "asin": "B0HC6NSFC2",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-RepotMat-Green-50-R"
+      ]
+    },
+    {
+      "asin": "B0HC5WX6KQ",
+      "owners": [
+        "凯旋"
+      ],
+      "mskus": [
+        "KCC-YXMQ-W"
+      ]
+    },
+    {
+      "asin": "B0HC3ZH22D",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Towel-green"
+      ]
+    },
+    {
+      "asin": "B0HC3ZWK92",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Fishtail-Ribbon-Purp"
+      ]
+    },
+    {
+      "asin": "B0HC3ZPC6H",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Fishtail-Ribbon-Pik"
+      ]
+    },
+    {
+      "asin": "B0HC4BHN2H",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Shakerbottle-Green"
+      ]
+    },
+    {
+      "asin": "B0HC3Z7M1X",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Shakerbottle-Black"
+      ]
+    },
+    {
+      "asin": "B0HC4CCJX8",
+      "owners": [
+        "cccady"
+      ],
+      "mskus": [
+        "TTCA-Shakerbottle-Pink"
+      ]
+    }
+  ]
+}

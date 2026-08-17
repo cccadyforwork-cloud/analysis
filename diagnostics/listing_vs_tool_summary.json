@@ -1,0 +1,856 @@
+{
+  "listing_file": "/Users/cc/Desktop/Listing20260810-945429811041853440.xlsx",
+  "listing_rows": 1523,
+  "listing_unique_asins": 1520,
+  "tool_sku_meta_asins": 2625,
+  "exact_ok_rows": 935,
+  "missing_in_tool_rows": 70,
+  "owner_diff_rows": 68,
+  "msku_diff_rows": 0,
+  "stock_diff_rows": 463,
+  "tool_asins_not_in_listing": 1175,
+  "listing_owner_counts": {
+    "凯旋": 263,
+    "图图": 328,
+    "cccady": 119,
+    "公司": 808,
+    "空负责人": 5
+  },
+  "missing_in_tool_by_listing_owner": {
+    "凯旋": 25,
+    "cccady": 22,
+    "空负责人": 5,
+    "图图": 18
+  },
+  "top_owner_diff_pairs": [
+    {
+      "listing_owner": "公司",
+      "tool_owner": "未分配",
+      "count": 39
+    },
+    {
+      "listing_owner": "图图",
+      "tool_owner": "凯旋",
+      "count": 14
+    },
+    {
+      "listing_owner": "凯旋",
+      "tool_owner": "cccady",
+      "count": 12
+    },
+    {
+      "listing_owner": "凯旋",
+      "tool_owner": "公司",
+      "count": 2
+    },
+    {
+      "listing_owner": "cccady",
+      "tool_owner": "未分配",
+      "count": 1
+    }
+  ],
+  "outputs": {
+    "all_compare": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_vs_tool_all_compare.csv",
+    "missing_in_tool": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_missing_in_tool.csv",
+    "owner_diff": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_owner_diff.csv",
+    "msku_diff": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_msku_diff.csv",
+    "stock_diff": "/Users/cc/Documents/GitHub/analysis/diagnostics/listing_stock_diff.csv",
+    "tool_not_in_listing": "/Users/cc/Documents/GitHub/analysis/diagnostics/tool_asins_not_in_listing.csv"
+  },
+  "sample_missing": [
+    {
+      "行号": 6,
+      "ASIN": "B0GTTZQDFY",
+      "MSKU": "KCC-qicheruanmaoshua-chang",
+      "父ASIN": "B0GTKNBJ45",
+      "标题": "Car Interior Soft Brush Set, Long + Short Handle Combo, Lint-Free Microfiber Bristles, Scratch-Free Cleaning Brushes for Car Dashboard, Air Vents, Seats, Console, Windows",
+      "品名": "汽车内饰软毛刷",
+      "SKU": "KCC-qicheruanmaoshua-chang",
+      "价格": "1.99",
+      "FBA可售": "132",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 33,
+      "ASIN": "B0HCBF3H82",
+      "MSKU": "KCC-SQQJS1-2",
+      "父ASIN": "B0H4F84574",
+      "标题": "2 Pack Reusable Rubber Rust Remover Eraser, Multipurpose Stain Limescale Eraser for Faucet Sink Iron Metal Surface Cleaning",
+      "品名": "神奇清洁刷",
+      "SKU": "KCC-SQQJS1-2",
+      "价格": "1.99",
+      "FBA可售": "16",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 34,
+      "ASIN": "B0HBWCJLYN",
+      "MSKU": "KCC-YJH-HH",
+      "父ASIN": "B0H2HJTZ7S",
+      "标题": "Colorful Mandala Bohemian Neoprene Sunglasses Case, Soft Zipper Shock Resistant Eyeglass Storage Pouch, Lightweight Travel Protective Glasses Bag For Optical Glasses & Sunglasses",
+      "品名": "眼镜盒",
+      "SKU": "KCC-YJH-HH",
+      "价格": "2.16",
+      "FBA可售": "6",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 60,
+      "ASIN": "B0HC469Y3C",
+      "MSKU": "TTCA-Towel-grey",
+      "父ASIN": "B0HC46CXJ3",
+      "标题": "Cooling Sports Towel, Quick Dry Fitness Towel for Gym Yoga Running Camping Golf Hiking Travel and Workouts, Gray",
+      "品名": "冷感运动毛巾-灰色",
+      "SKU": "TTCA-Towel-grey",
+      "价格": "2.88",
+      "FBA可售": "8",
+      "Listing负责人": "cccady",
+      "Listing负责人列表": [
+        "cccady"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 61,
+      "ASIN": "B0H9XV761M",
+      "MSKU": "KCC-XHYBJ-ZUO",
+      "父ASIN": "B0H9Y63FP1",
+      "标题": "Angry Yellow Duck Figurine, 3D Printed Mini Desktop Duck Ornament, Funny Cartoon Desk Decoration, Sitting",
+      "品名": "小黄鸭摆件",
+      "SKU": "KCC-XHYBJ-ZUO",
+      "价格": "1.37",
+      "FBA可售": "8",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 62,
+      "ASIN": "B0H9XXXNYF",
+      "MSKU": "KCC-XHYBJ-ZHAN",
+      "父ASIN": "B0H9Y63FP1",
+      "标题": "Angry Yellow Duck Figurine, 3D Printed Mini Desktop Duck Ornament, Funny Cartoon Desk Decoration, Standing",
+      "品名": "小黄鸭摆件",
+      "SKU": "KCC-XHYBJ-ZHAN",
+      "价格": "1.37",
+      "FBA可售": "8",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 63,
+      "ASIN": "B0H9WHHVRL",
+      "MSKU": "KCC-NMJT-1",
+      "父ASIN": "B0H94T31LX",
+      "标题": "1 mm Thick x 3 cm Wide x 1 m Long, 3.8 cm Core，Clear Double Sided Nano Tape, Waterproof Removable Acrylic Mounting Tape, Trial Pack",
+      "品名": "纳米胶贴",
+      "SKU": "KCC-NMJT-1",
+      "价格": "1.58",
+      "FBA可售": "18",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 89,
+      "ASIN": "B0HC4GC85N",
+      "MSKU": "TTCA-Towel-pink",
+      "父ASIN": "B0HC46CXJ3",
+      "标题": "Cooling Sports Towel, Quick Dry Fitness Towel for Gym Yoga Running Camping Golf Hiking Travel and Workouts, Pink",
+      "品名": "冷感运动毛巾-粉色",
+      "SKU": "TTCA-Towel-pink",
+      "价格": "2.88",
+      "FBA可售": "9",
+      "Listing负责人": "cccady",
+      "Listing负责人列表": [
+        "cccady"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 90,
+      "ASIN": "B0HC48VRVJ",
+      "MSKU": "TTCA-Fishtail-Ribbon-Wit",
+      "父ASIN": "B0HC4829W2",
+      "标题": "Fishtail Ribbon Trim, Aurora White Bouquet Wrap Tie for Floral Arrangements, Gift Packaging, DIY Craft Decor",
+      "品名": "鱼尾纱花束包装纸-白色-无卷芯",
+      "SKU": "TTCA-Fishtail-Ribbon-Wit",
+      "价格": "1.47",
+      "FBA可售": "9",
+      "Listing负责人": "cccady",
+      "Listing负责人列表": [
+        "cccady"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 91,
+      "ASIN": "B0HBW1TV45",
+      "MSKU": "KCC-YJH-MTL",
+      "父ASIN": "B0H2HJTZ7S",
+      "标题": "Boho Mandala Print Neoprene Sunglasses Case, Soft Zipper Eyeglass Storage Pouch With Detachable Carabiner, Shock Resistant Travel Protective Glasses Bag For Optical & Sun Glasses",
+      "品名": "眼镜盒",
+      "SKU": "KCC-YJH-MTL",
+      "价格": "2.16",
+      "FBA可售": "9",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 92,
+      "ASIN": "B0HB4QYX2H",
+      "MSKU": "KCC-SCGL-Y",
+      "父ASIN": "B0HB4NDTFT",
+      "标题": "Stainless Steel Sink Strainer Basket, Kitchen Sink Drain Filter Mesh Basket for Food Scraps, Reusable Drain Catcher, Stainless Steel Color, 4.33 Inch",
+      "品名": "水槽过滤",
+      "SKU": "KCC-SCGL-Y",
+      "价格": "1.88",
+      "FBA可售": "9",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 835,
+      "ASIN": "B0HCJFJKB8",
+      "MSKU": "TTCA-Pet-XQ-Airtag-Blue",
+      "父ASIN": "B0HCJ92929",
+      "标题": "Tracker Holder Pet Collar, Adjustable Dog and Cat Collar with Buckle, M Size Sky Blue for Outdoor Walking and Daily Wear",
+      "品名": "",
+      "SKU": "",
+      "价格": "4.47",
+      "FBA可售": "2",
+      "Listing负责人": "",
+      "Listing负责人列表": [],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 836,
+      "ASIN": "B0HCJD8736",
+      "MSKU": "TTCA-Petchewtoy-bird",
+      "父ASIN": "B0HDLLWN8B",
+      "标题": "Cat Parrot Toy, Interactive Pet Chew Toy for Indoor Play and Activity, Parrot Shape, Natural Small Style",
+      "品名": "",
+      "SKU": "",
+      "价格": "2.76",
+      "FBA可售": "10",
+      "Listing负责人": "",
+      "Listing负责人列表": [],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 837,
+      "ASIN": "B0HCJGM7R2",
+      "MSKU": "TTCA-Pettoy-Sisal",
+      "父ASIN": "B0HCJGM7R2",
+      "标题": "Cat Wobble Toy with Textured Body, Self-Righting Tumbler Toy for Indoor Cats, Battery-Free Solo Play, Small Natural",
+      "品名": "",
+      "SKU": "",
+      "价格": "3.44",
+      "FBA可售": "5",
+      "Listing负责人": "",
+      "Listing负责人列表": [],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 838,
+      "ASIN": "B0HCJBPRZ3",
+      "MSKU": "TTCA-Pettoy-Feather",
+      "父ASIN": "B0HCJBPRZ3",
+      "标题": "Cat Wobble Toy with Feather Teaser, Self-Righting Tumbler Toy for Indoor Cats, Battery-Free Solo Play, Small Multicolor",
+      "品名": "",
+      "SKU": "",
+      "价格": "3.44",
+      "FBA可售": "5",
+      "Listing负责人": "",
+      "Listing负责人列表": [],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 839,
+      "ASIN": "B0HCBBZT8S",
+      "MSKU": "KCC-ZWBD-20MM",
+      "父ASIN": "B0H1VK6P8V",
+      "标题": "Plant Tie Tape Roll 0.79 in x 9.84 ft, Reusable Adjustable Plant Securing Tape, Cut‑to‑Length Stem Bundling Strap For Houseplant, Patio & Garden Branch Fixing Vine Shaping",
+      "品名": "植物绑带",
+      "SKU": "KCC-ZWBD-20MM",
+      "价格": "1.95",
+      "FBA可售": "10",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 840,
+      "ASIN": "B0HCBHQJZT",
+      "MSKU": "KCC-MTTZ-CAT",
+      "父ASIN": "B0HCBHQJZT",
+      "标题": "Rectangular Throw Pillow Cover, Funny Black Cat Printed Cushion Sleeve with Humorous Quote, Envelope Closure Decorative Pillow Case for Sofa and Bedroom Indoor Space",
+      "品名": "垃圾桶贴纸",
+      "SKU": "KCC-MTTZ-CAT",
+      "价格": "2.6",
+      "FBA可售": "10",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 841,
+      "ASIN": "B0HCBC3KXJ",
+      "MSKU": "KCC-SQQJS1-BAI",
+      "父ASIN": "B0H4F84574",
+      "标题": "Reusable Rubber Rust Remover Eraser, Multipurpose Stain Limescale Eraser for Faucet Sink Iron Metal Surface Cleaning",
+      "品名": "神奇清洁刷",
+      "SKU": "KCC-SQQJS1-BAI",
+      "价格": "1.58",
+      "FBA可售": "30",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 842,
+      "ASIN": "B0HCB96BSC",
+      "MSKU": "KCC-SQQJS1-LAN",
+      "父ASIN": "B0H4F84574",
+      "标题": "Reusable Rubber Rust Remover Eraser, Multipurpose Stain Limescale Eraser for Faucet Sink Iron Metal Surface Cleaning",
+      "品名": "神奇清洁刷",
+      "SKU": "KCC-SQQJS1-LAN",
+      "价格": "1.58",
+      "FBA可售": "30",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    },
+    {
+      "行号": 843,
+      "ASIN": "B0HC6MWL5L",
+      "MSKU": "KCC-JBPK-J",
+      "父ASIN": "B0HC6KRM4N",
+      "标题": "Gold Foil Playing Cards, Rose Back Poker Deck, Gold Color Variant for Parties, Travel Card Games, 3.74 X 2.17 Inch",
+      "品名": "金箔扑克",
+      "SKU": "KCC-JBPK-J",
+      "价格": "2.16",
+      "FBA可售": "10",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "",
+      "工具负责人": "",
+      "工具FBA可售": "",
+      "工具近7日销量": "",
+      "问题": "工具未内置该 ASIN"
+    }
+  ],
+  "sample_owner_diff": [
+    {
+      "行号": 14,
+      "ASIN": "B0H4G9JD1N",
+      "MSKU": "WESKCC-BHQ-LV",
+      "父ASIN": "B0H4GGJ94B",
+      "标题": "Catnip Ball Toy, Rotatable Cat Treat Toy, Hanging Cat Play Accessory for Indoor Cats",
+      "品名": "",
+      "SKU": "",
+      "价格": "1.99",
+      "FBA可售": "24",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "WESKCC-BHQ-LV",
+      "工具负责人": "cccady",
+      "工具FBA可售": "10",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 28,
+      "ASIN": "B0GS8HPL7V",
+      "MSKU": "KC-19-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-19-01",
+      "价格": "1.99",
+      "FBA可售": "4",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-19-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "8",
+      "工具近7日销量": "2",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 44,
+      "ASIN": "B0GS8NN1KJ",
+      "MSKU": "KC-07-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Beaded Cell Phone Strap for Women, Stylish Bead Wrist Lanyard, Decorative Phone Accessory",
+      "品名": "手机链",
+      "SKU": "KC-07-01",
+      "价格": "1.99",
+      "FBA可售": "10",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-07-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "5",
+      "工具近7日销量": "4",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 47,
+      "ASIN": "B0H4GJBX2K",
+      "MSKU": "WESKCC-JLBH-B",
+      "父ASIN": "B0H4GR6RDC",
+      "标题": "One Pair Ankle Support Brace, Adjustable Ankle Wrap, Ankle Stabilizer for Sports and Fitness Activities",
+      "品名": "",
+      "SKU": "",
+      "价格": "2.99",
+      "FBA可售": "4",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "WESKCC-JLBH-B",
+      "工具负责人": "cccady",
+      "工具FBA可售": "4",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 87,
+      "ASIN": "B0GS8GKWH1",
+      "MSKU": "KC-26-01",
+      "父ASIN": "B0GS8GKWH1",
+      "标题": "Kawaii Dopamine Beaded Phone Lanyard, Colorful Cute Phone Charm for Phone Case",
+      "品名": "手机链",
+      "SKU": "KC-26-01",
+      "价格": "1.99",
+      "FBA可售": "9",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-26-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "8",
+      "工具近7日销量": "3",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 179,
+      "ASIN": "B0GS8G6K68",
+      "MSKU": "KC-18-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-18-01",
+      "价格": "1.99",
+      "FBA可售": "10",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-18-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "9",
+      "工具近7日销量": "4",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 180,
+      "ASIN": "B0GS89ZDRG",
+      "MSKU": "KC-23-03",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-23-03",
+      "价格": "1.99",
+      "FBA可售": "11",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-23-03",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "8",
+      "工具近7日销量": "1",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 181,
+      "ASIN": "B0GS8M9LS3",
+      "MSKU": "KC-01-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "2 Pcs Random Style Keychains for Men Women, Durable Key Chain with Key Ring, Car Key Accessories",
+      "品名": "手机链",
+      "SKU": "KC-01-01",
+      "价格": "1.99",
+      "FBA可售": "7",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-01-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "0",
+      "工具近7日销量": "2",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 205,
+      "ASIN": "B0H4GK35YG",
+      "MSKU": "WESKCC-JSDK-L",
+      "父ASIN": "B0H4GS8LB8",
+      "标题": "5 Pack Men's Boxer Briefs, Pocket Long Leg Underwear, Multipack Daily Wear Boxers for Male Daily and Travel Scenes Multicolor",
+      "品名": "",
+      "SKU": "",
+      "价格": "12.99",
+      "FBA可售": "6",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "WESKCC-JSDK-L",
+      "工具负责人": "cccady",
+      "工具FBA可售": "6",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 234,
+      "ASIN": "B0H2MFTBDY",
+      "MSKU": "QC-DB-CHUNTANHEI-6",
+      "父ASIN": "B0H2MDQ1Y3",
+      "标题": "6 Speed Carbon Fiber Shift Knob Kit, Universal Manual Gear Shifter with Multi‑Thread Adapters for Automotive Interior Modification",
+      "品名": "",
+      "SKU": "",
+      "价格": "12.99",
+      "FBA可售": "1",
+      "Listing负责人": "公司",
+      "Listing负责人列表": [
+        "公司"
+      ],
+      "工具MSKU": "QC-DB-CHUNTANHEI-6",
+      "工具负责人": "未分配",
+      "工具FBA可售": "1",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 235,
+      "ASIN": "B0H2M6HRV1",
+      "MSKU": "QC-DB-H-black",
+      "父ASIN": "B0H2MKR6M2",
+      "标题": "Universal 6 Speed Knurled Aluminum Alloy Gear Shift Knob with 4 Adapters, Racing Shifter Head for Car & Sim Racing",
+      "品名": "",
+      "SKU": "",
+      "价格": "6.99",
+      "FBA可售": "1",
+      "Listing负责人": "公司",
+      "Listing负责人列表": [
+        "公司"
+      ],
+      "工具MSKU": "QC-DB-H-black",
+      "工具负责人": "未分配",
+      "工具FBA可售": "1",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 330,
+      "ASIN": "B0H11D5GH5",
+      "MSKU": "KC-B20-L",
+      "父ASIN": "B0HD6F5MYH",
+      "标题": "String Bikini Tops for Women Sexy Triangle Bathing Suit Tops Adjustable Tie Back Swim Tops",
+      "品名": "比基尼",
+      "SKU": "KC-B20-L",
+      "价格": "6.64",
+      "FBA可售": "3",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-B20-L",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "3",
+      "工具近7日销量": "1",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 361,
+      "ASIN": "B0GZ213HB8",
+      "MSKU": "ZD003-Yellow-9/10",
+      "父ASIN": "B0GL9J1BLX",
+      "标题": "Foldable EVA Flip Flops for Women Men, Wide Strap Non-Slip Travel Sandals, Lightweight Quick-Drying Beach Slippers for Vacation, Pool & Shower",
+      "品名": "人字拖",
+      "SKU": "ZD003-Yellow-9/10",
+      "价格": "3.99",
+      "FBA可售": "4",
+      "Listing负责人": "凯旋",
+      "Listing负责人列表": [
+        "凯旋"
+      ],
+      "工具MSKU": "ZD003-Yellow-9/10",
+      "工具负责人": "公司",
+      "工具FBA可售": "2",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 662,
+      "ASIN": "B0GSVW46L8",
+      "MSKU": "KC-B14-M",
+      "父ASIN": "B0HD6F5MYH",
+      "标题": "String Bikini Tops for Women Sexy Triangle Bathing Suit Tops Adjustable Tie Back Swim Tops Black",
+      "品名": "比基尼",
+      "SKU": "KC-B14-M",
+      "价格": "6.64",
+      "FBA可售": "25",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-B14-M",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "25",
+      "工具近7日销量": "1",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 680,
+      "ASIN": "B0GS8JQNW8",
+      "MSKU": "KC-10-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-10-01",
+      "价格": "1.99",
+      "FBA可售": "3",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-10-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "3",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 681,
+      "ASIN": "B0GS8227R4",
+      "MSKU": "KC-16-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-16-01",
+      "价格": "1.99",
+      "FBA可售": "1",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-16-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "3",
+      "工具近7日销量": "0",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 682,
+      "ASIN": "B0GS8LKMSS",
+      "MSKU": "KC-20-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-20-01",
+      "价格": "1.99",
+      "FBA可售": "7",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-20-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "7",
+      "工具近7日销量": "3",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 683,
+      "ASIN": "B0GS8R1ZZF",
+      "MSKU": "KC-27-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Beaded Cell Phone Strap for Women, Stylish Bead Wrist Lanyard, Decorative Phone Accessory",
+      "品名": "",
+      "SKU": "",
+      "价格": "1.99",
+      "FBA可售": "8",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-27-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "1",
+      "工具近7日销量": "5",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 684,
+      "ASIN": "B0GS8KPF9V",
+      "MSKU": "KC-04-01",
+      "父ASIN": "B0GS8KFR4R",
+      "标题": "Keychain for Men Women - Durable Metal Key Chain with Key Ring Car Key Accessory",
+      "品名": "手机链",
+      "SKU": "KC-04-01",
+      "价格": "1.99",
+      "FBA可售": "1",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-04-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "3",
+      "工具近7日销量": "1",
+      "问题": "负责人不一致"
+    },
+    {
+      "行号": 685,
+      "ASIN": "B0GS8NPN13",
+      "MSKU": "KC-24-01",
+      "父ASIN": "B0GS8NPN13",
+      "标题": "Cute Bow & Pearl Beaded Keychain, Minimalist Dainty Key Chain for Women Girls Daily Use",
+      "品名": "手机链",
+      "SKU": "KC-24-01",
+      "价格": "1.99",
+      "FBA可售": "2",
+      "Listing负责人": "图图",
+      "Listing负责人列表": [
+        "图图"
+      ],
+      "工具MSKU": "KC-24-01",
+      "工具负责人": "凯旋",
+      "工具FBA可售": "2",
+      "工具近7日销量": "1",
+      "问题": "负责人不一致"
+    }
+  ]
+}
