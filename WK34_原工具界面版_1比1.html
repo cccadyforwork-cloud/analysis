@@ -195,7 +195,7 @@ function processIntl(){const files=Array.isArray(RAW.international)?RAW.internat
 function buildSide(){const l=WEEKS.length-1;
   const item=(sec,owner,cls,label,badge)=>{const act=view.sec===sec&&(owner||null)===(view.owner||null);
    return `<div class="nav-item ${cls} ${act?'active':''} ${owner?'owner':''}" onclick="go('${sec}',${owner?`'${q1(owner)}'`:'null'})"><span>${esc(label)}</span>${badge?`<span class="badge">${badge}</span>`:''}</div>`};
-  let h='<div class="hub-nav" aria-label="工具中心导航"><details open><summary>数据中心</summary><div class="hub-menu"><a href="/shop/">店铺分析工作台</a></div></details><details><summary>补货和库存中心</summary><div class="hub-menu"><a href="/inventory/">库存总览</a><a href="/inventory/#inbound">补货 / 入库</a><a href="/inventory/#outbound">出库</a></div></details><details><summary>工具中心</summary><div class="hub-menu"><a href="/selection/">选品工具</a><a href="/discount/">折扣工具</a><a href="/product/">上品工具</a></div></details></div><details class="nav-group" open><summary>数据分析</summary>';
+  let h='<details class="nav-group" open><summary>数据分析</summary>';
   h+=item('overview',null,'ac-blue','店铺总览',p1(sellThrough(ITEMS,l).rate));
   h+=item('sku',null,'ac-purple','SKU周趋势',ITEMS.length);
   OWNERS.forEach((o,i)=>{const rows=ITEMS.filter(x=>x.owner===o);h+=item('owner',o,OWNER_COLORS[i%OWNER_COLORS.length],o,p1(sellThrough(rows,l).rate))});
