@@ -70,8 +70,6 @@ svg{display:block;width:100%;height:auto}
  @media(max-width:900px){.shell{grid-template-columns:1fr}.side{position:static}.charts{grid-template-columns:1fr}.upload-grid,.kpis{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.upload-grid,.kpis{grid-template-columns:1fr}}
 </style></head><body>
-<div class="top"><h1>店铺数据分析工作台<span style="font-size:13px;font-weight:600;background:#ffffff2e;padding:2px 8px;border-radius:99px;margin-left:8px">单机版 · 双击即可打开</span></h1><p>数据中心 · 周对比 · 负责人30日动销 · 补货总表 · 国际订单</p>
-  <div class="legend"><span><b style="background:#0d9f6e"></b>增长/健康</span><span><b style="background:#d97706"></b>注意</span><span><b style="background:#e02424"></b>下降/风险</span><span><b style="background:#7c3aed"></b>参考</span><span>负责人动销率按负责人1 + MSKU 去重：FBA可售≠0为在售，30日销量&gt;0为动销</span><span>店铺总览周对比使用上传的周销售CSV</span></div></div>
 <div class="wrap">
 <div class="upload-grid">
  <div class="card upload-card" style="border-left:5px solid #2563eb"><b>周对比数据</b><small>用于店铺总览、SKU周趋势和周环比；可一次选择多个周销售CSV。</small><input id="weekFiles" type="file" accept=".csv" multiple><button class="btn" onclick="uploadWeeklyComparison()">载入周对比CSV</button></div>
