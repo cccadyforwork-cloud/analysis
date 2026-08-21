@@ -92,7 +92,7 @@ svg{display:block;width:100%;height:auto}
 </div>
 <script>
 const OWNER_COLORS=['ac-green','ac-blue','ac-purple','ac-pink','ac-cyan','ac-lime','ac-amber'];
-const SEC={overview:{name:'店铺总览',cls:'ac-blue'},sku:{name:'SKU周趋势',cls:'ac-purple'},owner:{name:'负责人页面',cls:'ac-green'},inv:{name:'库存健康报告',cls:'ac-red'},lx:{name:'领星实时数据更新',cls:'ac-cyan'},intl:{name:'国际订单',cls:'ac-amber'},qa:{name:'数据质量',cls:'ac-grey'}};
+const SEC={overview:{name:'店铺总览',cls:'ac-blue'},sku:{name:'SKU周趋势',cls:'ac-purple'},owner:{name:'负责人页面',cls:'ac-green'},inv:{name:'库存',cls:'ac-red'},lx:{name:'补货',cls:'ac-cyan'},intl:{name:'国际订单',cls:'ac-amber'},qa:{name:'数据质量',cls:'ac-grey'}};
 let view={sec:'overview',owner:null},SHOW_ALL_WEEKS=false,SKU_OWNER='全部',SKU_STORE='全部',SKU_STATUS='全部';
 let INV_OWNER='全部',INV_ADVICE='全部',INV_TIER='全部';
 let LX_OWNER='全部',LX_ADVICE='全部',LX_WEEKS=3,LX_BASE='d7';
@@ -221,11 +221,11 @@ function buildSide(){const l=WEEKS.length-1;
   h+=item('overview',null,'ac-blue','店铺总览',p1(sellThrough(ITEMS,l).rate));
   h+=item('sku',null,'ac-purple','SKU周趋势',ITEMS.length);
   OWNERS.forEach((o,i)=>{const rows=ITEMS.filter(x=>x.owner===o);h+=item('owner',o,OWNER_COLORS[i%OWNER_COLORS.length],o,p1(sellThrough(rows,l).rate))});
-  h+='</details><details class="nav-group" open><summary>补货 + 库存</summary>';
-  h+=item('lx',null,'ac-cyan','领星实时数据更新',LXROWS.length);
-  h+=item('inv',null,'ac-red','库存健康报告',Object.values(INV).filter(z=>z.aged60>0).length);
-  h+='</details><details class="nav-group"><summary>工具</summary>';
+  h+='</details><details class="nav-group" open><summary>业务数据</summary>';
+  h+=item('lx',null,'ac-cyan','补货',LXROWS.length);
+  h+=item('inv',null,'ac-red','库存',Object.values(INV).filter(z=>z.qty!==0).length);
   h+=item('intl',null,'ac-amber','国际订单',INTL.length);
+  h+='</details><details class="nav-group"><summary>工具</summary>';
   h+=item('qa',null,'ac-grey','数据质量','');
   h+='</details>';
   $('side').innerHTML=h}
@@ -385,8 +385,8 @@ function inventoryPage(rows){const l=WEEKS.length-1;
  const q=a=>a.reduce((s,x)=>s+(INV[x.asin]?.qty||0),0),ag=a=>a.reduce((s,x)=>s+(INV[x.asin]?.aged60||0),0);
  const totQty=q(stocked),severe=stocked.filter(x=>(INV[x.asin]?.aged60||0)>0).sort((a,b)=>INV[b.asin].aged60-INV[a.asin].aged60);
  const byOwner={};severe.forEach(x=>{const z=byOwner[x.owner]||(byOwner[x.owner]={cnt:0,qty:0,aged:0,idle:0});z.cnt++;z.qty+=INV[x.asin].qty;z.aged+=INV[x.asin].aged60;if(l<0||(x.w[l]?.units||0)===0)z.idle++});
- let h=`<div class="sechead ac-red"><h2>库存健康报告</h2><span class="meta">库存快照 ${esc((RAW.inventory?.snapshots||[]).join('、')||'未识别')} · 库龄口径</span></div>`;
- if(LXROWS.length)h+='<div class="note info">本板块使用库存报告的 onhand_units 与库龄桶做健康诊断；实时可售数量请看“领星实时数据更新”，全站动销率已改用领星 FBA可售。</div>';
+ let h=`<div class="sechead ac-red"><h2>库存</h2><span class="meta">补货总表 · FBA可售库存</span></div>`;
+ if(LXROWS.length)h+='<div class="note info">本板块直接使用补货总表的 FBA可售；负责人归属按“负责人1（业绩归属人） + MSKU”。</div>';
  h+=`<div class="note">严重滞销严格口径：<b>onhand_units &gt; 0 且 age_61_90_units + age_91_plus_units &gt; 0</b>。仅一期快照，无法计算库存历史变化；源文件无挂牌价，仅有价格带。</div>`;
  h+=kpis([['库存报告在库总量',num(totQty),`${stocked.length} 个ASIN`,'info'],
   ['动销ASIN库存',num(q(active)),`${active.length} 个ASIN有销量`,'good'],
@@ -424,7 +424,7 @@ function invFiltered(rows){const l=WEEKS.length-1;
    if(ta!==tb)return ta-tb;const za=INV[a.asin],zb=INV[b.asin];
    return (zb.a91-za.a91)||(zb.a61-za.a61)||(zb.a31-za.a31)||(zb.qty-za.qty)})}
 function lingxingPage(rows){
- if(!LXROWS.length)return `<div class="sechead ac-cyan"><h2>领星实时数据更新</h2></div><div class="note">未找到领星后台数据。请在上方“⑤ 领星后台数据-FBA可售”上传 xlsx，或把文件放到 ${esc(RAW.files.sourceFolder||'源目录')} 根目录（文件名含“领星”）。</div>`;
+ if(!LXROWS.length)return `<div class="sechead ac-cyan"><h2>补货</h2></div><div class="note">补货总表尚未读取，请刷新页面后重试。</div>`;
  const q=norm($('search').value);
  const own=new Map();MAP.forEach(m=>{if(!own.has(m.asin))own.set(m.asin,m)});
  const all=lxList();
@@ -434,7 +434,7 @@ function lingxingPage(rows){
  const gapSum=need.reduce((s,x)=>s+x.c.gap,0),idle=list.filter(x=>x.c.advice===LX_ADVICES[4]),over=list.filter(x=>x.c.advice===LX_ADVICES[3]);
  const byOwner={};list.forEach(x=>{const z=byOwner[x.owner]||(byOwner[x.owner]={fba:0,skus:0,need:0,gap:0,idle:0,weekly:0});z.fba+=x.fba;z.skus++;z.weekly+=x.c.weekly;
   if(x.c.advice===LX_ADVICES[0]||x.c.advice===LX_ADVICES[1]){z.need++;z.gap+=x.c.gap}if(x.c.advice===LX_ADVICES[4])z.idle++});
- let h=`<div class="sechead ac-cyan"><h2>领星实时数据更新</h2><span class="meta">${esc(RAW.files.lingxing||'领星后台数据')} · ${all.length} 条记录 · 最新库存口径</span>
+ let h=`<div class="sechead ac-cyan"><h2>补货</h2><span class="meta">补货总表 · ${all.length} 条记录 · FBA可售口径</span>
   <button class="btn mini green" onclick="exportBlock('lx','')">导出当前筛选 ASIN+SKU</button></div>`;
  h+=`<div class="toolbar" style="margin:0 0 8px"><label>负责人 <select onchange="LX_OWNER=this.value;render()">${['全部'].concat(OWNERS).map(o=>`<option ${o===LX_OWNER?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
   <label>补货建议 <select onchange="LX_ADVICE=this.value;render()">${['全部'].concat(LX_ADVICES).map(o=>`<option ${o===LX_ADVICE?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
@@ -449,7 +449,7 @@ function lingxingPage(rows){
   ['库存偏多SKU',num(over.length),'超过安全库存2倍',over.length?'warn':'good'],
   ['周均销量合计',num(list.reduce((s,x)=>s+x.c.weekly,0)),baseName+' × 7','info'],
   ['涉及负责人',num(Object.keys(byOwner).length),'','info'],
-  ['同时超60天库存',num(list.filter(x=>x.aged60>0).length),'与库存健康报告交叉',list.some(x=>x.aged60>0)?'bad':'good']]);
+  ['同时超60天库存',num(list.filter(x=>x.aged60>0).length),'与库存板块交叉',list.some(x=>x.aged60>0)?'bad':'good']]);
  h+='<div class="blockbar"><h2>负责人实时库存与补货概览（可单独导出）</h2></div>'+table(['负责人','SKU数','FBA可售','周均销量','需补货SKU','补货缺口','有库存无销量','导出'],
   Object.entries(byOwner).sort((a,b)=>b[1].gap-a[1].gap).map(([o,z])=>({cls:z.need>0?'rowbad':'',cells:[`<b>${esc(o)}</b>`,z.skus,num(z.fba),num(z.weekly),z.need?`<span class="down">${z.need}</span>`:'0',z.gap?`<span class="down">${num(z.gap)}</span>`:'0',z.idle?`<span class="down">${z.idle}</span>`:'0',`<button class="btn mini green" onclick="exportBlock('lx','${q1(o)}')">导出该负责人ASIN+SKU</button>`]})));
  const cols=['ASIN / SKU / 负责人','品名','补货建议','FBA可售','周均销量','安全库存','补货缺口','可售周数',baseName,'本周销量','本周GV','超60天库存'];
@@ -457,7 +457,7 @@ function lingxingPage(rows){
   cells:[`<b>${esc(x.asin)}</b><br><small style="color:#64748b">${esc(x.sku||x.msku)} · ${esc(x.owner)}</small>`,esc((x.name||'').slice(0,26)),lxAdvicePill(x.c.advice),num(x.fba),num(x.c.weekly),num(x.c.safety),x.c.gap>0?`<span class="down">${num(x.c.gap)}</span>`:'0',x.c.coverWeeks!=null?num(x.c.coverWeeks)+' 周':'-',num(x.c.daily),num(x.units),num(x.gv),x.aged60>0?`<span class="down">${num(x.aged60)}</span>`:'0']});
  h+=bar('需补货清单（低于安全库存）','danger','lxneed',LX_OWNER==='全部'?'':LX_OWNER,need.length)+table(cols,need.slice().sort((a,b)=>b.c.gap-a.c.gap).map(mkRow));
  h+=bar('有库存无销量（需清库存）','danger','lxidle',LX_OWNER==='全部'?'':LX_OWNER,idle.length)+table(cols,idle.slice().sort((a,b)=>b.fba-a.fba).map(mkRow));
- h+='<div class="blockbar"><h2>全部领星记录（按FBA可售排序）</h2></div>'+table(cols,list.slice().sort((a,b)=>b.fba-a.fba).slice(0,600).map(mkRow));
+ h+='<div class="blockbar"><h2>全部补货记录（按FBA可售排序）</h2></div>'+table(cols,list.slice().sort((a,b)=>b.fba-a.fba).slice(0,600).map(mkRow));
  return h}
 function lxList(){const q=norm($('search').value);const own=new Map();MAP.forEach(m=>{if(!own.has(m.asin))own.set(m.asin,m)});
  const l=WEEKS.length-1;
@@ -551,7 +551,7 @@ function qualityPage(){const l=WEEKS.length-1,dup=MAP.length-new Set(MAP.map(x=>
   ['库存来自领星的ASIN',Object.keys(LX).length,'优先使用 FBA可售'],
   ['仅库存报告有库存的ASIN',Object.keys(INV).filter(a=>!LX[a]&&INV[a].qty>0).length,'领星缺失时回退']];
  let h=`<div class="sechead"><h2>数据质量</h2></div>`+table(['检查项','数量','说明'],checks.map(c=>[`<b>${c[0]}</b>`,num(c[1]),esc(c[2])]));
- h+='<div class="note"><b>口径说明：</b>① 负责人动销率按补货总表“负责人1（业绩归属人） + MSKU”去重，公式为7日销量&gt;0且FBA可售&gt;0的SKU ÷ FBA可售&gt;0的SKU；库存为0的SKU即使有销量也全部排除；② 数据中心基础数据由补货总表自动提供；③ 国际订单金额未换汇。</div>';
+ h+='<div class="note"><b>口径说明：</b>① 负责人动销率按补货总表“负责人1（业绩归属人） + MSKU”去重，公式为30日销量&gt;0且FBA可售≠0的SKU ÷ FBA可售≠0的SKU；② 补货和库存直接读取补货总表；③ 国际订单金额未换汇。</div>';
  if(soldNoStock.length)h+='<div class="blockbar"><h2 class="warnh">有销量但库存为0的SKU（已售罄，未计入动销率）</h2></div>'+table(['ASIN / SKU / 负责人','品名',WEEKS[l].label+' 销量',WEEKS[l].label+' 销售额','库存'],soldNoStock.map(x=>[tag(x),esc((x.name||x.title).slice(0,32)),num(x.w[l].units),money(x.w[l].sales),'0']));
  const samples=RAW.inventory?.samples||[];
  if(samples.length){const cols=Object.keys(samples[0]);h+='<div class="blockbar"><h2>库存字段样例</h2></div>'+table(cols,samples.slice(0,5).map(r=>cols.map(c=>esc(r[c]||''))))}
@@ -559,7 +559,7 @@ function qualityPage(){const l=WEEKS.length-1,dup=MAP.length-new Set(MAP.map(x=>
  return h}
 function render(){if(!RAW)return;const rows=filtered();const cls=SEC[view.sec]?.cls||'ac-blue';let h='';
  const needWeeks=['overview','sku','owner'].includes(view.sec);
- if(needWeeks&&!WEEKS.length){h=`<div class="sechead ${cls}"><h2>${esc(SEC[view.sec].name)}</h2></div><div class="note">还没有周销售数据。上传任意一份周销售CSV后此板块即可显示；其他板块（库存健康报告 / 领星实时数据 / 国际订单）不受影响，可独立使用。</div>`}
+ if(needWeeks&&!WEEKS.length){h=`<div class="sechead ${cls}"><h2>${esc(SEC[view.sec].name)}</h2></div><div class="note">还没有周销售数据。上传历史周数据或本周数据表后即可显示；补货、库存、国际订单可独立使用。</div>`}
  else if(view.sec==='overview')h=storeOverview(rows);
  else if(view.sec==='sku')h=skuTrends(rows);
  else if(view.sec==='owner')h=(view.owner?ownerPage(view.owner,rows):`<div class="sechead ${cls}"><h2>负责人对比</h2></div>`+ownerRanking());
