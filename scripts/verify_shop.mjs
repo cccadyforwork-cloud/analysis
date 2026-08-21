@@ -18,5 +18,6 @@ console.log(JSON.stringify({
   has30DaySales: columns.includes('30日销量'),
   weekInputs: (html.match(/id="weekFiles"/g) || []).length,
   currentWeekInputs: (html.match(/id="currentWeekFile"/g) || []).length,
+  amazonWeekInputs: (html.match(/id="amazonWeekFiles"/g) || []).length,
   internationalInputs: (html.match(/id="intlFile"/g) || []).length,
 }));
