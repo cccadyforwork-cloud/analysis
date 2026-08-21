@@ -17,5 +17,6 @@ console.log(JSON.stringify({
   hasFba: columns.includes('FBA可售'),
   has30DaySales: columns.includes('30日销量'),
   weekInputs: (html.match(/id="weekFiles"/g) || []).length,
+  currentWeekInputs: (html.match(/id="currentWeekFile"/g) || []).length,
   internationalInputs: (html.match(/id="intlFile"/g) || []).length,
 }));

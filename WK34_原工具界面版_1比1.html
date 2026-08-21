@@ -72,10 +72,11 @@ svg{display:block;width:100%;height:auto}
 </style></head><body>
 <div class="wrap">
 <div class="upload-grid">
- <div class="card upload-card" style="border-left:5px solid #2563eb"><b>周对比数据</b><small>用于店铺总览、SKU周趋势和周环比；可一次选择多个周销售CSV。</small><input id="weekFiles" type="file" accept=".csv" multiple><button class="btn" onclick="uploadWeeklyComparison()">载入周对比CSV</button></div>
+ <div class="card upload-card" style="border-left:5px solid #2563eb"><b>历史周对比数据</b><small>一次选择多个历史周Excel；周次直接使用文件名，例如 8.03-8.09。</small><input id="weekFiles" type="file" accept=".xlsx,.xlsm,.csv" multiple><button class="btn" onclick="uploadWeeklyComparison()">载入历史周数据</button></div>
+ <div class="card upload-card" style="border-left:5px solid #0d9f6e"><b>本周数据表</b><small>单独上传截至本周的Excel；本周时间直接使用Excel文件名。</small><input id="currentWeekFile" type="file" accept=".xlsx,.xlsm,.csv"><button class="btn green" onclick="uploadCurrentWeek()">载入本周数据</button></div>
  <div class="card upload-card" style="border-left:5px solid #d97706"><b>国际订单</b><small>补货总表由公司补货模块统一维护；这里只上传需要分析的国际订单文件。</small><input id="intlFile" type="file" accept=".csv"><button class="btn" style="background:#d97706" onclick="uploadOne('international','intlFile')">载入国际订单CSV</button></div>
 </div>
-<div class="card" style="margin-top:10px;border-left:5px solid #2563eb"><b>数据来源：</b>负责人、MSKU、ASIN、FBA可售和7/14/30日销量直接读取补货模块“总表”；店铺销售周对比读取上方上传的周销售CSV。</div>
+<div class="card" style="margin-top:10px;border-left:5px solid #2563eb"><b>数据来源：</b>负责人、MSKU、ASIN、FBA可售和7/14/30日销量直接读取补货模块“总表”；店铺周对比读取历史周Excel和本周数据表，显示时间均取文件名。</div>
 <div id="status" class="status">正在读取数据…</div>
 <div class="shell">
  <div class="side" id="side"></div>
@@ -145,13 +146,13 @@ function startInfo(name){const wk=String(name||'').match(/\bWK\s*0?(\d{1,2})\b/i
 function buildWeeks(files){const infos=files.map(f=>({f,s:startInfo(f.name)})).filter(x=>x.s).sort((a,b)=>a.s.doy-b.s.doy);
  const clusters=[];infos.forEach(x=>{const c=clusters.find(c=>Math.abs(c.doy-x.s.doy)<=3);if(c){c.members.push(x);c.doy=Math.min(c.doy,x.s.doy);if(x.s.doy<c.doy)c.txt=x.s.txt}else clusters.push({doy:x.s.doy,txt:x.s.txt,members:[x]})});
  clusters.sort((a,b)=>a.doy-b.doy);
- const weeks=clusters.map((c,i)=>{const wk=c.members.map(m=>m.s.wk).filter(Boolean)[0],label=wk?'WK'+wk:'WK'+(27+i);return{key:label,label,full:wk?label:label+' '+c.txt}});
+ const weeks=clusters.map((c,i)=>{const wk=c.members.map(m=>m.s.wk).filter(Boolean)[0],fileLabel=String(c.members[0]?.f?.name||c.txt).replace(/\.[^.]+$/,''),label=wk?'WK'+wk:fileLabel;return{key:label,label,full:label}});
  const idxOf=new Map();clusters.forEach((c,i)=>c.members.forEach(m=>idxOf.set(m.f,i)));
  return{weeks,idxOf}}
 function colIndex(h,tests,fb){const nn=h.map(norm);for(const t of tests){const i=nn.indexOf(norm(t));if(i>=0)return i}return fb}
 function wkOrder(){return WEEKS.map((w,i)=>i).reverse()}
 
-let MASTER_ROWS=[],WEEKLY_SALES=[];
+let MASTER_ROWS=[],WEEKLY_HISTORY=[],CURRENT_WEEK=null,WEEKLY_SALES=[];
 function csvQuote(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
 function masterRowsToRaw(rows){
  const clean=(rows||[]).filter(r=>r&&String(r.ASIN||'').trim()).map(r=>({
@@ -729,6 +730,24 @@ async function parseLingxingFile(file){
   if(C)return rows}
  throw new Error(`${file.name} 中找不到 ASIN + FBA可售 表头`)}
 
+function weeklyRowsToCsv(rows){
+ const h=['父ASIN','子ASIN','标题','会话数总计','','转化率总计','','页面浏览量总计','','','','','','已订购商品数量','','','','','已订购商品销售额'];
+ return [h.map(csvQuote).join(',')].concat(rows.map(r=>[r.parent||r.asin,r.asin,r.name||'',0,'',0,'',0,'','','','','',r.units||0,'','','','','',r.sales||0].map(csvQuote).join(','))).join('\n')}
+function weeklyHeader(c){const f={};for(const k in c){const v=c[k];if(!f.asin&&eqh(v,'asin'))f.asin=k;else if(!f.parent&&hash(v,'父asin'))f.parent=k;else if(!f.name&&(hash(v,'品名')||hash(v,'商品名')))f.name=k;else if(!f.units&&eqh(v,'数量'))f.units=k;else if(!f.sales&&(hash(v,'销售额itemprice')||eqh(v,'销售额')))f.sales=k}return f}
+async function parseWeeklyWorkbook(file){
+ const ents=await zipEntries(file),ss=ents['xl/sharedStrings.xml']?parseSharedStrings(await entryText(file,ents['xl/sharedStrings.xml'])):[];
+ for(const sp of sheetPaths(ents)){let C=null;const rows=[];
+  await streamSheet(file,ents[sp],ss,seg=>{const c=parseRowXml(seg,ss);if(!C){const f=weeklyHeader(c);if(f.asin&&f.units&&f.sales)C=f;return}const g=k=>C[k]?(c[C[k]]||''):'';const asin=String(g('asin')).trim().toUpperCase();if(asin)rows.push({asin,parent:g('parent'),name:g('name'),units:n(g('units')),sales:n(g('sales'))})},n=>ioProg(`解析周数据 ${file.name}：${n} 行`));
+  if(C)return{store:'全部店铺',name:file.name,text:weeklyRowsToCsv(rows)}}
+ throw new Error(`${file.name} 中找不到 ASIN、数量、销售额(Item Price) 表头`)}
+async function parseWeeklyFile(file){
+ if(/\.csv$/i.test(file.name)){const text=await file.text(),rows=csvRows(text),h=rows[0]||[];
+  if(h.some(v=>hash(v,'已订购商品数量')))return{store:'全部店铺',name:file.name,text};
+  const c={};h.forEach((v,i)=>c[String.fromCharCode(65+i)]=v);const C=weeklyHeader(c);if(!C.asin||!C.units||!C.sales)throw new Error(`${file.name} 中找不到 ASIN、数量、销售额表头`);
+  const idx=k=>C[k].charCodeAt(0)-65,data=rows.slice(1).map(r=>({asin:String(r[idx('asin')]||'').trim().toUpperCase(),parent:C.parent?r[idx('parent')]:'',name:C.name?r[idx('name')]:'',units:n(r[idx('units')]),sales:n(r[idx('sales')])})).filter(r=>r.asin);
+  return{store:'全部店铺',name:file.name,text:weeklyRowsToCsv(data)}}
+ return parseWeeklyWorkbook(file)}
+
 function inventoryFieldName(v){
  const fields=['period','period_end','merchant_name','asin','parent_asin','fnsku','velocity_seller_adj','product_type','item_type_keyword','price_band','onhand_units','sellable_units','age_0_30_units','age_31_60_units','age_61_90_units','age_91_plus_units'];
  const s=norm(v);
@@ -858,11 +877,18 @@ async function loadFolder(){
  catch(e){console.error(e);status('解析失败：'+e.message,true);ioProg('')}}
 
 async function uploadWeeklyComparison(){
- const fs=[...$('weekFiles').files];if(!fs.length)return status('请至少选择一个周对比CSV',true);
- try{WEEKLY_SALES=[];for(const f of fs){ioProg(`读取周对比 ${f.name}`);WEEKLY_SALES.push({store:storeOfPath(f),name:f.name,text:await f.text()})}
+ const fs=[...$('weekFiles').files];if(!fs.length)return status('请至少选择一个历史周数据表',true);
+ try{WEEKLY_HISTORY=[];for(const f of fs){ioProg(`读取历史周数据 ${f.name}`);WEEKLY_HISTORY.push(await parseWeeklyFile(f))}WEEKLY_SALES=[...WEEKLY_HISTORY,...(CURRENT_WEEK?[CURRENT_WEEK]:[])];
   if(!MASTER_ROWS.length)throw new Error('补货总表尚未读取完成，请刷新后重试');
   applyMasterRows(MASTER_ROWS);ioProg('')}
  catch(e){console.error(e);status('周对比解析失败：'+e.message,true);ioProg('')}}
+
+async function uploadCurrentWeek(){
+ const f=$('currentWeekFile').files[0];if(!f)return status('请先选择本周数据表',true);
+ try{ioProg(`读取本周数据 ${f.name}`);CURRENT_WEEK=await parseWeeklyFile(f);WEEKLY_SALES=[...WEEKLY_HISTORY,CURRENT_WEEK];
+  if(!MASTER_ROWS.length)throw new Error('补货总表尚未读取完成，请刷新后重试');
+  applyMasterRows(MASTER_ROWS);ioProg('')}
+ catch(e){console.error(e);status('本周数据解析失败：'+e.message,true);ioProg('')}}
 
 function resetAll(){LOCAL={sales:[],mapping:[],inventory:null,international:[],lingxing:[],names:{}};
  RAW=null;MAP=[];WEEKS=[];ITEMS=[];INTL=[];OWNERS=[];INVROWS=[];INV={};LX={};LXROWS=[];STORES=[];
