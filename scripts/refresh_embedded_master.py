@@ -13,9 +13,11 @@ def main() -> None:
     sheet = workbook[workbook.sheetnames[0]]
     rows = sheet.iter_rows(values_only=True)
     headers = [str(value or "").strip() for value in next(rows)]
+    wanted = ["MSKU", "ASIN", "父ASIN", "品名", "SKU", "FBA可售", "7日销量", "14日销量", "30日销量", "7日均销量", "14日均销量", "30日均销量", "负责人1（业绩归属人）"]
     master_rows = []
     for values in rows:
-        record = {headers[i]: values[i] for i in range(min(len(headers), len(values))) if headers[i]}
+        source = {headers[i]: values[i] for i in range(min(len(headers), len(values))) if headers[i]}
+        record = {field: source.get(field, "") for field in wanted}
         if str(record.get("ASIN") or "").strip():
             master_rows.append(record)
 
@@ -25,6 +27,7 @@ def main() -> None:
     if not match:
         raise RuntimeError("embedded data block not found")
     data = json.loads(match.group(2))
+    data["raw"] = {}
     data["masterRows"] = master_rows
     payload = json.dumps(data, ensure_ascii=True, separators=(",", ":"), default=str)
     html = html[: match.start()] + match.group(1) + payload + match.group(3) + html[match.end() :]
