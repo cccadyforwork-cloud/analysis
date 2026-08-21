@@ -185,16 +185,18 @@ function process(){
  LXROWS.forEach(r=>{if(!r.asin||!r.sku||!r.owner)return;const k=r.asin+'|'+r.sku;if(seenMap.has(k))return;seenMap.add(k);MAP.push({asin:r.asin,sku:r.sku,name:r.name,owner:r.owner,store:r.store||''})});
  const files=(RAW.sales||[]).slice();const wk=buildWeeks(files);WEEKS=wk.weeks;
  STORES=[...new Set(files.map(f=>f.store||'主店铺'))];
- const byAsin={};
+ const bySalesKey={};
  files.forEach(f=>{const wi=wk.idxOf.get(f);if(wi==null)return;const rows=csvRows(f.text),h=rows.shift()||[];
-  const ix={parent:colIndex(h,['父ASIN'],0),asin:colIndex(h,['子ASIN'],1),title:colIndex(h,['标题'],2),gv:colIndex(h,['会话数总计'],3),cvr:colIndex(h,['转化率总计'],5),pv:colIndex(h,['页面浏览量总计'],7),units:colIndex(h,['已订购商品数量'],13),sales:colIndex(h,['已订购商品销售额'],18)};
+  const ix={parent:colIndex(h,['父ASIN'],0),asin:colIndex(h,['子ASIN'],1),title:colIndex(h,['标题'],2),gv:colIndex(h,['会话数总计'],3),cvr:colIndex(h,['转化率总计'],5),pv:colIndex(h,['页面浏览量总计'],7),units:colIndex(h,['已订购商品数量'],13),sales:colIndex(h,['已订购商品销售额'],18),msku:colIndex(h,['MSKU'],-1)};
   rows.forEach(r=>{const asin=String(r[ix.asin]||'').trim().toUpperCase();if(!asin)return;
-   const a=byAsin[asin]||(byAsin[asin]={asin,store:f.store||'主店铺',parent:r[ix.parent]||'',title:r[ix.title]||'',w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cw:0}))});
+   const msku=ix.msku>=0?String(r[ix.msku]||'').trim():'',key=msku?'S|'+msku:'A|'+asin;
+   const a=bySalesKey[key]||(bySalesKey[key]={asin,msku,store:f.store||'主店铺',parent:r[ix.parent]||'',title:r[ix.title]||'',w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cw:0}))});
    const w=a.w[wi],gv=n(r[ix.gv]);w.gv+=gv;w.pv+=n(r[ix.pv]);w.units+=n(r[ix.units]);w.sales+=n(r[ix.sales]);w.cw+=pct(r[ix.cvr])*gv;if(!a.title)a.title=r[ix.title]||''})});
- Object.values(byAsin).forEach(a=>a.w.forEach(w=>{w.cvr=w.gv?w.cw/w.gv:0;w.asp=w.units?w.sales/w.units:0}));
- const mapByAsin={};MAP.forEach(m=>(mapByAsin[m.asin]=mapByAsin[m.asin]||[]).push(m));
- ITEMS=[];Object.values(byAsin).forEach(a=>{const mm=mapByAsin[a.asin]||[];mm.forEach(m=>ITEMS.push({...m,store:m.store||a.store,title:a.title||m.name,parent:a.parent,w:a.w,shared:mm.length>1}))});
- MAP.filter(m=>!byAsin[m.asin]).forEach(m=>ITEMS.push({...m,title:m.name,parent:'',w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cvr:0,asp:0})),shared:(mapByAsin[m.asin]||[]).length>1}));
+ Object.values(bySalesKey).forEach(a=>a.w.forEach(w=>{w.cvr=w.gv?w.cw/w.gv:0;w.asp=w.units?w.sales/w.units:0}));
+ const mapByAsin={},mapBySku={};MAP.forEach(m=>{(mapByAsin[m.asin]=mapByAsin[m.asin]||[]).push(m);(mapBySku[m.sku]=mapBySku[m.sku]||[]).push(m)});
+ const itemMap={};function addSales(m,a,shared){const k=(m.owner||'')+'|'+(m.sku||m.asin),x=itemMap[k]||(itemMap[k]={...m,store:m.store||a.store,title:a.title||m.name,parent:a.parent,w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cw:0,cvr:0,asp:0})),shared});a.w.forEach((w,i)=>{const z=x.w[i];z.gv+=w.gv||0;z.pv+=w.pv||0;z.units+=w.units||0;z.sales+=w.sales||0;z.cw+=w.cw||0;z.cvr=z.gv?z.cw/z.gv:0;z.asp=z.units?z.sales/z.units:0})}
+ Object.values(bySalesKey).forEach(a=>{const mm=(a.msku&&mapBySku[a.msku])||mapByAsin[a.asin]||[];mm.forEach(m=>addSales(m,a,mm.length>1))});
+ MAP.forEach(m=>{const k=(m.owner||'')+'|'+(m.sku||m.asin);if(!itemMap[k])itemMap[k]={...m,title:m.name,parent:'',w:WEEKS.map(()=>({gv:0,pv:0,units:0,sales:0,cvr:0,asp:0})),shared:(mapByAsin[m.asin]||[]).length>1}});ITEMS=Object.values(itemMap);
  INVROWS=RAW.inventory?.rows||[];INV=inventoryMap();processIntl();
  STORES=[...new Set(ITEMS.map(x=>x.store).filter(Boolean))].sort();
  OWNERS=[...new Set(MAP.map(x=>x.owner))].sort();buildSide();
@@ -237,7 +239,7 @@ function uniqAsin(rows){const m={};rows.forEach(x=>{if(!m[x.asin])m[x.asin]=x});
  function uniqSku(rows){const m={};rows.forEach(x=>{const key=(x.owner||'')+'|'+(x.sku||x.asin);if(!m[key])m[key]=x});return Object.values(m)}
  function sales30OfItem(x){const ownerKey=(x.owner||'')+'|'+(x.sku||'');const l=(x.sku&&(LXSKU[ownerKey]||LXSKU[x.sku]))||LX[x.asin];return l?l.s30||0:0}
 function lxCover(asin){const l=LX[asin];if(!l)return null;if(l.d7>0)return l.fba/l.d7;if(l.d30>0)return l.fba/l.d30;return null}
-function sumWeek(rows,wi){return uniqAsin(rows).reduce((a,x)=>{const w=x.w[wi]||{};a.gv+=w.gv||0;a.pv+=w.pv||0;a.units+=w.units||0;a.sales+=w.sales||0;return a},{gv:0,pv:0,units:0,sales:0})}
+function sumWeek(rows,wi){return uniqSku(rows).reduce((a,x)=>{const w=x.w[wi]||{};a.gv+=w.gv||0;a.pv+=w.pv||0;a.units+=w.units||0;a.sales+=w.sales||0;return a},{gv:0,pv:0,units:0,sales:0})}
  function sellThrough(rows,wi){const base=uniqSku(rows),st=base.filter(hasStock),act=st.filter(x=>sales30OfItem(x)>0);
   const soldNoStock=base.filter(x=>!hasStock(x)&&sales30OfItem(x)>0).length;
   return{rate:st.length?act.length/st.length:0,act:act.length,base:st.length,soldNoStock}}
@@ -734,20 +736,20 @@ async function parseLingxingFile(file){
  throw new Error(`${file.name} 中找不到 ASIN + FBA可售 表头`)}
 
 function weeklyRowsToCsv(rows){
- const h=['父ASIN','子ASIN','标题','会话数总计','','转化率总计','','页面浏览量总计','','','','','','已订购商品数量','','','','','已订购商品销售额'];
- return [h.map(csvQuote).join(',')].concat(rows.map(r=>[r.parent||r.asin,r.asin,r.name||'',0,'',0,'',0,'','','','','',r.units||0,'','','','','',r.sales||0].map(csvQuote).join(','))).join('\n')}
-function weeklyHeader(c){const f={};for(const k in c){const v=c[k];if(!f.asin&&eqh(v,'asin'))f.asin=k;else if(!f.parent&&hash(v,'父asin'))f.parent=k;else if(!f.name&&(hash(v,'品名')||hash(v,'商品名')))f.name=k;else if(!f.units&&eqh(v,'数量'))f.units=k;else if(!f.sales&&(hash(v,'销售额itemprice')||eqh(v,'销售额')))f.sales=k}return f}
+ const h=['父ASIN','子ASIN','标题','会话数总计','','转化率总计','','页面浏览量总计','','','','','','已订购商品数量','','','','','已订购商品销售额','MSKU'];
+ return [h.map(csvQuote).join(',')].concat(rows.map(r=>[r.parent||r.asin,r.asin,r.name||'',0,'',0,'',0,'','','','','',r.units||0,'','','','',r.sales||0,r.msku||''].map(csvQuote).join(','))).join('\n')}
+function weeklyHeader(c){const f={};for(const k in c){const v=c[k];if(!f.asin&&eqh(v,'asin'))f.asin=k;else if(!f.parent&&hash(v,'父asin'))f.parent=k;else if(!f.msku&&eqh(v,'msku'))f.msku=k;else if(!f.name&&(hash(v,'品名')||hash(v,'商品名')))f.name=k;else if(!f.units&&eqh(v,'数量'))f.units=k;else if(!f.sales&&(hash(v,'销售额itemprice')||eqh(v,'销售额')))f.sales=k}return f}
 async function parseWeeklyWorkbook(file){
  const ents=await zipEntries(file),ss=ents['xl/sharedStrings.xml']?parseSharedStrings(await entryText(file,ents['xl/sharedStrings.xml'])):[];
  for(const sp of sheetPaths(ents)){let C=null;const rows=[];
-  await streamSheet(file,ents[sp],ss,seg=>{const c=parseRowXml(seg,ss);if(!C){const f=weeklyHeader(c);if(f.asin&&f.units&&f.sales)C=f;return}const g=k=>C[k]?(c[C[k]]||''):'';const asin=String(g('asin')).trim().toUpperCase();if(asin)rows.push({asin,parent:g('parent'),name:g('name'),units:n(g('units')),sales:n(g('sales'))})},n=>ioProg(`解析周数据 ${file.name}：${n} 行`));
+  await streamSheet(file,ents[sp],ss,seg=>{const c=parseRowXml(seg,ss);if(!C){const f=weeklyHeader(c);if(f.asin&&f.units&&f.sales)C=f;return}const g=k=>C[k]?(c[C[k]]||''):'';const asin=String(g('asin')).trim().toUpperCase();if(asin)rows.push({asin,parent:g('parent'),msku:g('msku'),name:g('name'),units:n(g('units')),sales:n(g('sales'))})},n=>ioProg(`解析周数据 ${file.name}：${n} 行`));
   if(C)return{store:'全部店铺',name:file.name,text:weeklyRowsToCsv(rows)}}
  throw new Error(`${file.name} 中找不到 ASIN、数量、销售额(Item Price) 表头`)}
 async function parseWeeklyFile(file){
  if(/\.csv$/i.test(file.name)){const text=await file.text(),rows=csvRows(text),h=rows[0]||[];
   if(h.some(v=>hash(v,'已订购商品数量')))return{store:'全部店铺',name:file.name,text};
   const c={};h.forEach((v,i)=>c[String.fromCharCode(65+i)]=v);const C=weeklyHeader(c);if(!C.asin||!C.units||!C.sales)throw new Error(`${file.name} 中找不到 ASIN、数量、销售额表头`);
-  const idx=k=>C[k].charCodeAt(0)-65,data=rows.slice(1).map(r=>({asin:String(r[idx('asin')]||'').trim().toUpperCase(),parent:C.parent?r[idx('parent')]:'',name:C.name?r[idx('name')]:'',units:n(r[idx('units')]),sales:n(r[idx('sales')])})).filter(r=>r.asin);
+  const idx=k=>C[k].charCodeAt(0)-65,data=rows.slice(1).map(r=>({asin:String(r[idx('asin')]||'').trim().toUpperCase(),parent:C.parent?r[idx('parent')]:'',msku:C.msku?r[idx('msku')]:'',name:C.name?r[idx('name')]:'',units:n(r[idx('units')]),sales:n(r[idx('sales')])})).filter(r=>r.asin);
   return{store:'全部店铺',name:file.name,text:weeklyRowsToCsv(data)}}
  return parseWeeklyWorkbook(file)}
 

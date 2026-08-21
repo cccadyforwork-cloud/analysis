@@ -6,7 +6,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 
-HEADER = ["父ASIN", "子ASIN", "标题", "会话数总计", "", "转化率总计", "", "页面浏览量总计", "", "", "", "", "", "已订购商品数量", "", "", "", "", "已订购商品销售额"]
+HEADER = ["父ASIN", "子ASIN", "标题", "会话数总计", "", "转化率总计", "", "页面浏览量总计", "", "", "", "", "", "已订购商品数量", "", "", "", "", "已订购商品销售额", "MSKU"]
 
 
 def quote(value):
@@ -25,9 +25,10 @@ def normalize(path):
             if not asin:
                 continue
             name = values[indexes["品名"]] or ""
+            msku = values[indexes["MSKU"]] or ""
             units = values[indexes["数量"]] or 0
             sales = values[indexes["销售额(Item Price)"]] or 0
-            row = [asin, asin, name, 0, "", 0, "", 0, "", "", "", "", "", units, "", "", "", "", sales]
+            row = [asin, asin, name, 0, "", 0, "", 0, "", "", "", "", "", units, "", "", "", "", sales, msku]
             lines.append(",".join(quote(value) for value in row))
     finally:
         workbook.close()
