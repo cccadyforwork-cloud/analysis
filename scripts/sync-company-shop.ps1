@@ -1,5 +1,5 @@
 param(
-  [string]$Source = 'D:\桌面\WK34_原工具界面版_1比1.html',
+  [string]$Source = 'D:\桌面\GIT\店铺数据分析工具\analysis\WK34_原工具界面版_1比1.html',
   [string]$CompanyRoot = 'D:\桌面\GIT\公司\Company-'
 )
 
