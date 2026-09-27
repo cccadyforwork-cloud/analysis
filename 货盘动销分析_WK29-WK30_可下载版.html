@@ -2322,35 +2322,101 @@ function makeInventoryReportData(curText,prevText,curLabel,prevLabel){
   }
   return LAST_BASE_DATA || EMBEDDED_DATA;
 }
+function hasCnText(s){ return /[\u4e00-\u9fff]/.test(String(s||'')); }
+function compactCnName(parts){
+  var out=[];
+  parts.forEach(function(p){
+    p=String(p||'').trim();
+    if(p && out.indexOf(p)<0) out.push(p);
+  });
+  return out.join('');
+}
+function fallbackCnFromEnglish(title){
+  var lead=String(title||'').split(/[,，;；|]/)[0].toLowerCase();
+  var words=[
+    ['indoor','室内'],['outdoor','户外'],['decorative','装饰'],['mini','迷你'],['transparent','透明'],
+    ['gradient','渐变'],['square','方形'],['round','圆形'],['green','绿色'],['pink','粉色'],
+    ['white','白色'],['black','黑色'],['brown','棕色'],['aurora','极光'],['plant','植物'],
+    ['gardening','园艺'],['floral','花艺'],['bouquet','花束'],['gift','礼品'],['packaging','包装'],
+    ['diy','DIY'],['craft','手工'],['office','办公'],['kitchen','厨房'],['travel','旅行'],
+    ['portable','便携'],['reusable','可重复使用'],['adjustable','可调节'],['leak proof','防漏'],
+    ['mat','垫'],['pad','垫'],['bottle','瓶'],['holder','收纳架'],['organizer','收纳盒'],
+    ['ribbon','丝带'],['trim','装饰带'],['strap','挂绳'],['lanyard','挂绳'],['hook','挂钩'],
+    ['brush','刷'],['shoes','鞋'],['socks','袜'],['bag','包'],['pouch','收纳袋'],
+    ['cup','杯'],['toy','玩具'],['sticker','贴纸'],['decal','贴纸'],['tool','工具']
+  ];
+  var picked=[];
+  words.forEach(function(pair){
+    if(picked.length>=4) return;
+    if(new RegExp('\\b'+pair[0].replace(/\s+/g,'\\s+')+'\\b').test(lead) && picked.indexOf(pair[1])<0) picked.push(pair[1]);
+  });
+  if(picked.length) return compactCnName(picked);
+  return '未命名商品';
+}
 function simpleCnTitle(title,product){
-  var t=String(title||product||'').toLowerCase();
-  var rules=[
+  var productText=String(product||'').trim();
+  if(productText) return productText;
+  var raw=String(title||product||'').trim();
+  if(!raw) return '未命名商品';
+  var t=raw.toLowerCase();
+  var lead=raw.split(/[,，;；|]/)[0].toLowerCase();
+  var attrs=[];
+  if(/indoor|garden|gardening|plant|potting|repotting|transplanting/.test(t)) attrs.push('园艺');
+  if(/car|auto|dashboard|air vent|console|seat/.test(t)) attrs.push('汽车');
+  if(/kitchen|pantry|refrigerator|fridge|coffee/.test(t)) attrs.push('厨房');
+  if(/travel|portable|beach|pool|gym/.test(t)) attrs.push('便携');
+  if(/kids|baby|pet|dog|cat/.test(t)) attrs.push(/cat/.test(t)?'猫咪':(/dog|pet/.test(t)?'宠物':'儿童'));
+  if(/\b(waterproof|water proof|aqua|swim|beach|pool|surf)\b/.test(t)) attrs.push('防水');
+  if(/magnetic|magnet/.test(t)) attrs.push('磁吸');
+  if(/foldable|folding|telescoping|reusable|adjustable/.test(t)) attrs.push('可调便携');
+  if(/pink|rose/.test(t)) attrs.push('粉色');
+  else if(/green/.test(t)) attrs.push('绿色');
+  else if(/white/.test(t)) attrs.push('白色');
+  else if(/black/.test(t)) attrs.push('黑色');
+  var phrases=[
+    [/repotting mat|potting mat|transplanting pad|potting work surface/,'换盆垫'],
+    [/fishtail ribbon|ribbon trim|bouquet wrap|floral wrap|wrap tie/,'花艺包装丝带'],
+    [/protein shaker|shaker bottle|mixer cup/,'摇摇杯'],
+    [/refrigerator magnet holder|magnet holder|magnetic.*holder/,'磁吸收纳夹'],
     [/rust remover|limescale|stain.*eraser|cleaning eraser/,'除锈除垢清洁擦'],
     [/cell phone strap|phone charm|wrist lanyard|beaded.*phone|bead.*lanyard/,'手机珠链挂绳'],
-    [/plant hook|loop tape|garden plant tie|plant tie strap/,'园艺魔术扎带'],
-    [/car interior|dashboard|air vents|microfiber bristles/,'汽车内饰清洁刷'],
-    [/water shoes|aqua socks|beach shoes|swim shoes|river shoes|pool shoes|surf shoes/,'速干防滑涉水鞋'],
-    [/flip flops|slippers|sandals/,'折叠便携拖鞋'],
-    [/keychain|key chain|key ring/,'钥匙扣挂饰'],
-    [/paint brush|stain brush/,'家装油漆刷'],
-    [/cotton swabs|cotton buds/,'木棒双头棉签'],
-    [/mesh beach tote|tote bag|storage bag|cosmetic pouch/,'便携收纳袋'],
-    [/socks/,'透气短袜'],
-    [/bracelet|rhinestone|crystal/,'水钻手链'],
-    [/headband/,'洗脸发带'],
-    [/dog rope|dog toy|pet toy|chew toy/,'宠物玩具'],
-    [/coffee scoop|coffee/,'咖啡量勺'],
+    [/plant hook|loop tape|garden plant tie|plant tie strap/,'植物绑带'],
+    [/car interior|dashboard|air vents|microfiber bristles/,'内饰清洁刷'],
+    [/water shoes|aqua socks|beach shoes|swim shoes|river shoes|pool shoes|surf shoes/,'涉水鞋'],
+    [/flip flops|slippers|sandals/,'拖鞋'],
+    [/keychain|key chain|key ring/,'钥匙扣'],
+    [/paint brush|stain brush/,'油漆刷'],
+    [/cotton swabs|cotton buds/,'棉签'],
+    [/mesh beach tote|tote bag|storage bag|cosmetic pouch/,'收纳袋'],
+    [/socks/,'短袜'],
+    [/bracelet|rhinestone|crystal/,'手链'],
+    [/headband/,'发带'],
+    [/catnip ball|cat toy|dog rope|dog toy|pet toy|chew toy/,'玩具'],
+    [/coffee scoop|coffee spoon/,'咖啡量勺'],
     [/bottle brush|cleaning brush|shoe brush/,'清洁刷'],
-    [/hair brush|comb/,'便携梳子'],
-    [/eyeglasses|sunglasses|glasses/,'眼镜收纳配件'],
-    [/tongs/,'厨房夹'],
-    [/whisk/,'厨房打蛋器'],
-    [/label roll|pantry label/,'收纳标签贴'],
-    [/placemat|table mat|coaster/,'桌垫杯垫'],
+    [/hair brush|comb/,'梳子'],
+    [/eyeglasses|sunglasses|glasses/,'眼镜配件'],
+    [/tongs/,'夹子'],
+    [/whisk/,'打蛋器'],
+    [/label roll|pantry label|sticker|decal/,'标签贴'],
+    [/placemat|table mat|coaster/,'桌垫'],
     [/wrench|repair tool/,'维修工具']
   ];
-  for(var i=0;i<rules.length;i++){ if(rules[i][0].test(t)) return rules[i][1]; }
-  return '商品标题待归类';
+  for(var i=0;i<phrases.length;i++){
+    if(phrases[i][0].test(t)) return compactCnName(attrs.concat([phrases[i][1]]));
+  }
+  var words=[
+    ['mat','垫'],['pad','垫'],['bottle','瓶'],['holder','收纳架'],['organizer','收纳盒'],
+    ['ribbon','丝带'],['trim','装饰带'],['strap','挂绳'],['lanyard','挂绳'],['hook','挂钩'],
+    ['brush','刷'],['shoes','鞋'],['socks','袜'],['bag','包'],['pouch','收纳袋'],
+    ['cup','杯'],['toy','玩具'],['sticker','贴纸'],['decal','贴纸'],['tool','工具']
+  ];
+  for(var j=0;j<words.length;j++){
+    if(new RegExp('\\b'+words[j][0]+'\\b').test(lead) || new RegExp('\\b'+words[j][0]+'\\b').test(t)){
+      return compactCnName(attrs.concat([words[j][1]]));
+    }
+  }
+  return fallbackCnFromEnglish(raw);
 }
 function buildInventoryRows(listingMap,reportData){
   var reportByAsin={};
