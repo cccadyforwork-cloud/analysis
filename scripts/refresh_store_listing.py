@@ -51,12 +51,14 @@ def listing_rows(workbook):
             raise ValueError(f"Invalid 7日销量 on row {number}: {asin}") from exc
         if not math.isfinite(sales7) or sales7 < 0:
             raise ValueError(f"Invalid 7日销量 on row {number}: {asin}")
+        msku = str(row["MSKU"] or "").strip()
+        source_owner = str(row["负责人1（业绩归属人）"] or "").strip()
         rows[asin] = {
             "i": int(stock) if stock.is_integer() else stock,
             "d7": int(sales7) if sales7.is_integer() else sales7,
-            "o": str(row["负责人1（业绩归属人）"] or "").strip(),
+            "o": "cccady" if msku.upper().startswith("TTCA") else source_owner,
             "n": str(row["品名"] or "").strip(),
-            "m": str(row["MSKU"] or "").strip(),
+            "m": msku,
             "p": str(row["父ASIN"] or "").strip().upper(),
         }
     return rows
@@ -75,7 +77,6 @@ def main():
     parser.add_argument("workbook", type=Path)
     parser.add_argument("--html", type=Path, default=DEFAULT_HTML)
     parser.add_argument("--store-id", default="1店")
-    parser.add_argument("--marketplace", default="")
     parser.add_argument("--date", help="Listing snapshot date YYYY-MM-DD; inferred from filename by default")
     args = parser.parse_args()
 
@@ -85,14 +86,14 @@ def main():
         raise ValueError("Specify --date YYYY-MM-DD")
     html = args.html.read_text(encoding="utf-8")
     report = embedded(html, "OPS_SEED_REPORT")
-    if (report["storeId"], report.get("marketplace", "")) != (args.store_id, args.marketplace):
+    if (report["storeId"], report.get("marketplace", "US")) != (args.store_id, "US"):
         raise ValueError("The embedded Business Report has a different store or marketplace")
     names = embedded(html, "PRODUCT_NAMES")
     listings = embedded(html, "OPS_STORE_LISTINGS")
     rows = listing_rows(args.workbook)
-    scope = json.dumps([args.store_id, args.marketplace], ensure_ascii=False, separators=(",", ":"))
+    scope = json.dumps([args.store_id, "US"], ensure_ascii=False, separators=(",", ":"))
     listings[scope] = {"name": args.workbook.name, "date": date, "storeId": args.store_id,
-                       "marketplace": args.marketplace, "rows": rows}
+                       "marketplace": "US", "rows": rows}
     payload = json.dumps(listings, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     pattern = r"^var OPS_STORE_LISTINGS=\{.*\};$"
     if not re.search(pattern, html, flags=re.M):
@@ -146,9 +147,9 @@ def main():
                                       else -item[1]["sessions"], item[1]["asin"]))
     candidate_path = ROOT / "reports" / f"{args.store_id}_运营候选_{report['periodStart']}_{report['periodEnd']}.csv"
     write_csv(candidate_path,
-              ["优化路径", "店铺", "站点", "负责人（本店Listing）", "ASIN", "品名", "父ASIN", "近31天Sessions",
+              ["优化路径", "店铺", "负责人（本店Listing）", "ASIN", "品名", "父ASIN", "近31天Sessions",
                "近31天GV", "近31天Units", "Units/Sessions", f"本店FBA可售({date})", "判断与下一步", "报告周期"],
-              ([strategy, args.store_id, args.marketplace or "未指定", listing["o"] or "未分配", business["asin"],
+              ([strategy, args.store_id, listing["o"] or "未分配", business["asin"],
                 listing["n"] or names.get(business["asin"], business.get("title", "")), listing["p"],
                 business["sessions"], business["gv"], business["units"],
                 f"{business['units'] / business['sessions']:.2%}" if business["sessions"] else "",

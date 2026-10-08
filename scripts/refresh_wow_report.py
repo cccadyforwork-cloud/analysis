@@ -81,7 +81,6 @@ def main():
     parser.add_argument("--current-start", required=True)
     parser.add_argument("--current-end", required=True)
     parser.add_argument("--store-id", default="1店")
-    parser.add_argument("--marketplace", default="")
     args = parser.parse_args()
     previous_start, previous_end = date.fromisoformat(args.previous_start), date.fromisoformat(args.previous_end)
     current_start, current_end = date.fromisoformat(args.current_start), date.fromisoformat(args.current_end)
@@ -89,7 +88,7 @@ def main():
         raise ValueError("Periods must be ordered, nonoverlapping, and have the same number of days")
     previous, current = report(args.previous), report(args.current)
     html = args.html.read_text(encoding="utf-8")
-    scope = json.dumps([args.store_id, args.marketplace], ensure_ascii=False, separators=(",", ":"))
+    scope = json.dumps([args.store_id, "US"], ensure_ascii=False, separators=(",", ":"))
     listing = embedded(html, "OPS_STORE_LISTINGS").get(scope)
     if not listing:
         raise ValueError(f"No embedded Listing for {scope}")
@@ -111,7 +110,7 @@ def main():
     payload = {"curLabel": current_label, "prevLabel": previous_label,
                "curActive": len(cur_asins), "prevActive": len(prev_asins),
                "curAsins": cur_asins, "prevAsins": prev_asins, "records": records,
-               "savedDate": date.today().isoformat(), "storeId": args.store_id, "marketplace": args.marketplace,
+               "savedDate": date.today().isoformat(), "storeId": args.store_id, "marketplace": "US",
                "listingDate": listing["date"], "sourceFiles": [args.previous.name, args.current.name],
                "excludedPrev": len(previous) - len(prev_asins), "excludedCur": len(current) - len(cur_asins),
                "periodStartPrev": str(previous_start), "periodEndPrev": str(previous_end),
