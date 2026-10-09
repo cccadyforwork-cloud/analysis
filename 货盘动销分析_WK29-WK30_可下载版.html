@@ -2166,8 +2166,8 @@ table.inventory-detail td:nth-child(3){text-align:left}
 <style id="theme-ui">
 :root{--hz-soft-purple:#f3f0ff}
 .hero{
-  position:relative;display:flex;align-items:center;min-height:210px;margin-bottom:18px;
-  padding:28px 34px;overflow:hidden;border:1px solid rgba(179,196,255,.18);border-radius:24px;
+  position:relative;display:flex;align-items:center;min-height:116px;margin-bottom:14px;
+  padding:17px 24px;overflow:hidden;border:1px solid rgba(179,196,255,.18);border-radius:24px;
   background:radial-gradient(circle at 77% 23%,rgba(113,87,236,.32),transparent 31%),
     radial-gradient(circle at 96% 92%,rgba(41,167,175,.18),transparent 35%),
     linear-gradient(115deg,#101a35,#1c2348 58%,#142b43);
@@ -2179,7 +2179,7 @@ table.inventory-detail td:nth-child(3){text-align:left}
   background-size:36px 36px;mask-image:linear-gradient(90deg,transparent 25%,#000 100%);
 }
 .hero-copy{position:relative;z-index:2;max-width:860px}
-.hero h1{display:flex;align-items:center;gap:12px;margin:0 0 9px;color:#f6f8ff;font-size:1.8rem;line-height:1.25}
+.hero h1{display:flex;align-items:center;gap:12px;margin:0;color:#f6f8ff;font-size:1.8rem;line-height:1.25}
 .hero h1::before{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;color:#fff;background:linear-gradient(145deg,#9479ff,#5744d5);content:"✦";box-shadow:0 10px 24px rgba(111,82,232,.4);font-size:18px}
 .hero h1 span{margin-left:4px;color:#b8c7e4;font-size:.84rem;font-weight:550}
 .hero .sub{margin:0 0 22px 54px;color:#c2d0e7;font-size:.86rem}
@@ -2187,13 +2187,13 @@ table.inventory-detail td:nth-child(3){text-align:left}
 .hero .purpose-strip b{color:#eaf0ff}
 .hero .purpose-strip i{color:#8395c3}
 .hero .purpose-kicker{color:#e0d6ff;background:rgba(151,126,255,.2)}
-.hero-chart{position:absolute;z-index:1;right:44px;bottom:4px;width:min(30%,360px);height:auto;filter:drop-shadow(0 12px 22px rgba(95,235,202,.11))}
+.hero-chart{position:absolute;z-index:1;right:140px;bottom:0;width:min(20%,190px);height:auto;filter:drop-shadow(0 12px 22px rgba(95,235,202,.11))}
 .theme-switch{position:absolute;z-index:3;top:20px;right:22px;display:inline-flex;gap:3px;padding:4px;border:1px solid rgba(212,221,255,.2);border-radius:999px;background:rgba(4,11,30,.36);backdrop-filter:blur(10px)}
 .theme-switch button{min-height:31px;padding:5px 12px;border:0;border-radius:999px;color:#d9e2f5;background:transparent;font:700 .74rem/1 inherit;cursor:pointer}
 .theme-switch button[aria-pressed="true"]{color:#192344;background:#f5f7ff;box-shadow:0 2px 9px rgba(0,0,0,.18)}
 .theme-switch button:focus-visible{outline:2px solid #8ee6cf;outline-offset:2px}
 @media(max-width:1100px){.hero-chart{opacity:.42}}
-@media(max-width:820px){.hero-chart{display:none}.hero{min-height:0;padding:25px 22px 72px}.theme-switch{top:auto;right:auto;bottom:18px;left:22px}.hero h1{font-size:1.4rem;flex-wrap:wrap}.hero .sub,.hero .purpose-strip{margin-left:0}}
+@media(max-width:820px){.hero-chart{display:none}.hero{min-height:92px;padding:16px 20px}.theme-switch{top:15px;right:18px;bottom:auto;left:auto}.hero h1{font-size:1.4rem;flex-wrap:wrap}.hero .sub,.hero .purpose-strip{margin-left:0}}
 @media(max-width:700px){.hero{border-radius:18px}.hero h1::before{width:34px;height:34px}}
 
 html[data-theme="dark"]{
@@ -2230,12 +2230,6 @@ html[data-theme="dark"] .ops-btn:hover{filter:brightness(1.13)}
 <header class="hero">
   <div class="hero-copy">
     <h1>货盘动销分析</h1>
-    <p class="sub">从 Amazon 业务报告发现需要优化的 ASIN，按店铺和负责人筛选，并查看后续数据变化。</p>
-    <div class="purpose-strip">
-      <span class="purpose-kicker">工具目的</span>
-      <b>回答 4 个问题：</b>
-      <span>哪里出了问题</span><i>→</i><span>谁来处理</span><i>→</i><span>具体做什么</span><i>→</i><span>效果如何</span>
-    </div>
   </div>
   <svg class="hero-chart" viewBox="0 0 360 190" fill="none" aria-hidden="true">
     <path d="M18 156H342M18 112H342M18 68H342M18 24H342" stroke="white" stroke-opacity=".11"/>
