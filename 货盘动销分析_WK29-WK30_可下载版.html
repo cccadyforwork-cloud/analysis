@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:,">
-<title>货盘动销分析 · 数据诊断与运营行动</title>
+<title>货盘动销分析</title>
 <script>
 try{document.documentElement.dataset.theme=localStorage.getItem('analysis_theme_v1')==='dark'?'dark':'light';}
 catch(e){document.documentElement.dataset.theme='light';}
@@ -192,9 +192,10 @@ body > .sub{
   position:relative;
   z-index:30;
   top:auto;
-  display:inline-flex;
-  width:auto;
-  max-width:none;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));
+  width:100%;
+  max-width:100%;
   gap:4px;
   margin-bottom:20px;
   padding:6px;
@@ -206,6 +207,7 @@ body > .sub{
 }
 
 .tab{
+  min-width:0;
   min-height:42px;
   margin:0;
   padding:10px 19px;
@@ -214,6 +216,7 @@ body > .sub{
   color:var(--hz-muted);
   background:transparent;
   font-size:.88rem;
+  white-space:normal;
   font-weight:650;
   transition:color .2s ease,background-color .2s ease,box-shadow .2s ease,transform .2s ease;
 }
@@ -1045,7 +1048,7 @@ table.wk{
   body > h1::before{width:36px;height:36px;font-size:15px}
   body > h1 span{display:block;font-size:.69rem!important}
   body > .sub{margin-bottom:16px;padding-left:46px;font-size:.74rem}
-  .tabbar{display:grid;width:100%;grid-template-columns:1fr 1fr 1fr}
+  .tabbar{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))}
   .tab{padding:8px 10px;font-size:.8rem}
   .up-panel{padding:18px 15px}
   .up-row{grid-template-columns:1fr}
@@ -2190,8 +2193,8 @@ table.inventory-detail td:nth-child(3){text-align:left}
 .theme-switch button[aria-pressed="true"]{color:#192344;background:#f5f7ff;box-shadow:0 2px 9px rgba(0,0,0,.18)}
 .theme-switch button:focus-visible{outline:2px solid #8ee6cf;outline-offset:2px}
 @media(max-width:1100px){.hero-chart{opacity:.42}}
-@media(max-width:820px){.hero-chart{display:none}.hero{min-height:0;padding:25px 22px 72px}.theme-switch{top:auto;right:auto;bottom:18px;left:22px}.hero h1{font-size:1.4rem;flex-wrap:wrap}.hero h1 span{margin-left:0}.hero .sub,.hero .purpose-strip{margin-left:0}.tabbar{flex-wrap:wrap}}
-@media(max-width:700px){.hero{border-radius:18px}.hero h1::before{width:34px;height:34px}.tabbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:820px){.hero-chart{display:none}.hero{min-height:0;padding:25px 22px 72px}.theme-switch{top:auto;right:auto;bottom:18px;left:22px}.hero h1{font-size:1.4rem;flex-wrap:wrap}.hero .sub,.hero .purpose-strip{margin-left:0}}
+@media(max-width:700px){.hero{border-radius:18px}.hero h1::before{width:34px;height:34px}}
 
 html[data-theme="dark"]{
   color-scheme:dark;
@@ -2226,7 +2229,7 @@ html[data-theme="dark"] .ops-btn:hover{filter:brightness(1.13)}
 <body>
 <header class="hero">
   <div class="hero-copy">
-    <h1>货盘动销分析 <span>数据诊断 · 运营行动 · 效果复盘</span></h1>
+    <h1>货盘动销分析</h1>
     <p class="sub">从 Amazon 业务报告发现需要优化的 ASIN，按店铺和负责人筛选，并查看后续数据变化。</p>
     <div class="purpose-strip">
       <span class="purpose-kicker">工具目的</span>
@@ -4587,9 +4590,15 @@ var OPS_OPTIMIZATION_MATCHES=[],OPS_OPTIMIZATION_RUN='',OPS_OPTIMIZATION_ROUTE='
 function opsRouteLabel(route){return route==='add_variant'?'加变体':'加入链接优化';}
 function opsOptimizationChoice(){
   var choice=OPS_OPTIMIZATION_MATCHES[Number(opsEl('opsOptimizationMsku').value)];
-  opsEl('opsOptimizationSave').textContent=choice&&choice.existing_case_id?'打开已有优化':'确认加入';
+  var button=opsEl('opsOptimizationSave');
+  delete button.dataset.replaceExistingRoute;
+  delete button.dataset.blocked;
+  button.disabled=false;
+  button.textContent=choice&&choice.existing_case_id?(choice.existing_optimization_route===OPS_OPTIMIZATION_ROUTE?'打开已有优化':'核对已有路线'):'确认'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE);
   if(choice){opsEl('opsOptimizationMessage').textContent=choice.existing_case_id?
-    ('该 MSKU 已选择「'+opsRouteLabel(choice.existing_optimization_route)+'」，将打开已有任务。'):
+    (choice.existing_optimization_route===OPS_OPTIMIZATION_ROUTE?
+      '该 MSKU 已加入当前路线，点击后打开已有任务。':
+      '该 MSKU 已加入「'+opsRouteLabel(choice.existing_optimization_route)+'」。当前选择的是「'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE)+'」，需要核对后才能更改。'):
     ('将按「'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE)+'」归入原链接 '+(choice.parent_asin||choice.listing_asin)+' 的链接项目；同一链接的其他可售 MSKU 会显示在项目中。');}
 }
 async function opsOpenOptimization(asin,strategy,route,msku){
@@ -4623,21 +4632,37 @@ async function opsSaveOptimization(){
   var actor=opsEl('opsOptimizationActor').value.trim();
   var button=opsEl('opsOptimizationSave');
   if(!choice||!actor){opsEl('opsOptimizationMessage').textContent='请选择完整 MSKU 并填写操作人。';return;}
+  var replacing=button.dataset.replaceExistingRoute==='1',result=null;
   button.disabled=true;
+  button.textContent=replacing?'正在更改路线…':'正在核对并保存…';
+  opsEl('opsOptimizationMessage').textContent=replacing?'正在确认原任务仍未开始实际操作，并更改路线…':'正在保存所选 MSKU 和优化路线…';
   try{
-    var caseId=choice.existing_case_id;
-    if(!caseId){
-      var response=await fetch('/api/s5/optimization-cases',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({run_id:OPS_OPTIMIZATION_RUN,candidate_key:choice.candidate_key,msku:choice.msku,actor:actor,optimization_route:OPS_OPTIMIZATION_ROUTE})});
-      var result=await response.json();
-      if(!response.ok)throw new Error(result.error||'加入失败');
-      caseId=result.case_id;
+    var response=await fetch('/api/s5/optimization-cases',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({run_id:OPS_OPTIMIZATION_RUN,candidate_key:choice.candidate_key,msku:choice.msku,actor:actor,optimization_route:OPS_OPTIMIZATION_ROUTE,replace_existing_route:replacing})});
+    result=await response.json();
+    if(result.route_conflict){
+      if(result.can_switch){
+        button.dataset.replaceExistingRoute='1';
+        button.textContent='确认改为'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE);
+        opsEl('opsOptimizationMessage').textContent='这条 SKU 已有「'+opsRouteLabel(result.existing_route)+'」任务。确认后将同一任务改为「'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE)+'」，待处理链接中的路线也会同步更新；项目资料会保留。';
+      }else{
+        button.textContent='无法直接更改路线';
+        opsEl('opsOptimizationMessage').textContent='这条 SKU 的「'+opsRouteLabel(result.existing_route)+'」任务已有实际记录，不能直接改为「'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE)+'」。请打开已有任务核对。';
+        button.dataset.blocked='1';
+      }
+      return;
     }
+    if(!response.ok||!result.ok)throw new Error(result.error||'加入失败');
+    var caseId=result.case_id;
     opsEl('opsOptimizationDialog').close();
-    opsMessage(choice.msku+' 已按「'+opsRouteLabel(choice.existing_optimization_route||OPS_OPTIMIZATION_ROUTE)+'」归入原链接 '+(choice.parent_asin||choice.listing_asin)+' 的链接项目。');
-    if(window.parent!==window)window.parent.postMessage({type:'store-ops-open-optimization',caseId:caseId},window.location.origin);
+    opsMessage((result.already_existed?'该 SKU 已在待处理链接：':'已加入待处理链接：')+choice.msku+' · '+opsRouteLabel(OPS_OPTIMIZATION_ROUTE)+'。');
+    if(window.parent!==window)window.parent.postMessage({type:'store-ops-open-optimization',caseId:caseId,storeId:opsStoreId(),route:OPS_OPTIMIZATION_ROUTE,routeChanged:!!result.route_changed,alreadyExisted:!!result.already_existed},window.location.origin);
     else window.location.assign('/?view=optimization&case_id='+encodeURIComponent(caseId));
-  }catch(error){opsEl('opsOptimizationMessage').textContent='加入失败：'+error.message;}
-  finally{button.disabled=false;}
+  }catch(error){opsEl('opsOptimizationMessage').textContent='保存失败：'+error.message;}
+  finally{
+    button.disabled=button.dataset.blocked==='1';
+    if(button.dataset.replaceExistingRoute==='1')button.textContent='确认改为'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE);
+    else if(button.dataset.blocked!=='1')button.textContent=choice.existing_case_id?'打开已有优化':'确认'+opsRouteLabel(OPS_OPTIMIZATION_ROUTE);
+  }
 }
 opsEl('opsOptimizationMsku').addEventListener('change',opsOptimizationChoice);
 opsEl('opsCandidates').addEventListener('click',function(event){
